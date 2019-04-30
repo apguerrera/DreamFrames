@@ -1,0 +1,11 @@
+.DS_Store
+.project
+.settings
+.ipynb_checkpoints
+testchain/geth/*
+testchain/geth.ipc
+testchain/history
+private
+*.pyc
+build
+node_modules
