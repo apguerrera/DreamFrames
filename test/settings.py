@@ -20,3 +20,9 @@ MKR_PRICE_PATH = 'DreamFramesToken/MakerDAOETHUSDPriceFeedSimulator.sol'
 MKR_PRICE_NAME = 'MakerDAOETHUSDPriceFeedSimulator'
 PRICE_FEED_PATH = 'DreamFramesToken/MakerDAOPriceFeedAdaptor.sol'
 PRICE_FEED_NAME = 'MakerDAOPriceFeedAdaptor'
+
+# Contract variables
+decimals = 18
+frame_usd = 89 * (10 ** decimals)
+soft_cap_usd = 2500000;
+hard_cap_usd = 8500000;

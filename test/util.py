@@ -15,31 +15,9 @@ SOLC_VERSION = 'v0.5.4'
 accounts = []
 accountNames = {}
 
-def addAccount(account, accountName):
-    accounts.append(account)
-    accountNames[account] = accountName
-
-def print_break(msgToPrint):
-    print('-' * 30)
-    print(msgToPrint)
-    print('-' * 30)
-
-
-
-# check that event is emitted correctly
-def check_event(contract, tx_hash, event, expected_response=None):
-    if expected_response is None:
-        expected_response = {}
-    events = wait_event(contract, tx_hash, event)
-    assert len(events) == 1, wrong('number of {} events emitted'.format(event), len(events), 1)
-
-    if expected_response is not None:
-        args = events[0]['args']
-        for key in expected_response:
-            assert expected_response.get(key, None) is not None, 'no "{}" field in event args'.format(key)
-            expected = expected_response[key]
-            assert args[key] == expected, wrong('"{}" field in {} event'.format(key, event), args[key], expected)
-
+#--------------------------------------------------------------
+#  Web3 Connection
+#--------------------------------------------------------------
 
 # check that there is connection to ethereum node
 def test_w3_connected(w3):
@@ -47,6 +25,63 @@ def test_w3_connected(w3):
     assert w3.isConnected(), 'not connected to ethereum node'
     print('SUCCESS')
 
+
+#--------------------------------------------------------------
+#  Transactions
+#--------------------------------------------------------------
+
+# transact from sender to receiver, amount in wei
+def transact(w3, sender, receiver, amount):
+    tx_hash = w3.eth.sendTransaction({'from': sender, 'to': receiver, 'value': amount})
+    return tx_hash
+
+
+#--------------------------------------------------------------
+#  Account Functions
+#--------------------------------------------------------------
+
+def addAccount(account, accountName):
+    accounts.append(account)
+    accountNames[account] = accountName
+
+
+# unlock web3 account, set duration to None to remain it unlocked indefinitely
+def unlock_account(w3, account, password, duration):
+    w3.personal.unlockAccount(account, password, duration)
+
+
+# unlock every account in list of accounts, fund every account that is not miner
+def unlock_and_fund_accounts(w3, accounts, password, miner, amount, duration=None):
+    tx_hashes = []
+    for account in accounts:
+        unlock_account(w3, account, password, duration)
+        if w3.eth.getBalance(account) < amount and account != miner:
+            tx_hash = transact(w3, miner, account, amount)
+            tx_hashes.append(tx_hash)
+
+    for tx_hash in tx_hashes:
+        w3.eth.waitForTransactionReceipt(tx_hash)
+
+
+# decrypt keystore file and return account
+def account_from_key(w3, key_path, passphrase):
+    with open(key_path) as key_file:
+        key_json = key_file.read()
+    private_key = w3.eth.account.decrypt(key_json, passphrase)
+    account = w3.eth.account.privateKeyToAccount(private_key)
+    return account
+
+
+def deposit_eth(w3,contract, sender, amount):
+    print('Deposit crowdsale ETH: ', end='')
+    tx_hash = transact(w3, sender, contract.address, amount)
+    print(tx_hash)
+    print('SUCCESS')
+
+
+#--------------------------------------------------------------
+#  Deployment
+#--------------------------------------------------------------
 
 # test that contract is deployed correctly
 def test_deploy(w3, account, path, name, args=()):
@@ -85,10 +120,6 @@ def test_deploy_fail(w3, account, path, name, args=()):
     print('deploy transaction reverted: SUCCESS')
 
 
-def wrong(subject, got, expected):
-    return 'wrong {}, expected: {}, got: {}'.format(subject, expected, got)
-
-
 # check if function reverts
 def reverts(func, args=()):
     try:
@@ -106,61 +137,9 @@ def reverts(func, args=()):
     return False
 
 
-# unlock web3 account, set duration to None to remain it unlocked indefinitely
-def unlock_account(w3, account, password, duration):
-    w3.personal.unlockAccount(account, password, duration)
-
-
-# transact from sender to receiver, amount in wei
-def transact(w3, sender, receiver, amount):
-    tx_hash = w3.eth.sendTransaction({'from': sender, 'to': receiver, 'value': amount})
-    return tx_hash
-
-
-# unlock every account in list of accounts, fund every account that is not miner
-def unlock_and_fund_accounts(w3, accounts, password, miner, amount, duration=None):
-    tx_hashes = []
-    for account in accounts:
-        unlock_account(w3, account, password, duration)
-        if w3.eth.getBalance(account) < amount and account != miner:
-            tx_hash = transact(w3, miner, account, amount)
-            tx_hashes.append(tx_hash)
-
-    for tx_hash in tx_hashes:
-        w3.eth.waitForTransactionReceipt(tx_hash)
-
-
-# make address shorter, e.g 0x66bc8ccB23271187a13B9e41572aA0e749cf905B => 0x66bc...905B
-def short_address(address):
-    return '{}...{}'.format(address[:6], address[-4:])
-
-
-# make all addresses shorter recursively, possible to add more formatting features
-def prettify_args(args):
-    res = []
-    for arg in args:
-        if type(arg) == list or type(arg) == tuple:
-            res.append(prettify_args(arg))
-        elif Web3.isAddress(arg):
-            res.append('{}...{}'.format(arg[:6], arg[-4:]))
-        else:
-            res.append(arg)
-    return res
-
-
-# run command in terminal
-def run_cmd(command):
-    return subprocess.run(command, shell=True, stderr=subprocess.PIPE)
-
-
-# decrypt keystore file and return account
-def account_from_key(w3, key_path, passphrase):
-    with open(key_path) as key_file:
-        key_json = key_file.read()
-    private_key = w3.eth.account.decrypt(key_json, passphrase)
-    account = w3.eth.account.privateKeyToAccount(private_key)
-    return account
-
+#--------------------------------------------------------------
+#  Contracts
+#--------------------------------------------------------------
 
 # compile contract using solcx and return contract interface
 def compile_contract(path, name, contract_root):
@@ -207,11 +186,13 @@ def wait_contract_info(w3, tx_hash):
     w3.eth.waitForTransactionReceipt(tx_hash)
     return created_contract_info(w3, tx_hash)
 
-
 # return contract object using its address and ABI
 def get_contract(w3, address, abi):
     return w3.eth.contract(address=address, abi=abi)
 
+#--------------------------------------------------------------
+#  Contract Calls
+#--------------------------------------------------------------
 
 # make transaction to contract invoking function, return transaction hash
 def transact_function(account, contract, function_name, args=()):
@@ -225,17 +206,19 @@ def call_function(contract, function_name, args=(), account=None):
         account = contract.web3.eth.accounts[-1]
     return contract.functions[function_name](*args).call({'from': account})
 
-def deposit_eth(w3,contract, sender, amount):
-    print('Deposit crowdsale ETH: ', end='')
-    tx_hash = transact(w3, sender, contract.address, amount)
-    print(tx_hash)
-    print('SUCCESS')
+def wait_transaction(w3, tx_hash):
+    tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    assert tx_receipt['status'] == 1, 'transaction failed'
+    return tx_receipt['gasUsed']
+
+#--------------------------------------------------------------
+#  Events
+#--------------------------------------------------------------
 
 # return event data from transaction with hash tx_hash
 # return None if transaction was not included to block
 def get_event(contract, tx_hash, event_name):
-    w3 = contract.web3
-    tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
+    tx_receipt = contract.web3.eth.getTransactionReceipt(tx_hash)
     if not tx_receipt:
         return None
     return contract.events[event_name]().processReceipt(tx_receipt)
@@ -243,9 +226,63 @@ def get_event(contract, tx_hash, event_name):
 
 # wait for transaction to be included to block, return event data
 def wait_event(contract, tx_hash, event_name):
-    w3 = contract.web3
-    w3.eth.waitForTransactionReceipt(tx_hash)
+    contract.web3.eth.waitForTransactionReceipt(tx_hash)
     return get_event(contract, tx_hash, event_name)
+
+# check that event is emitted correctly
+def check_event(contract, tx_hash, event, expected_response=None):
+    if expected_response is None:
+        expected_response = {}
+    events = wait_event(contract, tx_hash, event)
+    assert len(events) == 1, wrong('number of {} events emitted'.format(event), len(events), 1)
+
+    if expected_response is not None:
+        args = events[0]['args']
+        for key in expected_response:
+            assert expected_response.get(key, None) is not None, 'no "{}" field in event args'.format(key)
+            expected = expected_response[key]
+            assert args[key] == expected, wrong('"{}" field in {} event'.format(key, event), args[key], expected)
+
+
+#--------------------------------------------------------------
+#  Terminal Functions
+#--------------------------------------------------------------
+
+# run command in terminal
+def run_cmd(command):
+    return subprocess.run(command, shell=True, stderr=subprocess.PIPE)
+
+
+#--------------------------------------------------------------
+#  Display / Print Functions
+#--------------------------------------------------------------
+
+# make address shorter, e.g 0x66bc8ccB23271187a13B9e41572aA0e749cf905B => 0x66bc...905B
+def short_address(address):
+    return '{}...{}'.format(address[:6], address[-4:])
+
+
+# make all addresses shorter recursively, possible to add more formatting features
+def prettify_args(args):
+    res = []
+    for arg in args:
+        if type(arg) == list or type(arg) == tuple:
+            res.append(prettify_args(arg))
+        elif Web3.isAddress(arg):
+            res.append('{}...{}'.format(arg[:6], arg[-4:]))
+        else:
+            res.append(arg)
+    return res
+
+# Error return
+def wrong(subject, got, expected):
+    return 'wrong {}, expected: {}, got: {}'.format(subject, expected, got)
+
+# print message headers for terminal output
+def print_break(msgToPrint):
+    print('-' * 30)
+    print(msgToPrint)
+    print('-' * 30)
 
 # print balances of a set token
 def print_balances(token, accounts):

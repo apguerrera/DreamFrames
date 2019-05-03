@@ -35,7 +35,7 @@ contract DividendToken is BTTSTokenInterface {
         uint256 lastDivPoints;
         uint256 lastEthPoints;
     }
-    mapping(address => Account) public accounts;   // AG To Do - Convert to balances
+    mapping(address => Account) public accounts;  
     ERC20Interface public dividendTokenAddress;
     mapping(address => uint256) public totalDividendPoints;
     mapping(address => uint256) public totalUnclaimedDividends;
