@@ -75,8 +75,8 @@ def account_from_key(w3, key_path, passphrase):
 def deposit_eth(w3,contract, sender, amount):
     print('Deposit crowdsale ETH: ', end='')
     tx_hash = transact(w3, sender, contract.address, amount)
-    print(tx_hash)
-    print('SUCCESS')
+    #print(tx_hash)
+    print('SUCCESS: Sent {} ETH to {}'.format(amount, short_address(contract.address)))
 
 
 #--------------------------------------------------------------
@@ -90,7 +90,7 @@ def test_deploy(w3, account, path, name, args=()):
     contract, gas_used = deploy_contract(w3, account, path, name, args)
     assert w3.isAddress(contract.address), 'failed to deploy contract'
 
-    print('contract deployed at address: {}: gas used: {}: SUCCESS'.format(contract.address, gas_used))
+    print('contract deployed at address: {}: gas used: {}: SUCCESS'.format(short_address(contract.address), gas_used))
     return contract
 
 
@@ -101,7 +101,7 @@ def test_deploy_library(w3, account, path, name, library, args=()):
     contract, gas_used = deploy_contract_library(w3, account, path, name, library, args)
     assert w3.isAddress(contract.address), 'failed to deploy contract'
 
-    print('contract deployed at address: {}: gas used: {}: SUCCESS'.format(contract.address, gas_used))
+    print('contract deployed at address: {}: gas used: {}: SUCCESS'.format(short_address(contract.address), gas_used))
     return contract
 
 

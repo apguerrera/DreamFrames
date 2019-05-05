@@ -15,7 +15,7 @@ def flatten_contracts():
     flatten(PRICE_FEED_PATH, "../flattened/{}_flattened.sol".format(PRICE_FEED_NAME))
     flatten(MKR_PRICE_PATH, "../flattened/{}_flattened.sol".format(MKR_PRICE_NAME))
     flatten(CST_PATH, "../flattened/{}_flattened.sol".format(CST_NAME))
-    flatten(DIVIDEND_TOKEN_PATH, "../flattened/{}_flattened.sol".format(DIVIDEND_TOKEN_NAME))
+    #flatten(DIVIDEND_TOKEN_PATH, "../flattened/{}_flattened.sol".format(DIVIDEND_TOKEN_NAME))
     flatten(CSC_PATH, "../flattened/{}_flattened.sol".format(CSC_NAME))
     flatten(DFT_PATH, "../flattened/{}_flattened.sol".format(DFT_NAME))
     flatten(RSC_PATH, "../flattened/{}_flattened.sol".format(RSC_NAME))

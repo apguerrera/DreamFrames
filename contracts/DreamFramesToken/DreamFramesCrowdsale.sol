@@ -257,14 +257,28 @@ contract DreamFramesCrowdsale is Owned {
 
   // Contract owner allocates frames to tokenOwner for offline purchase
   // AG: To clarify, if the number of frames exceed allowance, error or allocate till full?
+  // AG: To clarify, should we pass in contributedUSD or calc from frames?
   function offlineFramesPurchase(address tokenOwner, uint256 frames) external onlyOwner {
       require(!finalised);
       require(frames > 0);
       require(framesSold.add(frames) <= maxFrames);
       (uint256 _frameEth, bool _live) = frameEth();
       require(_live);
-      contributedEth = frames.mul(_frameEth);
+      uint256 ethToTransfer = frames.mul(_frameEth);
+      contributedEth = contributedEth.add(ethToTransfer);
       claimFrames(tokenOwner,frames);
+      emit Purchased(tokenOwner, frames, 0, framesSold, contributedEth);
+  }
+
+  /*
+  function offlineRoyalyPurchase(address tokenOwner, uint256 frames) external onlyOwner {
+      require(!finalised);
+      require(frames > 0);
+      require(framesSold.add(frames) <= maxFrames);
+      (uint256 _frameEth, bool _live) = frameEth();
+      require(_live);
+      ethToTransfer = frames.mul(_frameEth);
+      claimRoyaltyFrames(tokenOwner,frames, ethToTransfer);
       emit Purchased(tokenOwner, frames, 0, framesSold, contributedEth);
   }
 
@@ -272,7 +286,7 @@ contract DreamFramesCrowdsale is Owned {
   function finalise() public onlyOwner {
       require(!finalised);
       require(now > endDate || framesSold >= maxFrames);
-      // AG: To clarify, what happens after crowdsale to 30% producer tokens?
+      // AG: To clarify, what happens after crowdsale to 30% producer tokens to be minted after film is complete?
       finalised = true;
   }
 

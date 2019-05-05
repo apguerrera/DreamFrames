@@ -532,16 +532,15 @@ contract DividendToken is BTTSTokenInterface {
 
     // Dividends
     uint256 constant pointMultiplier = 10e32;
-    struct Account {
-        uint256 lastDivPoints;
-        uint256 lastEthPoints;
-    }
-    mapping(address => Account) public accounts;   // AG To Do - Convert to balances
+    // [account]
+    mapping(address => uint256) public lastDivPoints;
+    mapping(address => uint256) public lastEthPoints;
     ERC20Interface public dividendTokenAddress;
+    // [token]
     mapping(address => uint256) public totalDividendPoints;
     mapping(address => uint256) public totalUnclaimedDividends;
-
-    mapping(address => mapping(address => uint256)) public unclaimedDividendByAccount;  // [account][token]
+    // [account][token]
+    mapping(address => mapping(address => uint256)) public unclaimedDividendByAccount;
 
     // Dividend Events
     event DividendReceived(uint256 time, address indexed sender, address indexed token, uint256 amount);
@@ -695,16 +694,17 @@ contract DividendToken is BTTSTokenInterface {
     // Dividends
     //------------------------------------------------------------------------
     function dividendsOwing(address _account, address _token) external view returns(uint256) {
-        _dividendsOwing(_account, _token);
+        return _dividendsOwing(_account, _token);
     }
     function _dividendsOwing(address _account, address _token) internal view returns(uint256) {
         uint256 lastPoints;
         if (_token == address(0x0)) {
-              lastPoints = accounts[_account].lastEthPoints;
+              lastPoints = lastEthPoints[_account];
         } else if (_token == address(dividendTokenAddress)) {
-              lastPoints = accounts[_account].lastDivPoints;
+              lastPoints = lastDivPoints[_account];
         }
         uint256 newDividendPoints = totalDividendPoints[address(_token)].safeSub(lastPoints);
+
         return (data.balances[_account] * newDividendPoints) / pointMultiplier;
     }
 
@@ -715,17 +715,17 @@ contract DividendToken is BTTSTokenInterface {
         _updateAccount(_account);
     }
     function _updateAccount(address _account) internal {
-       if (accounts[_account].lastDivPoints < totalDividendPoints[address(dividendTokenAddress)]) {
+       if (lastDivPoints[_account] < totalDividendPoints[address(dividendTokenAddress)]) {
              _updateAccountByToken(_account,address(dividendTokenAddress));
        }
-       if (accounts[_account].lastEthPoints < totalDividendPoints[address(0x0)]) {
+       if (lastEthPoints[_account] < totalDividendPoints[address(0x0)]) {
              _updateAccountByToken(_account,address(0x0));
        }
     }
     function _updateAccountByToken(address _account, address _token) internal {
-       uint256 _owing = _dividendsOwing(_account, _token);
+       uint256 _owing = _dividendsOwing(_account, _token).safeSub(unclaimedDividendByAccount[_account][_token]);
        if (_owing > 0) {
-           unclaimedDividendByAccount[_account][_token] = unclaimedDividendByAccount[_account][_token].safeAdd(_owing);
+           unclaimedDividendByAccount[_account][_token] = unclaimedDividendByAccount[_account][_token].safeAdd(unclaimedDividendByAccount[_account][_token]);
        }
     }
 
@@ -749,6 +749,14 @@ contract DividendToken is BTTSTokenInterface {
         emit DividendReceived(now, msg.sender, _token, _amount);
     }
 
+    function getLastEthPoints(address _account) external view returns (uint256) {
+      return lastEthPoints[_account];
+    }
+
+    function getLastDivPoints(address _account) external view returns (uint256){
+      return lastDivPoints[_account];
+    }
+
     // ------------------------------------------------------------------------
     // Accept ETH deposits as dividends
     // ------------------------------------------------------------------------
@@ -757,13 +765,12 @@ contract DividendToken is BTTSTokenInterface {
         _depositDividends(msg.value,address(0x0));
     }
 
-
     //------------------------------------------------------------------------
     // Dividends: Claim accrued dividends
     //------------------------------------------------------------------------
     function withdrawDividends () public  {
         _updateAccount(msg.sender);
-        _withdrawDividends(msg.sender);
+         _withdrawDividends(msg.sender);
     }
     function withdrawDividendsByAccount (address _account) public onlyOwner {
         _updateAccount(_account);
@@ -774,13 +781,14 @@ contract DividendToken is BTTSTokenInterface {
         if (unclaimedDividendByAccount[_account][address(dividendTokenAddress)]>0) {
           _withdrawDividendsByToken(_account, address(dividendTokenAddress));
         }
-        if (unclaimedDividendByAccount[_account][address(0)]>0) {
-            _withdrawDividendsByToken(_account, address(0));
+        if (unclaimedDividendByAccount[_account][address(0x0)]>0) {
+          _withdrawDividendsByToken(_account, address(0x0));
         }
     }
 
     function _withdrawDividendsByToken(address _account, address _token) internal  {
-        uint256 _unclaimed = unclaimedDividendByAccount[_account][_token];
+        uint256 _unclaimed = unclaimedDividendByAccount[_account][address(_token)];
+
         totalUnclaimedDividends[_token] = totalUnclaimedDividends[_token].safeSub(_unclaimed);
         unclaimedDividendByAccount[_account][_token] = 0;
         _transferDividendTokens(_token,_account, _unclaimed );
@@ -788,11 +796,11 @@ contract DividendToken is BTTSTokenInterface {
     }
 
     function _transferDividendTokens(address _token, address _account, uint _amount) internal   {
-            // transfer dividends owed, to be replaced
+            // AG: transfer dividends owed, to be replaced
         if (_token == address(dividendTokenAddress)) {
-               require(ERC20Interface(_token).transfer(_account, _amount));
+              require(ERC20Interface(_token).transfer(_account, _amount));
         } else if (_token == address(0x0)) {
-               require(transfer(_account, _amount));
+              require(transfer(_account, _amount));
         }
     }
 
