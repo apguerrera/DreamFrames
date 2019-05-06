@@ -63,7 +63,7 @@ def print_dividend_contract(contract):
     print("Name: {}".format(call_function(contract, 'name')))
 
 def print_dividend_account(contract, account):
-    print_break("Dividend for Account: {}".format(account))
+    print("Dividends for Account: {}".format(account))
     print("getLastEthPoints: {}".format(call_function(contract, 'getLastEthPoints', [account])))
     print("dividendsOwingEth: {}".format(call_function(contract, 'dividendsOwing', [account ])))
     print("unclaimedDividendByAccount: {}".format(call_function(contract, 'unclaimedDividendByAccount', [account ])))
