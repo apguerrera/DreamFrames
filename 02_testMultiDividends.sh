@@ -12,4 +12,4 @@ mkdir -p flattened
 chmod 700 scripts/solidityFlattener.pl
 
 cd test
-python3 test_eth.py
+python3 test_multi.py

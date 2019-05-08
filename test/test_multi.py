@@ -6,7 +6,7 @@ import sys
 
 
 import dividend_token
-import dividend_token_eth
+import dividend_token_multi
 import dream_frame_tokens
 import crowdsale_token
 import crowdsale_contract
@@ -139,33 +139,70 @@ if __name__ == '__main__':
     # Unlock transfers for account
     dividend_token.unlock_account(owner, royalty_token, accounts[2])
     #dividend_token.unlock_account(owner, royalty_token, accounts[1])
+    print_balances(royalty_token, accounts)
 
     erc20.check_transfer(royalty_token, accounts[2], accounts[3], 200 * (10 ** decimals))
     print_balances(royalty_token, accounts)
-    print_break('Testing: Withdraw Dividends')
+    print_break('Testing: Dividends After Transfers')
 
     # AG: Claim dividends from each accounts
-    dividend_token.update_account(royalty_token, accounts[2])
-    dividend_token.get_dividends_owing(royalty_token, accounts[2])
-    dividend_token.get_last_eth_points(royalty_token, accounts[2])
-    dividend_token.get_dividends_owing(royalty_token, accounts[3])
-    dividend_token.get_last_eth_points(royalty_token, accounts[3])
-
     dividend_token.print_dividend_contract(royalty_token)
+    dividend_token.get_unclaimed_dividends(royalty_token)
+    dividend_token.update_account(royalty_token, accounts[2])
+    dividend_token.update_account(royalty_token, accounts[3])
+    dividend_token.print_dividend_account(royalty_token, accounts[2])
+    dividend_token.print_dividend_account(royalty_token, accounts[3])
+
+    deposit_eth(w3,royalty_token, accounts[0], Web3.toWei(20000, "ether"))
+    dividend_token.update_account(royalty_token, accounts[2])
+    dividend_token.update_account(royalty_token, accounts[3])
+    dividend_token.print_dividend_account(royalty_token, accounts[2])
+    dividend_token.print_dividend_account(royalty_token, accounts[3])
+    print_break('Testing: Dividends After Multiple One Way Transfers')
+
+    erc20.check_transfer(royalty_token, accounts[2], accounts[1], 20 * (10 ** decimals))
+    dividend_token.print_dividend_account(royalty_token, accounts[1])
+    dividend_token.print_dividend_account(royalty_token, accounts[2])
+    dividend_token.print_dividend_account(royalty_token, accounts[3])
+    erc20.check_transfer(royalty_token, accounts[2], accounts[1], 20 * (10 ** decimals))
+    dividend_token.print_dividend_account(royalty_token, accounts[1])
+    dividend_token.print_dividend_account(royalty_token, accounts[2])
+    dividend_token.print_dividend_account(royalty_token, accounts[3])
+    erc20.check_transfer(royalty_token, accounts[2], accounts[1], 40 * (10 ** decimals))
+    erc20.check_transfer(royalty_token, accounts[1], accounts[3], 20 * (10 ** decimals))
+    dividend_token.print_dividend_account(royalty_token, accounts[1])
     dividend_token.print_dividend_account(royalty_token, accounts[2])
     dividend_token.print_dividend_account(royalty_token, accounts[3])
 
 
-
-    # AG Issue
-    dividend_token.withdraw_dividends(royalty_token, accounts[2])
+    print_break('Testing: Withdraw Dividends')
+    #dividend_token.withdraw_dividends(royalty_token, accounts[3])
+    #dividend_token.withdraw_dividends(royalty_token, accounts[2])
+    dividend_token.print_dividend_account(royalty_token, accounts[1])
+    dividend_token.print_dividend_account(royalty_token, accounts[2])
+    dividend_token.print_dividend_account(royalty_token, accounts[3])
+    deposit_eth(w3,royalty_token, accounts[0], Web3.toWei(20000, "ether"))
+    erc20.check_transfer(royalty_token, accounts[2], accounts[3], 30 * (10 ** decimals))
+    deposit_eth(w3,royalty_token, accounts[0], Web3.toWei(10000, "ether"))
+    dividend_token.update_account(royalty_token, accounts[1])
+    dividend_token.update_account(royalty_token, accounts[2])
+    dividend_token.update_account(royalty_token, accounts[3])
+    dividend_token.print_dividend_account(royalty_token, accounts[1])
+    dividend_token.print_dividend_account(royalty_token, accounts[2])
+    dividend_token.print_dividend_account(royalty_token, accounts[3])
     dividend_token.get_unclaimed_dividends(royalty_token)
     dividend_token.get_total_dividend_points(royalty_token)
-    dividend_token.get_dividends_owing(royalty_token, accounts[2])
+    dividend_token.withdraw_dividends(royalty_token, accounts[1])
+    dividend_token.withdraw_dividends(royalty_token, accounts[2])
+    dividend_token.withdraw_dividends(royalty_token, accounts[3])
+    dividend_token.print_dividend_account(royalty_token, accounts[1])
+    dividend_token.print_dividend_account(royalty_token, accounts[2])
+    dividend_token.print_dividend_account(royalty_token, accounts[3])
+    dividend_token.get_unclaimed_dividends(royalty_token)
+    dividend_token.get_total_dividend_points(royalty_token)
 
     # AG: Test if any funds are left
     print_balances(royalty_token, accounts)
-
     #--------------------------------------------------------------
     # ERC721 Collectables
     #--------------------------------------------------------------

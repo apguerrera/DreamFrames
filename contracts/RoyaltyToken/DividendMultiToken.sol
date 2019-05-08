@@ -178,14 +178,18 @@ contract DividendToken is BTTSTokenInterface {
 
     function _canReceive(address from, address to) internal returns (bool success) {
         require(to != address(0));
-        _updateAccount(to);
         require(whiteList.isInWhiteList(to));
+        // Set last points for sending to new accounts.
+        if (data.balances[to] == 0 && lastEthPoints[to] == 0 && totalDividendPoints > 0) {
+          lastEthPoints[to] = totalDividendPoints;
+        }
+        _updateAccount(to);
         success = true;
     }
     function _canSend(address from, address to) internal returns (bool success) {
         require(from != address(0));
-        _updateAccount(from);
         require(whiteList.isInWhiteList(from));
+        _updateAccount(from);
         success = true;
     }
 
@@ -214,15 +218,19 @@ contract DividendToken is BTTSTokenInterface {
         _updateAccount(_account);
     }
     function _updateAccount(address _account) internal {
+       // Check if new deposits have been made since last withdraw
        if (lastDivPoints[_account] < totalDividendPoints[address(dividendTokenAddress)]) {
              _updateAccountByToken(_account,address(dividendTokenAddress));
+             lastDivPoints[_account] = totalDividendPoints[address(dividendTokenAddress)]
        }
        if (lastEthPoints[_account] < totalDividendPoints[address(0x0)]) {
              _updateAccountByToken(_account,address(0x0));
+             lastEthPoints[_account]  = totalDividendPoints[address(0x0)];
        }
     }
     function _updateAccountByToken(address _account, address _token) internal {
-       uint256 _owing = _dividendsOwing(_account, _token).safeSub(unclaimedDividendByAccount[_account][_token]);
+       uint256 _owing = _dividendsOwing(_account, _token);
+       // Increment internal dividends counter to new amount owed
        if (_owing > 0) {
            unclaimedDividendByAccount[_account][_token] = unclaimedDividendByAccount[_account][_token].safeAdd(unclaimedDividendByAccount[_account][_token]);
        }
@@ -271,12 +279,12 @@ contract DividendToken is BTTSTokenInterface {
         _updateAccount(msg.sender);
          _withdrawDividends(msg.sender);
     }
-    function withdrawDividendsByAccount (address _account) public onlyOwner {
+    function withdrawDividendsByAccount (address payable _account) public onlyOwner {
         _updateAccount(_account);
         _withdrawDividends(_account);
     }
 
-    function _withdrawDividends(address _account) internal  {
+    function _withdrawDividends(address payable _account) internal  {
         if (unclaimedDividendByAccount[_account][address(dividendTokenAddress)]>0) {
           _withdrawDividendsByToken(_account, address(dividendTokenAddress));
         }
@@ -285,7 +293,7 @@ contract DividendToken is BTTSTokenInterface {
         }
     }
 
-    function _withdrawDividendsByToken(address _account, address _token) internal  {
+    function _withdrawDividendsByToken(address payable _account, address _token) internal  {
         uint256 _unclaimed = unclaimedDividendByAccount[_account][address(_token)];
 
         totalUnclaimedDividends[_token] = totalUnclaimedDividends[_token].safeSub(_unclaimed);
@@ -294,12 +302,12 @@ contract DividendToken is BTTSTokenInterface {
         emit WithdrawalDividends(_account, _token, _unclaimed);
     }
 
-    function _transferDividendTokens(address _token, address _account, uint _amount) internal   {
+    function _transferDividendTokens(address _token, address payable _account, uint _amount) internal   {
             // AG: transfer dividends owed, to be replaced
         if (_token == address(dividendTokenAddress)) {
               require(ERC20Interface(_token).transfer(_account, _amount));
         } else if (_token == address(0x0)) {
-              require(transfer(_account, _amount));
+              _account.transfer(_amount));
         }
     }
 
