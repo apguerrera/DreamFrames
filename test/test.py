@@ -20,8 +20,8 @@ from flatten import flatten_contracts
 
 
 if __name__ == '__main__':
-    #f = open("01_test_output.txt", 'w')
-    #sys.stdout = f
+    f = open("01_test_output.txt", 'w')
+    sys.stdout = f
     #--------------------------------------------------------------
     # Initialisation
     #--------------------------------------------------------------
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     print_break('Testing: Deposit ETH to Frames Crowdsale')
     deposit_eth(w3,crowdsale, accounts[1], Web3.toWei(500, "ether"))
     print_balances(frame_token, accounts)
-    royalty_crowdsale_contract = royalty_crowdsale.test(w3, accounts, os.path.join(CONTRACT_DIR, RSC_PATH), RSC_NAME,crowdsale.address)
+    royalty_crowdsale_contract = royalty_crowdsale.test(w3, accounts, os.path.join(CONTRACT_DIR, RSC_PATH), RSC_NAME,crowdsale.address, max_royalty_frames)
 
     crowdsale_contract.set_royalty_crowdsale(owner, crowdsale,royalty_crowdsale_contract.address)
 
@@ -91,12 +91,12 @@ if __name__ == '__main__':
 
     # Offline purchase
     print_break('Testing: Offline Purchases in USD')
-    crowdsale_contract.offline_purchase(owner, crowdsale, accounts[3], 10000)
+    crowdsale_contract.offline_purchase(owner, crowdsale, accounts[3], 5000)
 
     # Change bonusOffList
     crowdsale_contract.set_bonus(owner, crowdsale, 20)
 
-    crowdsale_contract.offline_purchase(owner, crowdsale, accounts[4], 20000)
+    crowdsale_contract.offline_purchase(owner, crowdsale, accounts[4], 5000)
     # AG: Note, fails by design with number > maxFrames
     #crowdsale_contract.offline_purchase(owner, crowdsale, accounts[3], 94302)
     #print_balances(frame_token, accounts)
@@ -104,7 +104,8 @@ if __name__ == '__main__':
     #print_balances(frame_token, accounts)
 
     # Test overflow of ether and ETH refund
-    deposit_eth(w3,crowdsale, accounts[2], Web3.toWei(200, "ether"))
+    deposit_eth(w3,royalty_crowdsale_contract, accounts[2], Web3.toWei(30000, "ether"))
+    print_balances(frame_token, accounts)
 
     deposit_eth(w3,crowdsale, accounts[0], Web3.toWei(30000, "ether"))
     print_balances(frame_token, accounts)
@@ -202,6 +203,7 @@ if __name__ == '__main__':
     dividend_token.get_total_dividend_points(royalty_token)
 
     # AG: Test if any funds are left
+    print_balances(frame_token, accounts)
     print_balances(royalty_token, accounts)
 
     #--------------------------------------------------------------
@@ -211,4 +213,4 @@ if __name__ == '__main__':
     dream_frame_tokens.test(w3, accounts, os.path.join(CONTRACT_DIR, DFT_PATH), DFT_NAME)
 
     # Print to file
-    #f.close()
+    f.close()

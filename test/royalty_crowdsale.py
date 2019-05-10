@@ -2,7 +2,6 @@ from web3 import Web3
 from util import test_deploy, call_function, wrong, transact, unlock_account, print_balances, transact_function
 
 
-
 def test_initialized_correctly(contract, owner):
     print('check that contract is initialized correctly: ', end='')
     got_owner = call_function(contract, 'owner')
@@ -10,9 +9,9 @@ def test_initialized_correctly(contract, owner):
     print('SUCCESS')
 
 
-def test(w3, accounts, contract_path, contract_name, crowdsale):
+def test(w3, accounts, contract_path, contract_name, crowdsale, max_royalty_frames):
 
-    crowdsale_contract = deploy(w3, accounts, contract_path, contract_name, crowdsale)
+    crowdsale_contract = deploy(w3, accounts, contract_path, contract_name, crowdsale, max_royalty_frames)
     owner = call_function(crowdsale_contract, 'owner')
     test_initialized_correctly(crowdsale_contract, owner)
     # AG: Test if frame tokens are generated correctly
@@ -20,10 +19,10 @@ def test(w3, accounts, contract_path, contract_name, crowdsale):
 
     return crowdsale_contract
 
-def deploy(w3, accounts, contract_path, contract_name, crowdsale):
+def deploy(w3, accounts, contract_path, contract_name, crowdsale, max_royalty_frames):
     owner = accounts[0]
     wallet = accounts[4]
-    crowdsale_contract = test_deploy(w3, owner, contract_path, contract_name, [wallet, crowdsale])
+    crowdsale_contract = test_deploy(w3, owner, contract_path, contract_name, [wallet, crowdsale, max_royalty_frames])
     return crowdsale_contract
 
 

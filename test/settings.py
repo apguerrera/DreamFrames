@@ -26,5 +26,6 @@ PRICE_FEED_NAME = 'MakerDAOPriceFeedAdaptor'
 # Contract variables
 decimals = 18
 frame_usd = 89 * (10 ** decimals)
-soft_cap_usd = 2500000;
-hard_cap_usd = 8500000;
+soft_cap_usd = 2500000
+hard_cap_usd = 8500000
+max_royalty_frames = 75600

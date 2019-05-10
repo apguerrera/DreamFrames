@@ -4,7 +4,7 @@ import erc20
 symbol = "GRACIE"
 name = "Gracie Frame Tokens"
 decimals = 18
-initial_supply = 0 * (10 ** 18)
+initial_supply = 20000 * (10 ** 18)
 mintable = True
 transferable = True
 

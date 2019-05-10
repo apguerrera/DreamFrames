@@ -11,7 +11,7 @@ pragma solidity ^0.5.4;
 // (c) Adrian Guerrera / Deepyr Pty Ltd for Dreamframes 2019. The MIT Licence.
 // ----------------------------------------------------------------------------
 
-import "../Shared/Owned.sol";
+import "../Shared/Operated.sol";
 import "../Shared/SafeMath.sol";
 
 
@@ -24,7 +24,7 @@ contract DreamFramesCSInterface {
     function calculateFrames(uint256 ethAmount) external view returns (uint256 frames, uint256 ethToTransfer);
 }
 
-contract DreamFramesRoyaltyCrowdsale is Owned {
+contract DreamFramesRoyaltyCrowdsale is Operated {
 
     using SafeMath for uint256;
 
@@ -33,17 +33,19 @@ contract DreamFramesRoyaltyCrowdsale is Owned {
     address payable public wallet;
     mapping(address => uint256) public royaltyEthAmount;
     uint256 public royaltiesSold;
-
+    uint256 public maxRoyaltyFrames;
     event Purchased(address indexed addr, uint256 frames, uint256 ethToTransfer, uint256 royaltiesSold, uint256 contributedEth);
     event SetFrameCrowdsale(address oldCrowdsaleContract, address newCrowdsaleContract);
     event WalletUpdated(address indexed oldWallet, address indexed newWallet);
+    event MaxRoyaltyFramesUpdated(uint256 oldMaxRoyaltyFrames,  uint256 newMaxRoyaltyFrames);
 
-    constructor(address payable _wallet, address _crowdsaleContract) public {
+    constructor(address payable _wallet, address _crowdsaleContract, uint256 _maxRoyaltyFrames) public {
       require(_wallet != address(0));
       require(_crowdsaleContract != address(0));
       wallet = _wallet;
+      maxRoyaltyFrames = _maxRoyaltyFrames;
       crowdsaleContract = DreamFramesCSInterface(_crowdsaleContract);
-      initOwned(msg.sender);
+      initOperated(msg.sender);
     }
 
     // Setter functions
@@ -57,13 +59,45 @@ contract DreamFramesRoyaltyCrowdsale is Owned {
         emit WalletUpdated(wallet, _wallet);
         wallet = _wallet;
     }
+    function setMaxRoyaltyFrames(uint256 _maxRoyaltyFrames) public onlyOwner {
+      require(_maxRoyaltyFrames >= royaltiesSold);
+      emit MaxRoyaltyFramesUpdated(maxRoyaltyFrames, _maxRoyaltyFrames);
+      maxRoyaltyFrames = _maxRoyaltyFrames;
+    }
 
+    // Call functions
+    function framesRemaining() public view returns (uint256) {
+      return maxRoyaltyFrames.sub(royaltiesSold);
+    }
+    function pctSold() public view returns (uint256) {
+      return royaltiesSold.mul(100).div(maxRoyaltyFrames);
+    }
+    function pctRemaining() public view returns (uint256) {
+      return maxRoyaltyFrames.sub(royaltiesSold).mul(100).div(maxRoyaltyFrames);
+    }
+    function calculateRoyaltyFrames(uint256 ethAmount) public view returns (uint256 frames, uint256 ethToTransfer) {
+        // Number of frames available to purchase
+        (frames, ethToTransfer) = crowdsaleContract.calculateFrames(ethAmount);
+
+        // Add maxFrames for investor restrictions
+        uint256 _frameEth;
+        bool _live;
+        (_frameEth, _live) = crowdsaleContract.frameEth();
+        require(_live);
+        if (royaltiesSold.add(frames) >= maxRoyaltyFrames) {
+            frames = maxRoyaltyFrames.sub(royaltiesSold);
+        }
+        ethToTransfer = frames.mul(_frameEth);
+
+    }
+
+    // Deposit function
     function () external payable {
         // require(now >= startDate && now <= endDate);
         // Get number of frames, will revert if sold out
         uint256 ethToTransfer;
         uint256 frames;
-        (frames, ethToTransfer) = crowdsaleContract.calculateFrames( msg.value);
+        (frames, ethToTransfer) = calculateRoyaltyFrames( msg.value);
 
         // Update crowdsale contract state
         royaltiesSold = royaltiesSold.add(frames);
@@ -83,11 +117,23 @@ contract DreamFramesRoyaltyCrowdsale is Owned {
         emit Purchased(msg.sender, frames, ethToTransfer, royaltiesSold, contributedEth);
     }
 
-    /*
-    //  AG: To Remove
-    function withdrawFunds() public onlyOwner {
-        // AG: Crowdsale over
-        msg.sender.transfer(address(this).balance);
-    }
-    */
+    function offlineRoyaltyPurchase(address tokenOwner, uint256 frames) external onlyOperator {
+          require(frames > 0);
+          require(royaltiesSold.add(frames) <= maxRoyaltyFrames);
+          (uint256 _frameEth, bool _live) = crowdsaleContract.frameEth();
+          require(_live);
+
+          // Update crowdsale contract state
+          uint256 ethToTransfer = frames.mul(_frameEth);
+          royaltiesSold = royaltiesSold.add(frames);
+          contributedEth = contributedEth.add(ethToTransfer);
+          royaltyEthAmount[tokenOwner] = royaltyEthAmount[tokenOwner].add(ethToTransfer);
+
+          // Claim royalty frames
+          crowdsaleContract.claimRoyaltyFrames(tokenOwner,frames, ethToTransfer);
+          emit Purchased(tokenOwner, frames, 0, royaltiesSold, contributedEth);
+      }
+
+
+
 }

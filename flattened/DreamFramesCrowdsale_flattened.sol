@@ -12,6 +12,7 @@ pragma solidity ^0.5.4;
 // ----------------------------------------------------------------------------
 
 
+
 // ----------------------------------------------------------------------------
 // Owned contract
 // ----------------------------------------------------------------------------
@@ -44,6 +45,37 @@ contract Owned {
     function transferOwnershipImmediately(address _newOwner) public onlyOwner {
         emit OwnershipTransferred(owner, _newOwner);
         owner = _newOwner;
+    }
+}
+
+
+// ----------------------------------------------------------------------------
+// Maintain a list of operators that are permissioned to execute certain
+// functions
+// ----------------------------------------------------------------------------
+contract Operated is Owned {
+    mapping(address => bool) public operators;
+
+    event OperatorAdded(address _operator);
+    event OperatorRemoved(address _operator);
+
+    modifier onlyOperator() {
+        require(operators[msg.sender] || owner == msg.sender);
+        _;
+    }
+
+    function initOperated(address _owner) internal {
+        initOwned(_owner);
+    }
+    function addOperator(address _operator) public onlyOwner {
+        require(!operators[_operator]);
+        operators[_operator] = true;
+        emit OperatorAdded(_operator);
+    }
+    function removeOperator(address _operator) public onlyOwner {
+        require(operators[_operator]);
+        delete operators[_operator];
+        emit OperatorRemoved(_operator);
     }
 }
 
@@ -195,7 +227,7 @@ contract WhiteListInterface {
 // ----------------------------------------------------------------------------
 // DreamFramesToken Contract
 // ----------------------------------------------------------------------------
-contract DreamFramesCrowdsale is Owned {
+contract DreamFramesCrowdsale is Operated {
   using SafeMath for uint256;
 
   uint256 private constant TENPOW18 = 10 ** 18;
@@ -236,7 +268,7 @@ contract DreamFramesCrowdsale is Owned {
       require(_wallet != address(0));
       require(_startDate >= now && _endDate > _startDate);
       require(_maxFrames > 0 && _frameUsd > 0);
-      initOwned(msg.sender);
+      initOperated(msg.sender);
       lockedAccountThresholdUsd = 10000;
 
       hardCapUsd = _hardCapUsd;
@@ -377,8 +409,13 @@ contract DreamFramesCrowdsale is Owned {
     ethToTransfer = frames.mul(_frameEth);
   }
 
+  function calculateRoyaltyFrames(uint256 ethAmount) public view returns (uint256 frames, uint256 ethToTransfer) {
+      (frames, ethToTransfer) = calculateFrames(ethAmount);
+
+  }
+
   function () external payable {
-    // require(now >= startDate && now <= endDate);  // AG: To reenable
+    // require(now >= startDate && now <= endDate);
 
     // Get number of frames, will revert if sold out
     uint256 ethToTransfer;
@@ -431,9 +468,8 @@ contract DreamFramesCrowdsale is Owned {
   }
 
   // Contract owner allocates frames to tokenOwner for offline purchase
-  // AG: To clarify, if the number of frames exceed allowance, error or allocate till full?
-  // AG: To clarify, should we pass in contributedUSD or calc from frames?
-  function offlineFramesPurchase(address tokenOwner, uint256 frames) external onlyOwner {
+
+  function offlineFramesPurchase(address tokenOwner, uint256 frames) external onlyOperator {
       require(!finalised);
       require(frames > 0);
       require(framesSold.add(frames) <= maxFrames);
@@ -441,19 +477,8 @@ contract DreamFramesCrowdsale is Owned {
       require(_live);
       uint256 ethToTransfer = frames.mul(_frameEth);
       contributedEth = contributedEth.add(ethToTransfer);
+      accountEthAmount[tokenOwner] = accountEthAmount[tokenOwner].add(ethToTransfer);
       claimFrames(tokenOwner,frames);
-      emit Purchased(tokenOwner, frames, 0, framesSold, contributedEth);
-  }
-
-  /*
-  function offlineRoyalyPurchase(address tokenOwner, uint256 frames) external onlyOwner {
-      require(!finalised);
-      require(frames > 0);
-      require(framesSold.add(frames) <= maxFrames);
-      (uint256 _frameEth, bool _live) = frameEth();
-      require(_live);
-      ethToTransfer = frames.mul(_frameEth);
-      claimRoyaltyFrames(tokenOwner,frames, ethToTransfer);
       emit Purchased(tokenOwner, frames, 0, framesSold, contributedEth);
   }
 
@@ -461,16 +486,7 @@ contract DreamFramesCrowdsale is Owned {
   function finalise() public onlyOwner {
       require(!finalised);
       require(now > endDate || framesSold >= maxFrames);
-      // AG: To clarify, what happens after crowdsale to 30% producer tokens to be minted after film is complete?
       finalised = true;
   }
 
-  /*
-  //  AG: To Remove
-  function withdrawFunds () public  onlyOwner {
-    require(finalised);
-    require(now > endDate || framesSold >= maxFrames);
-    wallet.transfer(address(this).balance);
-  }
-  */
 }

@@ -6,7 +6,7 @@ import erc20
 name = "Gracie Dividend Tokens"
 symbol = "GRACIEDIV"
 decimals = 18
-initial_supply = 0 * (10 ** decimals)
+initial_supply = 20000 * (10 ** decimals)
 mintable = True
 transferable = True
 

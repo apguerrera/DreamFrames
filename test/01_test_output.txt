@@ -1,0 +1,365 @@
+connect to ethereum node: SUCCESS
+------------------------------
+Flattening Contracts
+------------------------------
+0
+0
+0
+0
+0
+0
+0
+0
+------------------------------
+Testing: Whitelist
+------------------------------
+WhiteList: deploy contract with args: []: contract deployed at address: 0x42ac...9e8b: gas used: 727738: SUCCESS
+check that contract is initialized correctly: SUCCESS
+add addresses: ['0xa00A...827E', '0xa11A...f433', '0xa22A...6976', '0xa33a...1fd0']: to whitelist at address: 0x42acDE95A695c446272d092BD9A0141A2E949e8b: gas used: 119408: SUCCESS
+MakerDAOETHUSDPriceFeedSimulator: deploy contract with args: [170845000000000000000, True]: contract deployed at address: 0x0C46...07D8: gas used: 419598: SUCCESS
+MakerDAOPriceFeedAdaptor: deploy contract with args: ['0x0C46...07D8']: contract deployed at address: 0xE19b...4C20: gas used: 185957: SUCCESS
+------------------------------
+Testing: Frame Rush Tokens
+------------------------------
+BTTSLib: deploy contract with args: []: contract deployed at address: 0x6018...5212: gas used: 3993605: SUCCESS
+DreamFramesToken: deploy contract with args: ['0xa00A...827E', 'GRACIE', 'Gracie Frame Tokens', 18, 20000000000000000000000, True, True]: contract deployed at address: 0x68Ab...82d7: gas used: 3022062: SUCCESS
+check that contract is initialized correctly: SUCCESS
+check that balances are initialized correctly: SUCCESS
+check that allowances are initialized correctly: SUCCESS
+funding accounts: SUCCESS
+check that tokens are transferred correctly: SUCCESS
+check that approval works correctly: SUCCESS
+check that transferFrom works correctly: 
+Approver: 0xa00Af22D07c87d96EeeB0Ed583f8F6AC7812827E Spender: 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433 Receiver: 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0
+ERROR: transferFrom to 0x0 should revert
+------------------------------
+Testing: Dividend Token
+------------------------------
+DividendToken: deploy contract with args: ['0xa00A...827E', 'GRACIEDIV', 'Gracie Dividend Tokens', 18, 20000000000000000000000, True, True, '0x42ac...9e8b']: contract deployed at address: 0x5382...8bE5: gas used: 3628789: SUCCESS
+check that contract is initialized correctly: SUCCESS
+check that balances are initialized correctly: SUCCESS
+check that allowances are initialized correctly: SUCCESS
+funding accounts: ERROR: {'code': -32000, 'message': 'gas required exceeds allowance or always failing transaction'}
+check that tokens are transferred correctly: ERROR: {'code': -32000, 'message': 'gas required exceeds allowance or always failing transaction'}
+check that approval works correctly: SUCCESS
+check that transferFrom works correctly: 
+Approver: 0xa00Af22D07c87d96EeeB0Ed583f8F6AC7812827E Spender: 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433 Receiver: 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0
+Approver: 0xa00Af22D07c87d96EeeB0Ed583f8F6AC7812827E Spender: 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976 Receiver: 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0
+Approver: 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433 Spender: 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433 Receiver: 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0
+Approver: 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433 Spender: 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976 Receiver: 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0
+SUCCESS
+------------------------------
+Testing: Crowdsale Contract
+------------------------------
+DreamFramesToken: deploy contract with args: ['0xa00A...827E', 'GRACIE', 'Gracie Frame Tokens', 18, 20000000000000000000000, True, True]: contract deployed at address: 0xBa35...17b2: gas used: 3022062: SUCCESS
+DividendToken: deploy contract with args: ['0xa00A...827E', 'GRACIEDIV', 'Gracie Dividend Tokens', 18, 20000000000000000000000, True, True, '0x42ac...9e8b']: contract deployed at address: 0xBccd...c1C4: gas used: 3628789: SUCCESS
+DreamFramesCrowdsale: deploy contract with args: ['0xBa35...17b2', '0xBccd...c1C4', '0xE19b...4C20', '0x42ac...9e8b', '0xa55A...79EA', 12341234456, 12341238564, 94500, 89000000000000000000, 40, 8500000, 2500000]: contract deployed at address: 0x1919...516f: gas used: 2265828: SUCCESS
+check that contract is initialized correctly: SUCCESS
+ # Account                                                EtherBalance       EtherBalanceChange                   Token Name
+-- ------------------------------------------ ------------------------ ------------------------ ----------------------- ---------------------
+ 0 0xa00Af22D07c87d96EeeB0Ed583f8F6AC7812827E                100000000                        0                 20000.0 Account #0 - Miner
+ 1 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433   3192.27038596652600538                        0                     0.0 Account #1 - Owner
+ 2 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976 667480.635271640739873433                        0                     0.0 Account #2 - Alice
+ 3 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0 83876.745244855741969225                        0                     0.0 Account #3 - Bob
+ 4 0xa44a08d3F6933c69212114bb66E2Df1813651844 339309.000500314263907255                        0                     0.0 Account #4 - Carol
+ 5 0xa55A151Eb00fded1634D27D1127b4bE4627079EA 182537.306859879952270069                        0                     0.0 Account #5 - Dave
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+                                                                                         20000.0 Total Token Balances
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+
+SUCCESS: Minter Set: 0x1919A2E5c4cafe755cf58e74D575195b4a5E516f
+SUCCESS: Minter Set: 0x1919A2E5c4cafe755cf58e74D575195b4a5E516f
+------------------------------
+Testing: Deposit ETH to Frames Crowdsale
+------------------------------
+Deposit crowdsale ETH: SUCCESS: Sent 500000000000000000000 ETH to 0x1919...516f
+ # Account                                                EtherBalance       EtherBalanceChange                   Token Name
+-- ------------------------------------------ ------------------------ ------------------------ ----------------------- ---------------------
+ 0 0xa00Af22D07c87d96EeeB0Ed583f8F6AC7812827E                100000000                        0                 20000.0 Account #0 - Miner
+ 1 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433  2692.540053961324793593                        0                  1343.0 Account #1 - Owner
+ 2 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976 667480.635271640739873433                        0                     0.0 Account #2 - Alice
+ 3 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0 83876.745244855741969225                        0                     0.0 Account #3 - Bob
+ 4 0xa44a08d3F6933c69212114bb66E2Df1813651844 339309.000500314263907255                        0                     0.0 Account #4 - Carol
+ 5 0xa55A151Eb00fded1634D27D1127b4bE4627079EA 183037.037191885153307572                        0                     0.0 Account #5 - Dave
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+                                                                                         21343.0 Total Token Balances
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+
+DreamFramesRoyaltyCrowdsale: deploy contract with args: ['0xa44a...1844', '0x1919...516f', 75600]: contract deployed at address: 0x46C8...a8AB: gas used: 1271305: SUCCESS
+check that contract is initialized correctly: SUCCESS
+SUCCESS: royaltyCrowdsaleAddress Crowdsale set on Frames Crowdsale: 0x46C8727D9Bc42801DDBf576c1B0BdDef351Ba8AB Gas used: 45845
+------------------------------
+Testing: Deposit ETH to Royalty Crowdsale
+------------------------------
+Deposit crowdsale ETH: SUCCESS: Sent 200000000000000000000 ETH to 0x46C8...a8AB
+------------------------------
+Royalty Token: 0xBccdc28b2c7E14f00DE960EDBfAc82146728c1C4
+------------------------------
+ # Account                                                EtherBalance       EtherBalanceChange                   Token Name
+-- ------------------------------------------ ------------------------ ------------------------ ----------------------- ---------------------
+ 0 0xa00Af22D07c87d96EeeB0Ed583f8F6AC7812827E                100000000                        0                 20000.0 Account #0 - Miner
+ 1 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433  2692.540053961324793593                        0                     0.0 Account #1 - Owner
+ 2 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976 667280.817558843425441835                        0                   537.0 Account #2 - Alice
+ 3 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0 83876.745244855741969225                        0                     0.0 Account #3 - Bob
+ 4 0xa44a08d3F6933c69212114bb66E2Df1813651844 339508.818213111578097232                        0                     0.0 Account #4 - Carol
+ 5 0xa55A151Eb00fded1634D27D1127b4bE4627079EA 183037.037191885153307572                        0                     0.0 Account #5 - Dave
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+                                                                                         20537.0 Total Token Balances
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+
+------------------------------
+FrameRush Token: 0xBa359a150d6D1fF5D0717b0C19e5AAD28E1417b2
+------------------------------
+ # Account                                                EtherBalance       EtherBalanceChange                   Token Name
+-- ------------------------------------------ ------------------------ ------------------------ ----------------------- ---------------------
+ 0 0xa00Af22D07c87d96EeeB0Ed583f8F6AC7812827E                100000000                        0                 20000.0 Account #0 - Miner
+ 1 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433  2692.540053961324793593                        0                  1343.0 Account #1 - Owner
+ 2 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976 667280.817558843425441835                        0                   537.0 Account #2 - Alice
+ 3 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0 83876.745244855741969225                        0                     0.0 Account #3 - Bob
+ 4 0xa44a08d3F6933c69212114bb66E2Df1813651844 339508.818213111578097232                        0                     0.0 Account #4 - Carol
+ 5 0xa55A151Eb00fded1634D27D1127b4bE4627079EA 183037.037191885153307572                        0                     0.0 Account #5 - Dave
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+                                                                                         21880.0 Total Token Balances
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+
+------------------------------
+Crowdsale Contract: 0x1919A2E5c4cafe755cf58e74D575195b4a5E516f
+------------------------------
+Frames Remaining: 92620
+pctSold: 1
+pctRemaining: 98
+finalised: False
+bonusOffList: 40
+pctSold: 1
+------------------------------
+Testing: Offline Purchases in USD
+------------------------------
+SUCCESS: Offline Frames Purchased: 5000 Gas used: 126225
+SUCCESS: bonusOffList set to: 20 Gas used: 28946
+SUCCESS: Offline Frames Purchased: 5000 Gas used: 126225
+Deposit crowdsale ETH: SUCCESS: Sent 30000000000000000000000 ETH to 0x46C8...a8AB
+ # Account                                                EtherBalance       EtherBalanceChange                   Token Name
+-- ------------------------------------------ ------------------------ ------------------------ ----------------------- ---------------------
+ 0 0xa00Af22D07c87d96EeeB0Ed583f8F6AC7812827E                100000000                        0                 20000.0 Account #0 - Miner
+ 1 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433  2692.540053961324793593                        0                  1343.0 Account #1 - Owner
+ 2 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976 637281.183387518540188402                        0                 69642.0 Account #2 - Alice
+ 3 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0 83876.745244855741969225                        0                  5000.0 Account #3 - Bob
+ 4 0xa44a08d3F6933c69212114bb66E2Df1813651844 369508.452384436463199607                        0                  5000.0 Account #4 - Carol
+ 5 0xa55A151Eb00fded1634D27D1127b4bE4627079EA 183037.037191885153307572                        0                     0.0 Account #5 - Dave
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+                                                                                        100985.0 Total Token Balances
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+
+Deposit crowdsale ETH: SUCCESS: Sent 30000000000000000000000 ETH to 0x1919...516f
+ # Account                                                EtherBalance       EtherBalanceChange                   Token Name
+-- ------------------------------------------ ------------------------ ------------------------ ----------------------- ---------------------
+ 0 0xa00Af22D07c87d96EeeB0Ed583f8F6AC7812827E                100000000                        0                 33515.0 Account #0 - Miner
+ 1 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433  2692.540053961324793593                        0                  1343.0 Account #1 - Owner
+ 2 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976 637281.183387518540188402                        0                 69642.0 Account #2 - Alice
+ 3 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0 83876.745244855741969225                        0                  5000.0 Account #3 - Bob
+ 4 0xa44a08d3F6933c69212114bb66E2Df1813651844 369508.452384436463199607                        0                  5000.0 Account #4 - Carol
+ 5 0xa55A151Eb00fded1634D27D1127b4bE4627079EA 188904.124317642418659697                        0                     0.0 Account #5 - Dave
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+                                                                                        114500.0 Total Token Balances
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+
+------------------------------
+Crowdsale Contract: 0x1919A2E5c4cafe755cf58e74D575195b4a5E516f
+------------------------------
+Frames Remaining: 0
+pctSold: 100
+pctRemaining: 0
+finalised: True
+bonusOffList: 20
+pctSold: 100
+------------------------------
+Testing: Dividend Deposits
+------------------------------
+Total Unclaimed Dividends: 0
+Total Dividend Points: 0
+Deposit crowdsale ETH: SUCCESS: Sent 30000000000000000000000 ETH to 0xBccd...c1C4
+Total Unclaimed Dividends: 30000000000000000000000
+Total Dividend Points: 334664554561477878672943486312219
+Dividends for Account: 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976
+getLastEthPoints: 0
+dividendsOwingEth: 23306708908770442426541
+unclaimedDividendByAccount: 0
+Dividends for Account: 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0
+getLastEthPoints: 0
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 0
+SUCCESS: Account Unlocked: 0xa22A...6976 Gas used: 17313
+ # Account                                                EtherBalance       EtherBalanceChange                   Token Name
+-- ------------------------------------------ ------------------------ ------------------------ ----------------------- ---------------------
+ 0 0xa00Af22D07c87d96EeeB0Ed583f8F6AC7812827E                100000000                        0                 20000.0 Account #0 - Miner
+ 1 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433  2692.540053961324793593                        0                     0.0 Account #1 - Owner
+ 2 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976 637281.183387518540188402                        0                 69642.0 Account #2 - Alice
+ 3 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0 83876.745244855741969225                        0                     0.0 Account #3 - Bob
+ 4 0xa44a08d3F6933c69212114bb66E2Df1813651844 369508.452384436463199607                        0                     0.0 Account #4 - Carol
+ 5 0xa55A151Eb00fded1634D27D1127b4bE4627079EA 188904.124317642418659697                        0                     0.0 Account #5 - Dave
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+                                                                                         89642.0 Total Token Balances
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+
+ # Account                                                EtherBalance       EtherBalanceChange                   Token Name
+-- ------------------------------------------ ------------------------ ------------------------ ----------------------- ---------------------
+ 0 0xa00Af22D07c87d96EeeB0Ed583f8F6AC7812827E                100000000                        0                 20000.0 Account #0 - Miner
+ 1 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433  2692.540053961324793593                        0                     0.0 Account #1 - Owner
+ 2 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976 637281.183387518540063749                        0                 69442.0 Account #2 - Alice
+ 3 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0 83876.745244855741969225                        0                   200.0 Account #3 - Bob
+ 4 0xa44a08d3F6933c69212114bb66E2Df1813651844 369508.452384436463199607                        0                     0.0 Account #4 - Carol
+ 5 0xa55A151Eb00fded1634D27D1127b4bE4627079EA 188904.124317642418659697                        0                     0.0 Account #5 - Dave
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+                                                                                         89642.0 Total Token Balances
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+
+------------------------------
+Testing: Dividends After Transfers
+------------------------------
+------------------------------
+Dividend Contract: 0xBccdc28b2c7E14f00DE960EDBfAc82146728c1C4
+------------------------------
+Symbol: GRACIEDIV
+Name: Gracie Dividend Tokens
+Total Unclaimed Dividends: 30000000000000000000000
+SUCCESS: Account Updated: 0xa22A...6976 Gas used: 23679
+SUCCESS: Account Updated: 0xa33a...1fd0 Gas used: 23679
+Dividends for Account: 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976
+getLastEthPoints: 334664554561477878672943486312219
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 23306708908770442426541
+Dividends for Account: 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0
+getLastEthPoints: 334664554561477878672943486312219
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 0
+Deposit crowdsale ETH: SUCCESS: Sent 20000000000000000000000 ETH to 0xBccd...c1C4
+SUCCESS: Account Updated: 0xa22A...6976 Gas used: 35615
+SUCCESS: Account Updated: 0xa33a...1fd0 Gas used: 50615
+Dividends for Account: 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976
+getLastEthPoints: 557774257602463131121572477187032
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 38799892907342540327078
+Dividends for Account: 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0
+getLastEthPoints: 557774257602463131121572477187032
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 44621940608197050489
+------------------------------
+Testing: Dividends After Multiple One Way Transfers
+------------------------------
+Dividends for Account: 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433
+getLastEthPoints: 557774257602463131121572477187032
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 0
+Dividends for Account: 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976
+getLastEthPoints: 557774257602463131121572477187032
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 38799892907342540327078
+Dividends for Account: 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0
+getLastEthPoints: 557774257602463131121572477187032
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 44621940608197050489
+Dividends for Account: 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433
+getLastEthPoints: 557774257602463131121572477187032
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 0
+Dividends for Account: 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976
+getLastEthPoints: 557774257602463131121572477187032
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 38799892907342540327078
+Dividends for Account: 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0
+getLastEthPoints: 557774257602463131121572477187032
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 44621940608197050489
+Dividends for Account: 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433
+getLastEthPoints: 557774257602463131121572477187032
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 0
+Dividends for Account: 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976
+getLastEthPoints: 557774257602463131121572477187032
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 38799892907342540327078
+Dividends for Account: 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0
+getLastEthPoints: 557774257602463131121572477187032
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 44621940608197050489
+------------------------------
+Testing: Withdraw Dividends
+------------------------------
+Dividends for Account: 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433
+getLastEthPoints: 557774257602463131121572477187032
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 0
+Dividends for Account: 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976
+getLastEthPoints: 557774257602463131121572477187032
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 38799892907342540327078
+Dividends for Account: 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0
+getLastEthPoints: 557774257602463131121572477187032
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 44621940608197050489
+Deposit crowdsale ETH: SUCCESS: Sent 20000000000000000000000 ETH to 0xBccd...c1C4
+Deposit crowdsale ETH: SUCCESS: Sent 10000000000000000000000 ETH to 0xBccd...c1C4
+SUCCESS: Account Updated: 0xa11A...f433 Gas used: 50615
+SUCCESS: Account Updated: 0xa22A...6976 Gas used: 35615
+SUCCESS: Account Updated: 0xa33a...1fd0 Gas used: 35615
+Dividends for Account: 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433
+getLastEthPoints: 892438812163941009794515963499251
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 20079873273688672720
+Dividends for Account: 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976
+getLastEthPoints: 892438812163941009794515963499251
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 62009549095290154168803
+Dividends for Account: 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0
+getLastEthPoints: 892438812163941009794515963499251
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 121594788157336962583
+Total Unclaimed Dividends: 80000000000000000000000
+Total Dividend Points: 892438812163941009794515963499251
+SUCCESS: Withdrew Dividends: 0xa11A...f433 Event: (AttributeDict({'args': AttributeDict({'holder': '0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433', 'amount': 20079873273688672720}), 'event': 'WithdrawalDividends', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0xed42210237c13e2e7dfd9e4371f91e05c1b49636b5865fcf606b12843b4fa590'), 'address': '0xBccdc28b2c7E14f00DE960EDBfAc82146728c1C4', 'blockHash': HexBytes('0x913c857fda456385a00bdc99a71d8eab752c3ea434a80bbcc13e6ce27c23b04d'), 'blockNumber': 1087}),)
+SUCCESS: Withdrew Dividends: 0xa22A...6976 Event: (AttributeDict({'args': AttributeDict({'holder': '0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976', 'amount': 62009549095290154168803}), 'event': 'WithdrawalDividends', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0xde76220d56b93d03ecc22b1bdfe58871a4f13c88dcfd0dd95e3e639fca579772'), 'address': '0xBccdc28b2c7E14f00DE960EDBfAc82146728c1C4', 'blockHash': HexBytes('0xe8f9b5d4d162f84a00d7aebf089b03758245c2d8eacf34f9efed0f28881979f2'), 'blockNumber': 1088}),)
+SUCCESS: Withdrew Dividends: 0xa33a...1fd0 Event: (AttributeDict({'args': AttributeDict({'holder': '0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0', 'amount': 121594788157336962583}), 'event': 'WithdrawalDividends', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0x987564d367b864cb2aefe5b4c19942e0ab10be9f3fca1a78e88c4e5794bee72d'), 'address': '0xBccdc28b2c7E14f00DE960EDBfAc82146728c1C4', 'blockHash': HexBytes('0x1c18fddf45ba35334610857069296651ec225163fe78d7e242a8c902708685ed'), 'blockNumber': 1089}),)
+Dividends for Account: 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433
+getLastEthPoints: 892438812163941009794515963499251
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 0
+Dividends for Account: 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976
+getLastEthPoints: 892438812163941009794515963499251
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 0
+Dividends for Account: 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0
+getLastEthPoints: 892438812163941009794515963499251
+dividendsOwingEth: 0
+unclaimedDividendByAccount: 0
+Total Unclaimed Dividends: 17848776243278820195894
+Total Dividend Points: 892438812163941009794515963499251
+ # Account                                                EtherBalance       EtherBalanceChange                   Token Name
+-- ------------------------------------------ ------------------------ ------------------------ ----------------------- ---------------------
+ 0 0xa00Af22D07c87d96EeeB0Ed583f8F6AC7812827E                100000000                        0                 33515.0 Account #0 - Miner
+ 1 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433  2712.619927235013341308                        0                  1343.0 Account #1 - Owner
+ 2 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976 699290.732482808693863056                        0                 69642.0 Account #2 - Alice
+ 3 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0 83998.340033013078794313                        0                  5000.0 Account #3 - Bob
+ 4 0xa44a08d3F6933c69212114bb66E2Df1813651844 369508.452384436463199607                        0                  5000.0 Account #4 - Carol
+ 5 0xa55A151Eb00fded1634D27D1127b4bE4627079EA 188904.124317642418659697                        0                     0.0 Account #5 - Dave
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+                                                                                        114500.0 Total Token Balances
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+
+ # Account                                                EtherBalance       EtherBalanceChange                   Token Name
+-- ------------------------------------------ ------------------------ ------------------------ ----------------------- ---------------------
+ 0 0xa00Af22D07c87d96EeeB0Ed583f8F6AC7812827E                100000000                        0                 20000.0 Account #0 - Miner
+ 1 0xa11AAE29840fBb5c86E6fd4cF809EBA183AEf433  2712.619927235013341308                        0                    60.0 Account #1 - Owner
+ 2 0xa22AB8A9D641CE77e06D98b7D7065d324D3d6976 699290.732482808693863056                        0                 69332.0 Account #2 - Alice
+ 3 0xa33a6c312D9aD0E0F2E95541BeED0Cc081621fd0 83998.340033013078794313                        0                   250.0 Account #3 - Bob
+ 4 0xa44a08d3F6933c69212114bb66E2Df1813651844 369508.452384436463199607                        0                     0.0 Account #4 - Carol
+ 5 0xa55A151Eb00fded1634D27D1127b4bE4627079EA 188904.124317642418659697                        0                     0.0 Account #5 - Dave
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+                                                                                         89642.0 Total Token Balances
+-- ------------------------------------------ ------------------------ ------------------------- ---------------------
+
+------------------------------
+Testing: Dream Frame Tokens
+------------------------------
+DreamFramesCollectable: deploy contract with args: ['Dream Frame Token #1', 'DFT1']: contract deployed at address: 0x8dc7...5d98: gas used: 1287511: SUCCESS
+check that contract is initialized correctly: SUCCESS
+check that contract implements interfaces: ['ERC165', 'ERC721', 'ERC721Enumerable', 'ERC721Metadata']: SUCCESS

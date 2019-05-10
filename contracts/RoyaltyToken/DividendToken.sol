@@ -101,9 +101,7 @@ contract DividendToken is BTTSTokenInterface {
        data.setMinter(_minter);
     }
     function mint(address tokenOwner, uint tokens, bool lockAccount) public returns (bool success) {
-      // require(_canReceive(address(0),tokenOwner));
-      lastEthPoints[tokenOwner] = totalDividendPoints;
-      //require(whiteList.isInWhiteList(tokenOwner));
+      require(_canReceive(address(0x0),tokenOwner));
        return data.mint(tokenOwner, tokens, lockAccount);
     }
     function accountLocked(address tokenOwner) public view returns (bool) {
@@ -206,7 +204,7 @@ contract DividendToken is BTTSTokenInterface {
     //------------------------------------------------------------------------
     // Dividends: Token Transfers
     //------------------------------------------------------------------------
-     function updateAccount(address _account) public {
+     function updateAccount(address _account) external {
         _updateAccount(_account);
     }
     function _updateAccount(address _account) internal {
@@ -248,11 +246,11 @@ contract DividendToken is BTTSTokenInterface {
     //------------------------------------------------------------------------
     // Dividends: Claim accrued dividends
     //------------------------------------------------------------------------
-    function withdrawDividends () public  {
+    function withdrawDividends () external  {
         _updateAccount(msg.sender);
         _withdrawDividends(msg.sender);
     }
-    function withdrawDividendsByAccount (address payable _account) public onlyOwner {
+    function withdrawDividendsByAccount (address payable _account) external onlyOwner {
         _updateAccount(_account);
         _withdrawDividends(_account);
     }

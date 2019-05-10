@@ -105,7 +105,7 @@ def test_transfer(contract, accounts):
 
     senders = accounts[:3]
     receivers = accounts[2:5]
-    amount = 100
+    amount = 10
     for sender in senders:
         for receiver in receivers:
             check_transfer(contract, sender, receiver, amount)
@@ -121,9 +121,9 @@ def test_transfer(contract, accounts):
             # account should be able to transfer to itself
             check_transfer(contract, sender, sender, amount)
 
-            # account should not be able to transfer tokens to zero address
-            assert reverts(transact_function, [sender, contract, 'transfer', [ZERO_ADDRESS, 1]]), \
-                'transfer to 0x0 should revert'
+            # account should not be able to transfer tokens to zero address -> Not for BTTS token
+            #assert reverts(transact_function, [sender, contract, 'transfer', [ZERO_ADDRESS, 1]]), \
+            #        'transfer to 0x0 should revert'
 
     print('SUCCESS')
 
@@ -354,7 +354,7 @@ def test(w3, accounts, contract_path, contract_name, name, symbol, decimals,
     test_initial_balances(token_contract, accounts)
     test_initial_allowances(token_contract, accounts)
 
-    fund_accounts(token_contract, accounts, 1000000)
+    fund_accounts(token_contract, accounts, 100)
     test_transfer(token_contract, accounts)
 
     approvers = accounts[:2]

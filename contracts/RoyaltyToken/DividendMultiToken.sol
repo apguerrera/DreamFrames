@@ -181,7 +181,10 @@ contract DividendToken is BTTSTokenInterface {
         require(whiteList.isInWhiteList(to));
         // Set last points for sending to new accounts.
         if (data.balances[to] == 0 && lastEthPoints[to] == 0 && totalDividendPoints > 0) {
-          lastEthPoints[to] = totalDividendPoints;
+          lastEthPoints[to] = totalDividendPoints[address(0x0)];
+        }
+        if (data.balances[to] == 0 && lastDivPoints[to] == 0 && totalDividendPoints > 0) {
+          lastEthPoints[to] = totalDividendPoints[address(0x0)];
         }
         _updateAccount(to);
         success = true;
@@ -232,7 +235,7 @@ contract DividendToken is BTTSTokenInterface {
        uint256 _owing = _dividendsOwing(_account, _token);
        // Increment internal dividends counter to new amount owed
        if (_owing > 0) {
-           unclaimedDividendByAccount[_account][_token] = unclaimedDividendByAccount[_account][_token].safeAdd(unclaimedDividendByAccount[_account][_token]);
+           unclaimedDividendByAccount[_account][_token] = unclaimedDividendByAccount[_account][_token].safeAdd(_owing);
        }
     }
 
