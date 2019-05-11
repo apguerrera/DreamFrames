@@ -9,25 +9,6 @@
 // ----------------------------------------------------------------------------
 
 
-// import "../Shared/BTTSTokenInterface120.sol";
-
-// ----------------------------------------------------------------------------
-// BokkyPooBah's Token Teleportation Service v1.20
-//
-// https://github.com/bokkypoobah/BokkyPooBahsTokenTeleportationServiceSmartContract
-//
-// Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
-// ----------------------------------------------------------------------------
-
-
-// ----------------------------------------------------------------------------
-// BokkyPooBah's Token Teleportation Service Interface v1.20
-//
-// https://github.com/bokkypoobah/BokkyPooBahsTokenTeleportationServiceSmartContract
-//
-// Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
-// ----------------------------------------------------------------------------
-
 
 // ----------------------------------------------------------------------------
 // ERC Token Standard #20 Interface

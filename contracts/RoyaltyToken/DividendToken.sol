@@ -292,8 +292,6 @@ contract DividendToken is BTTSTokenInterface {
         return data.signedApproveCheck(tokenOwner, spender, tokens, fee, nonce, sig, feeAccount);
     }
     function signedApprove(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
-        // AG: Test BTTS if nessasary
-        // require(_canTransfer(tokenOwner,spender, tokens));
         return data.signedApprove(tokenOwner, spender, tokens, fee, nonce, sig, feeAccount);
     }
     function signedTransferFromHash(address spender, address from, address to, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash) {
@@ -313,8 +311,6 @@ contract DividendToken is BTTSTokenInterface {
         return data.signedApproveAndCallCheck(tokenOwner, spender, tokens, _data, fee, nonce, sig, feeAccount);
     }
     function signedApproveAndCall(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
-        // AG: Test BTTS if nessasary
-        // require(_canTransfer(tokenOwner,spender, tokens));
         return data.signedApproveAndCall(tokenOwner, spender, tokens, _data, fee, nonce, sig, feeAccount);
     }
 

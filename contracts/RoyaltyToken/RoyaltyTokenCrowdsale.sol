@@ -34,15 +34,19 @@ contract DreamFramesRoyaltyCrowdsale is Operated {
     mapping(address => uint256) public royaltyEthAmount;
     uint256 public royaltiesSold;
     uint256 public maxRoyaltyFrames;
+    uint256 public startDate;
+    uint256 public endDate;
     event Purchased(address indexed addr, uint256 frames, uint256 ethToTransfer, uint256 royaltiesSold, uint256 contributedEth);
     event SetFrameCrowdsale(address oldCrowdsaleContract, address newCrowdsaleContract);
     event WalletUpdated(address indexed oldWallet, address indexed newWallet);
     event MaxRoyaltyFramesUpdated(uint256 oldMaxRoyaltyFrames,  uint256 newMaxRoyaltyFrames);
 
-    constructor(address payable _wallet, address _crowdsaleContract, uint256 _maxRoyaltyFrames) public {
+    constructor(address payable _wallet, address _crowdsaleContract, uint256 _startDate, uint256 _endDate, uint256 _maxRoyaltyFrames) public {
       require(_wallet != address(0));
       require(_crowdsaleContract != address(0));
       wallet = _wallet;
+      startDate = _startDate;
+      endDate = _endDate;
       maxRoyaltyFrames = _maxRoyaltyFrames;
       crowdsaleContract = DreamFramesCSInterface(_crowdsaleContract);
       initOperated(msg.sender);
@@ -93,7 +97,7 @@ contract DreamFramesRoyaltyCrowdsale is Operated {
 
     // Deposit function
     function () external payable {
-        // require(now >= startDate && now <= endDate);
+        require(now >= startDate && now <= endDate);
         // Get number of frames, will revert if sold out
         uint256 ethToTransfer;
         uint256 frames;
