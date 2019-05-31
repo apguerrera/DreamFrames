@@ -1,6 +1,8 @@
 from web3 import Web3
 from util import test_deploy, call_function, wrong, transact, unlock_account, print_balances, transact_function
 
+start_date = 1557476950
+end_date = 1573084800
 
 def test_initialized_correctly(contract, owner):
     print('check that contract is initialized correctly: ', end='')
@@ -22,7 +24,7 @@ def test(w3, accounts, contract_path, contract_name, crowdsale, max_royalty_fram
 def deploy(w3, accounts, contract_path, contract_name, crowdsale, max_royalty_frames):
     owner = accounts[0]
     wallet = accounts[4]
-    crowdsale_contract = test_deploy(w3, owner, contract_path, contract_name, [wallet, crowdsale, max_royalty_frames])
+    crowdsale_contract = test_deploy(w3, owner, contract_path, contract_name, [wallet, crowdsale, max_royalty_frames, start_date, end_date])
     return crowdsale_contract
 
 

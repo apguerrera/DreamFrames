@@ -21,7 +21,7 @@ from flatten import flatten_contracts
 
 if __name__ == '__main__':
     f = open("01_test_output.txt", 'w')
-    sys.stdout = f
+
     #--------------------------------------------------------------
     # Initialisation
     #--------------------------------------------------------------
@@ -104,10 +104,11 @@ if __name__ == '__main__':
     #print_balances(frame_token, accounts)
 
     # Test overflow of ether and ETH refund
-    deposit_eth(w3,royalty_crowdsale_contract, accounts[2], Web3.toWei(30000, "ether"))
+    deposit_eth(w3,royalty_crowdsale_contract, accounts[2], Web3.toWei(500, "ether"))
+
     print_balances(frame_token, accounts)
 
-    deposit_eth(w3,crowdsale, accounts[0], Web3.toWei(30000, "ether"))
+    deposit_eth(w3,crowdsale, accounts[0], Web3.toWei(40000, "ether"))
     print_balances(frame_token, accounts)
 
     crowdsale_contract.print_crowdsale(crowdsale)
@@ -201,6 +202,7 @@ if __name__ == '__main__':
     dividend_token.print_dividend_account(royalty_token, accounts[3])
     dividend_token.get_unclaimed_dividends(royalty_token)
     dividend_token.get_total_dividend_points(royalty_token)
+    dividend_token.print_dividend_contract(royalty_token)
 
     # AG: Test if any funds are left
     print_balances(frame_token, accounts)
@@ -213,4 +215,5 @@ if __name__ == '__main__':
     dream_frame_tokens.test(w3, accounts, os.path.join(CONTRACT_DIR, DFT_PATH), DFT_NAME)
 
     # Print to file
+    sys.stdout = f
     f.close()

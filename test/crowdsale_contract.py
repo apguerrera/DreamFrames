@@ -2,11 +2,12 @@ from web3 import Web3
 from util import test_deploy, call_function, wrong, transact, unlock_account, print_balances, transact_function, wait_transaction, print_break
 
 # AG - temp account addresses and values
-start_date = 12341234456
-end_date = 12341238564
+start_date = 1557476950
+end_date = 1573084800
 max_frames = 94500
 #frame_usd = 100 *
 bonus_off_list = 40
+
 
 def test_initialized_correctly(contract, owner, frame_token, royalty_token):
     print('check that contract is initialized correctly: ', end='')

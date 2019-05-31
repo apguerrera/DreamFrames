@@ -59,7 +59,8 @@ contract DreamFramesCrowdsale is Operated {
       require(_frameRushToken != address(0));
       require(_ethUsdPriceFeed != address(0) );
       require(_wallet != address(0));
-      require(_startDate >= now && _endDate > _startDate);
+      require(_endDate > _startDate);
+      // require(_startDate >= now);
       require(_maxFrames > 0 && _frameUsd > 0);
       initOperated(msg.sender);
       lockedAccountThresholdUsd = 10000;
@@ -209,7 +210,7 @@ contract DreamFramesCrowdsale is Operated {
 
   function () external payable {
     require(now >= startDate && now <= endDate);
-
+    
     // Get number of frames, will revert if sold out
     uint256 ethToTransfer;
     uint256 frames;

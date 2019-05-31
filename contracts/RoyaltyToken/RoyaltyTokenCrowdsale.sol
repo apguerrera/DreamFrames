@@ -44,6 +44,8 @@ contract DreamFramesRoyaltyCrowdsale is Operated {
     constructor(address payable _wallet, address _crowdsaleContract, uint256 _startDate, uint256 _endDate, uint256 _maxRoyaltyFrames) public {
       require(_wallet != address(0));
       require(_crowdsaleContract != address(0));
+      require(_endDate > _startDate);
+      // require(_startDate >= now);
       wallet = _wallet;
       startDate = _startDate;
       endDate = _endDate;
