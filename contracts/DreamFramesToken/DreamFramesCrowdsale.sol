@@ -34,7 +34,11 @@ contract DreamFramesCrowdsale is Operated {
   address public royaltyCrowdsaleAddress;
   uint256 public startDate;
   uint256 public endDate;
+  uint256 public minFrames;
+
   uint256 public maxFrames;
+  uint256 public producerFrames;
+
   uint256 public frameUsd;
 
   uint256 public framesSold;
@@ -50,21 +54,25 @@ contract DreamFramesCrowdsale is Operated {
   event StartDateUpdated(uint256 oldStartDate, uint256 newStartDate);
   event EndDateUpdated(uint256 oldEndDate, uint256 newEndDate);
   event MaxFramesUpdated(uint256 oldMaxFrames, uint256 newMaxFrames);
+  event MinFramesUpdated(uint256 oldMinFrames, uint256 newMinFrames);
+
   event FrameUsdUpdated(uint256 oldFrameUsd, uint256 newFrameUsd);
   event BonusOffListUpdated(uint256 oldBonusOffList, uint256 newBonusOffList);
   event Purchased(address indexed addr, uint256 frames, uint256 ethToTransfer, uint256 framesSold, uint256 contributedEth);
   event RoyaltyCrowdsaleUpdated(address indexed oldRoyaltyCrowdsaleAddress, address indexed  newRoyaltyCrowdsaleAddres);
 
-  constructor(address _frameRushToken, address _royaltyToken, address _ethUsdPriceFeed,  address _whiteList, address payable _wallet, uint256 _startDate, uint256 _endDate, uint256 _maxFrames, uint256 _frameUsd, uint256 _bonusOffList, uint256 _hardCapUsd, uint256 _softCapUsd) public {
+  constructor(address _frameRushToken, address _royaltyToken, address _ethUsdPriceFeed,  address _whiteList, address payable _wallet, uint256 _startDate, uint256 _endDate, uint256 _minFrames, uint256 _maxFrames, uint256 _producerFrames, uint256 _frameUsd, uint256 _bonusOffList, uint256 _hardCapUsd, uint256 _softCapUsd) public {
       require(_frameRushToken != address(0));
       require(_ethUsdPriceFeed != address(0) );
       require(_wallet != address(0));
       require(_endDate > _startDate);
       // require(_startDate >= now);
       require(_maxFrames > 0 && _frameUsd > 0);
+      require(_maxFrames > _minFrames);
+      require(_maxFrames.mod(_minFrames) == 0);
       initOperated(msg.sender);
       lockedAccountThresholdUsd = 10000;
-
+      minFrames = _minFrames;
       hardCapUsd = _hardCapUsd;
       softCapUsd = _softCapUsd;
       frameUsd = _frameUsd;
@@ -72,10 +80,11 @@ contract DreamFramesCrowdsale is Operated {
       startDate = _startDate;
       endDate = _endDate;
       maxFrames = _maxFrames;
+      producerFrames = _producerFrames;
       bonusOffList = _bonusOffList;
 
-      require(hardCapUsd >= _maxFrames.mul(_frameUsd).div(TENPOW18));
-      require(softCapUsd <= _maxFrames.mul(frameUsdWithBonus()).div(TENPOW18) );
+      // require(hardCapUsd >= _maxFrames.mul(_frameUsd).div(TENPOW18));
+      // require(softCapUsd <= _maxFrames.mul(frameUsdWithBonus()).div(TENPOW18) );
       frameRushToken = BTTSTokenInterface(_frameRushToken);
       royaltyToken = BTTSTokenInterface(_royaltyToken);
       ethUsdPriceFeed = PriceFeedInterface(_ethUsdPriceFeed);
@@ -109,8 +118,16 @@ contract DreamFramesCrowdsale is Operated {
   function setMaxFrames(uint256 _maxFrames) public onlyOwner {
       require(!finalised);
       require(_maxFrames >= framesSold);
+      require(_maxFrames.mod(minFrames) == 0);
       emit MaxFramesUpdated(maxFrames, _maxFrames);
       maxFrames = _maxFrames;
+  }
+  function setMinFrames(uint256 _minFrames) public onlyOwner {
+      require(!finalised);
+      require(_minFrames <= maxFrames);
+      require(maxFrames.mod(_minFrames) == 0);
+      emit MinFramesUpdated(minFrames, _minFrames);
+      minFrames = _minFrames;
   }
   function setFrameUsd(uint256 _frameUsd) public onlyOwner {
       require(!finalised);
@@ -197,9 +214,11 @@ contract DreamFramesCrowdsale is Operated {
     }
     // Get number of frames available to be purchased
     frames = ethAmount.div(_frameEth);
+    // Get number of frames available to be purchased
     if (framesSold.add(frames) >= maxFrames) {
         frames = maxFrames.sub(framesSold);
     }
+    frames = frames.div(minFrames).mul(minFrames);
     ethToTransfer = frames.mul(_frameEth);
   }
 
@@ -209,8 +228,8 @@ contract DreamFramesCrowdsale is Operated {
   }
 
   function () external payable {
-    require(now >= startDate && now <= endDate);
-    
+    // require(now >= startDate && now <= endDate);
+
     // Get number of frames, will revert if sold out
     uint256 ethToTransfer;
     uint256 frames;
@@ -278,9 +297,13 @@ contract DreamFramesCrowdsale is Operated {
 
   // Contract owner finalises to disable frame minting
   function finalise() public onlyOwner {
-      require(!finalised);
+      require(!finalised || frameRushToken.mintable());
       require(now > endDate || framesSold >= maxFrames);
+
       finalised = true;
+      frameRushToken.disableMinting();
+      require(royaltyToken.mint(owner, producerFrames.mul(TENPOW18), true));
+      royaltyToken.disableMinting();
   }
 
 }

@@ -108,7 +108,9 @@ if __name__ == '__main__':
 
     print_balances(frame_token, accounts)
 
-    deposit_eth(w3,crowdsale, accounts[0], Web3.toWei(40000, "ether"))
+    deposit_eth(w3,crowdsale, accounts[5], Web3.toWei(20000, "ether"))
+    deposit_eth(w3,crowdsale, accounts[0], Web3.toWei(20000, "ether"))
+
     print_balances(frame_token, accounts)
 
     crowdsale_contract.print_crowdsale(crowdsale)
@@ -117,7 +119,7 @@ if __name__ == '__main__':
     #--------------------------------------------------------------
     # Finalise crowdsale
     # AG: Fails if already finalised / tokens fully allocated
-    #crowdsale_contract.finalise(owner, crowdsale)
+    crowdsale_contract.finalise(owner, crowdsale)
     #royalty_crowdsale.finalise(owner, crowdsale)
 
     #--------------------------------------------------------------
@@ -207,6 +209,7 @@ if __name__ == '__main__':
     # AG: Test if any funds are left
     print_balances(frame_token, accounts)
     print_balances(royalty_token, accounts)
+
 
     #--------------------------------------------------------------
     # ERC721 Collectables

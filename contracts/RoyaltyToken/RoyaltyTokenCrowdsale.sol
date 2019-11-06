@@ -99,7 +99,7 @@ contract DreamFramesRoyaltyCrowdsale is Operated {
 
     // Deposit function
     function () external payable {
-        require(now >= startDate && now <= endDate);
+        // require(now >= startDate && now <= endDate);
         // Get number of frames, will revert if sold out
         uint256 ethToTransfer;
         uint256 frames;

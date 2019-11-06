@@ -5,6 +5,9 @@ from util import test_deploy, call_function, wrong, transact, unlock_account, pr
 start_date = 1557476950
 end_date = 1573084800
 max_frames = 94500
+min_frames = 25
+max_frames = 94500
+producer_frames  = 40500
 #frame_usd = 100 *
 bonus_off_list = 40
 
@@ -22,7 +25,7 @@ def test(w3, accounts, contract_path, contract_name, frame_token, royalty_token,
     wallet = accounts[5]
 
     # Deploy contract
-    crowdsale_contract = test_deploy(w3, owner, contract_path, contract_name, [frame_token.address, royalty_token.address, price_feed.address, white_list.address, wallet, start_date, end_date, max_frames, frame_usd, bonus_off_list, hard_cap_usd, soft_cap_usd])
+    crowdsale_contract = test_deploy(w3, owner, contract_path, contract_name, [frame_token.address, royalty_token.address, price_feed.address, white_list.address, wallet, start_date, end_date, min_frames, max_frames, producer_frames, frame_usd, bonus_off_list, hard_cap_usd, soft_cap_usd])
 
     # Tests
     test_initialized_correctly(crowdsale_contract, owner, frame_token.address, royalty_token.address)

@@ -73,7 +73,7 @@ if __name__ == '__main__':
     print_break('Testing: Deposit ETH to Frames Crowdsale')
     deposit_eth(w3,crowdsale, accounts[1], Web3.toWei(500, "ether"))
     print_balances(frame_token, accounts)
-    royalty_crowdsale_contract = royalty_crowdsale.test(w3, accounts, os.path.join(CONTRACT_DIR, RSC_PATH), RSC_NAME,crowdsale.address)
+    royalty_crowdsale_contract = royalty_crowdsale.test(w3, accounts, os.path.join(CONTRACT_DIR, RSC_PATH), RSC_NAME,crowdsale.address, max_royalty_frames)
 
     crowdsale_contract.set_royalty_crowdsale(owner, crowdsale,royalty_crowdsale_contract.address)
 

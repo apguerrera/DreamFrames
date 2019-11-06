@@ -27,4 +27,8 @@ library SafeMath {
     function min(uint256 a, uint256 b) internal pure returns (uint256 c) {
         c = a <= b ? a : b;
     }
+    function mod(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        require(b != 0);
+        c =  a % b;
+    }
 }

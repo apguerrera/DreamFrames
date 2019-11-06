@@ -95,6 +95,8 @@ contract BTTSTokenInterface is ERC20Interface {
      function unlockAccount(address tokenOwner) public;
      function disableMinting() public;
      function enableTransfers() public;
+     function mintable() public view returns (bool success);
+
      function setMinter(address minter) public;
 
      // ------------------------------------------------------------------------
