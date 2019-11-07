@@ -4,7 +4,7 @@ import erc20
 symbol = "GRACIE"
 name = "Gracie Frame Tokens"
 decimals = 18
-initial_supply = 00 * (10 ** 18)
+initial_supply = 0 * (10 ** decimals)
 mintable = True
 transferable = True
 
@@ -15,11 +15,13 @@ def test(w3, accounts, contract_path, contract_name, btts_library_address):
                initial_supply, owner, mintable, transferable, btts_library_address)
     return token_contract
 
+
 def get_deployed(w3, accounts, contract_path, contract_name, btts_library_address):
     owner = accounts[0]
     token_contract = test_deploy_library(w3, owner, contract_path, contract_name, btts_library_address,
                                           [owner, symbol, name, decimals, initial_supply, mintable, transferable])
     return token_contract
+
 
 def set_minter(owner, token_contract, minter):
     tx_hash = transact_function(owner, token_contract, 'setMinter', [minter])

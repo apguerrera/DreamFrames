@@ -1,6 +1,5 @@
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
-import subprocess
 import os
 import sys
 
@@ -27,7 +26,7 @@ if __name__ == '__main__':
     #--------------------------------------------------------------
     w3 = Web3(Web3.IPCProvider('../testchain/geth.ipc'))
     w3.middleware_stack.inject(geth_poa_middleware, layer=0)
-    # w3 = Web3(Web3.HTTPProvider('http://127.0.0.1:7545'))
+    # w3 = Web3(Web3.HTTPProvider('http://127.0.0.1:8545'))
     # w3 = Web3(Web3.HTTPProvider('http://localhost:8646'))
     test_w3_connected(w3)
 
@@ -46,7 +45,7 @@ if __name__ == '__main__':
     flatten_contracts()
 
     print_break('Testing: Whitelist')
-    white_list = whitelist.test(w3, accounts, os.path.join(CONTRACT_DIR, WHITELIST_PATH), WHITELIST_NAME, owner, accounts[:4])
+    white_list = whitelist.test(w3, os.path.join(CONTRACT_DIR, WHITELIST_PATH), WHITELIST_NAME, owner, accounts)
     mkr_price = test_deploy(w3, owner, os.path.join(CONTRACT_DIR, MKR_PRICE_PATH), MKR_PRICE_NAME, [0x00000000000000000000000000000000000000000000000942f35e530b9c8000, True])
     price_feed = test_deploy(w3, owner, os.path.join(CONTRACT_DIR, PRICE_FEED_PATH), PRICE_FEED_NAME, [mkr_price.address])
 
@@ -108,8 +107,7 @@ if __name__ == '__main__':
 
     print_balances(frame_token, accounts)
 
-    deposit_eth(w3,crowdsale, accounts[5], Web3.toWei(20000, "ether"))
-    deposit_eth(w3,crowdsale, accounts[0], Web3.toWei(20000, "ether"))
+    deposit_eth(w3,crowdsale, accounts[0], Web3.toWei(40000, "ether"))
 
     print_balances(frame_token, accounts)
 

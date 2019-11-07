@@ -1,5 +1,4 @@
 from util import test_deploy, call_function, wrong, prettify_args, transact_function, get_event
-import random
 
 
 def test_initialized_correctly(contract, owner):
@@ -12,10 +11,11 @@ def test_initialized_correctly(contract, owner):
 
 
 # test that addresses are added correctly to WhiteList
-def test_add_to_whitelist(w3, owner, whitelist_contract, addresses):
+def test_add_to_whitelist(whitelist_contract, owner, addresses):
     print('add addresses: {}: to whitelist at address: {}: '
           .format(prettify_args(addresses), whitelist_contract.address), end='')
 
+    w3 = whitelist_contract.web3
     tx_hash = transact_function(owner, whitelist_contract, 'add', [addresses])
     tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
     assert tx_receipt['status'] == 1, 'transaction failed'
@@ -35,10 +35,8 @@ def test_add_to_whitelist(w3, owner, whitelist_contract, addresses):
     print('gas used: {}: SUCCESS'.format(tx_receipt['gasUsed']))
 
 
-
-def test(w3, accounts, contract_path, contract_name, owner, whitelist_accounts):
-
+def test(w3, contract_path, contract_name, owner, whitelist_accounts):
     contract = test_deploy(w3, owner, contract_path, contract_name)
     test_initialized_correctly(contract, owner)
-    test_add_to_whitelist(w3, owner, contract, whitelist_accounts)
+    test_add_to_whitelist(contract, owner, whitelist_accounts)
     return contract

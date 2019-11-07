@@ -6,10 +6,7 @@ from web3 import Web3
 from eth_abi.exceptions import InsufficientDataBytes
 from web3.exceptions import BadFunctionCallOutput
 
-REVERT_MESSAGES = [
-    'VM Exception while processing transaction: revert',
-    'gas required exceeds allowance or always failing transaction'
-]
+REVERT_CODES = [-32000]
 ZERO_ADDRESS = Web3.toChecksumAddress('0x0000000000000000000000000000000000000000')
 SOLC_VERSION = 'v0.5.4'
 accounts = []
@@ -126,7 +123,7 @@ def reverts(func, args=()):
         func(*args)
     except ValueError as e:
         # reverts on transact
-        if type(e.args[0]) == dict and e.args[0].get('message', None) in REVERT_MESSAGES:
+        if type(e.args[0]) == dict and e.args[0].get('code') in REVERT_CODES:
             return True
         else:
             raise e

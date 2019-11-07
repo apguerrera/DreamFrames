@@ -1,4 +1,4 @@
-from util import transact_function, call_function, wrong, reverts, check_event, ZERO_ADDRESS, test_deploy_library
+from util import transact_function, call_function, wrong, reverts, check_event, ZERO_ADDRESS, test_deploy_library, wait_transaction
 
 
 def test_case(func):
@@ -100,7 +100,7 @@ def check_transfer(contract, sender, receiver, amount):
 
 
 @test_case
-def test_transfer(contract, accounts):
+def test_transfer(contract, accounts, zero_amount=True):
     print('check that tokens are transferred correctly: ', end='')
 
     senders = accounts[:3]
@@ -110,13 +110,14 @@ def test_transfer(contract, accounts):
         for receiver in receivers:
             check_transfer(contract, sender, receiver, amount)
 
-            # should not send more than balance
             sender_balance = call_function(contract, 'balanceOf', [sender])
+
             assert reverts(transact_function, [sender, contract, 'transfer', [receiver, sender_balance + 1]]), \
                 'owner should not be able to send more tokens than his balance'
 
-            # should be able to send 0 tokens
-            check_transfer(contract, sender, receiver, 0)
+            if zero_amount is True:
+                # should be able to send 0 tokens
+                check_transfer(contract, sender, receiver, 0)
 
             # account should be able to transfer to itself
             check_transfer(contract, sender, sender, amount)
@@ -234,14 +235,13 @@ def check_transfer_from(contract, approver, spender, receiver, amount):
 
 @test_case
 def test_transfer_from(contract, accounts, approvers, spenders):
-    print('check that transferFrom works correctly: ')
+    print('check that transferFrom works correctly: ', end='')
 
     receivers = accounts[3:4]
     amount = 1
     for approver in approvers:
         for spender in spenders:
             for receiver in receivers:
-                print("Approver: {} Spender: {} Receiver: {}".format(approver, spender, receiver))
                 check_transfer_from(contract, approver, spender, receiver, amount)
 
                 # should not send more than balance of approver
@@ -256,9 +256,9 @@ def test_transfer_from(contract, accounts, approvers, spenders):
                                [spender, contract, 'transferFrom', [approver, receiver, allowance + 1]]), \
                     'spender should not be able to send more tokens than allowance'
 
-                # spender should not be able to transfer tokens to zero address
-                assert reverts(transact_function, [spender, contract, 'transferFrom', [approver, ZERO_ADDRESS, 1]]), \
-                    'transferFrom to 0x0 should revert'
+                # # spender should not be able to transfer tokens to zero address
+                # assert reverts(transact_function, [spender, contract, 'transferFrom', [approver, ZERO_ADDRESS, 1]]), \
+                #     'transferFrom to 0x0 should revert'
 
     print('SUCCESS')
 
@@ -334,6 +334,53 @@ def test_enable_transfers(contract, accounts, approvers, spenders):
     print('SUCCESS')
 
 
+def check_set_minter(contract, owner, minter):
+    tx_hash = transact_function(owner, contract, 'setMinter', [minter])
+    w3 = contract.web3
+
+    wait_transaction(w3, tx_hash)
+
+    set_minter = call_function(contract, 'minter')
+    assert set_minter == minter, wrong('minter set', set_minter, minter)
+
+
+def check_mint(contract, minter, receiver, amount, lock=False):
+    receiver_balance_old = call_function(contract, 'balanceOf', [receiver])
+
+    tx_hash = transact_function(minter, contract, 'mint', [receiver, amount, lock])
+
+    check_event(contract, tx_hash, 'Mint', {'tokenOwner': receiver, 'tokens': amount, 'lockAccount': lock})
+    check_event(contract, tx_hash, 'Transfer', {'from': ZERO_ADDRESS, 'to': receiver, 'tokens': amount})
+
+    receiver_balance_new = call_function(contract, 'balanceOf', [receiver])
+
+    assert receiver_balance_new == receiver_balance_old + amount, \
+        wrong('receiver balance', receiver_balance_new, receiver_balance_old + amount)
+
+    account_locked = call_function(contract, 'accountLocked', [receiver])
+    assert account_locked == lock, wrong('receiver account lock', account_locked, lock)
+
+
+@test_case
+def test_mint(contract, accounts, amount):
+    print('check that tokens are minted correctly: ', end='')
+
+    owner = call_function(contract, 'owner')
+    minter = accounts[3]
+
+    check_set_minter(contract, owner, minter)
+
+    check_mint(contract, owner, owner, amount)
+    check_mint(contract, owner, accounts[2], amount)
+
+    check_mint(contract, minter, owner, amount)
+    check_mint(contract, minter, minter, amount)
+
+    # TODO: Check when lock is True
+
+    print('SUCCESS')
+
+
 @test_case
 def fund_accounts(contract, accounts, amount):
     print('funding accounts: ', end='')
@@ -354,7 +401,10 @@ def test(w3, accounts, contract_path, contract_name, name, symbol, decimals,
     test_initial_balances(token_contract, accounts)
     test_initial_allowances(token_contract, accounts)
 
-    fund_accounts(token_contract, accounts, 100)
+    # mint tokens before funding and transferring
+    test_mint(token_contract, accounts, 1000000)
+
+    fund_accounts(token_contract, accounts, 1000)
     test_transfer(token_contract, accounts)
 
     approvers = accounts[:2]
@@ -372,8 +422,9 @@ def test(w3, accounts, contract_path, contract_name, name, symbol, decimals,
     return token_contract
 
 
-def test_white_list(w3, accounts, contract_path, contract_name, name, symbol, decimals,
-         initial_supply, owner, mintable, transferable, btts_library_address, white_list):
+def test_white_list(w3, accounts, contract_path, contract_name, name,
+                    symbol, decimals, initial_supply, owner, mintable, transferable, btts_library_address, white_list):
+
     token_contract = test_deploy_library(w3, owner, contract_path, contract_name, btts_library_address,
                                          [owner, symbol, name, decimals, initial_supply, mintable, transferable, white_list])
 
@@ -381,8 +432,11 @@ def test_white_list(w3, accounts, contract_path, contract_name, name, symbol, de
     test_initial_balances(token_contract, accounts)
     test_initial_allowances(token_contract, accounts)
 
-    fund_accounts(token_contract, accounts, 1000000)
-    test_transfer(token_contract, accounts)
+    # mint tokens before funding and transferring
+    test_mint(token_contract, accounts, 1000000)
+
+    fund_accounts(token_contract, accounts, 1000)
+    test_transfer(token_contract, accounts, zero_amount=False)
 
     approvers = accounts[:2]
     spenders = accounts[1:3]
