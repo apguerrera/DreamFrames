@@ -30,7 +30,7 @@ if __name__ == '__main__':
     # w3 = Web3(Web3.HTTPProvider('http://localhost:8646'))
     test_w3_connected(w3)
 
-    accounts = w3.eth.accounts[:6]
+    accounts = w3.eth.accounts[:7]
     default_password = ''
     funder = accounts[0]
     owner = accounts[0]

@@ -376,7 +376,7 @@ def test_mint(contract, accounts, amount):
     check_mint(contract, minter, owner, amount)
     check_mint(contract, minter, minter, amount)
 
-    # TODO: Check when lock is True
+    check_mint(contract, minter, accounts[-1], amount, lock=True)
 
     print('SUCCESS')
 

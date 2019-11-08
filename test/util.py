@@ -294,6 +294,8 @@ def print_balances(token, accounts):
     addAccount(w3.eth.accounts[3], "Account #3 - Bob")
     addAccount(w3.eth.accounts[4], "Account #4 - Carol")
     addAccount(w3.eth.accounts[5], "Account #5 - Dave")
+    addAccount(w3.eth.accounts[6], "Account #6 - Eve")
+
     print(" # Account                                                EtherBalance       EtherBalanceChange                   Token Name")
     print("-- ------------------------------------------ ------------------------ ------------------------ ----------------------- ---------------------")
 
