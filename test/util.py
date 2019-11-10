@@ -69,11 +69,15 @@ def account_from_key(w3, key_path, passphrase):
     return account
 
 
-def deposit_eth(w3,contract, sender, amount):
-    print('Deposit crowdsale ETH: ', end='')
+def deposit_eth(contract, sender, amount):
+    # print('Deposit crowdsale ETH: ', end='')
+
+    w3 = contract.web3
     tx_hash = transact(w3, sender, contract.address, amount)
-    #print(tx_hash)
-    print('SUCCESS: Sent {} ETH to {}'.format(amount, short_address(contract.address)))
+    wait_transaction(w3, tx_hash)
+    # print('SUCCESS: Sent {} wei to {}'.format(amount, short_address(contract.address)))
+
+    return tx_hash
 
 
 #--------------------------------------------------------------
@@ -212,6 +216,7 @@ def wait_transaction(w3, tx_hash):
 #  Events
 #--------------------------------------------------------------
 
+
 # return event data from transaction with hash tx_hash
 # return None if transaction was not included to block
 def get_event(contract, tx_hash, event_name):
@@ -225,6 +230,7 @@ def get_event(contract, tx_hash, event_name):
 def wait_event(contract, tx_hash, event_name):
     contract.web3.eth.waitForTransactionReceipt(tx_hash)
     return get_event(contract, tx_hash, event_name)
+
 
 # check that event is emitted correctly
 def check_event(contract, tx_hash, event, expected_response=None):

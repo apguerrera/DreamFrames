@@ -69,7 +69,7 @@ if __name__ == '__main__':
     crowdsale_token.set_minter(owner, frame_token,crowdsale.address)
     crowdsale_token.set_minter(owner, royalty_token,crowdsale.address)
     print_break('Testing: Deposit ETH to Frames Crowdsale')
-    deposit_eth(w3,crowdsale, accounts[1], Web3.toWei(500, "ether"))
+    deposit_eth(crowdsale, accounts[1], Web3.toWei(500, "ether"))
     print_balances(frame_token, accounts)
     royalty_crowdsale_contract = royalty_crowdsale.test(w3, accounts, os.path.join(CONTRACT_DIR, RSC_PATH), RSC_NAME,crowdsale.address, max_royalty_frames)
 
@@ -80,8 +80,8 @@ if __name__ == '__main__':
     #--------------------------------------------------------------
     # Deposit ETH
     print_break('Testing: Deposit ETH to Royalty Crowdsale')
-    deposit_eth(w3,royalty_crowdsale_contract, accounts[2], Web3.toWei(200, "ether"))
-    #deposit_eth(w3,royalty_crowdsale_contract, accounts[1], Web3.toWei(200, "ether"))
+    deposit_eth(royalty_crowdsale_contract, accounts[2], Web3.toWei(200, "ether"))
+    #deposit_eth(royalty_crowdsale_contract, accounts[1], Web3.toWei(200, "ether"))
     print_break("Royalty Token: {}".format(royalty_token.address))
     print_balances(royalty_token, accounts)
     print_break("FrameRush Token: {}".format(frame_token.address))
@@ -103,11 +103,11 @@ if __name__ == '__main__':
     #print_balances(frame_token, accounts)
 
     # Test overflow of ether and ETH refund
-    deposit_eth(w3,royalty_crowdsale_contract, accounts[2], Web3.toWei(500, "ether"))
+    deposit_eth(royalty_crowdsale_contract, accounts[2], Web3.toWei(500, "ether"))
 
     print_balances(frame_token, accounts)
 
-    deposit_eth(w3,crowdsale, accounts[0], Web3.toWei(40000, "ether"))
+    deposit_eth(crowdsale, accounts[0], Web3.toWei(40000, "ether"))
 
     print_balances(frame_token, accounts)
 
@@ -127,7 +127,7 @@ if __name__ == '__main__':
     # AG: Deposit ETH into Royalty contract
     dividend_token.get_unclaimed_dividends(royalty_token)
     dividend_token.get_total_dividend_points(royalty_token)
-    deposit_eth(w3,royalty_token, accounts[0], Web3.toWei(30000, "ether"))
+    deposit_eth(royalty_token, accounts[0], Web3.toWei(30000, "ether"))
     dividend_token.get_unclaimed_dividends(royalty_token)
     dividend_token.get_total_dividend_points(royalty_token)
     dividend_token.print_dividend_account(royalty_token, accounts[2])
@@ -155,7 +155,7 @@ if __name__ == '__main__':
     dividend_token.print_dividend_account(royalty_token, accounts[2])
     dividend_token.print_dividend_account(royalty_token, accounts[3])
 
-    deposit_eth(w3,royalty_token, accounts[0], Web3.toWei(20000, "ether"))
+    deposit_eth(royalty_token, accounts[0], Web3.toWei(20000, "ether"))
     dividend_token.update_account(royalty_token, accounts[2])
     dividend_token.update_account(royalty_token, accounts[3])
     dividend_token.print_dividend_account(royalty_token, accounts[2])
@@ -183,9 +183,9 @@ if __name__ == '__main__':
     dividend_token.print_dividend_account(royalty_token, accounts[1])
     dividend_token.print_dividend_account(royalty_token, accounts[2])
     dividend_token.print_dividend_account(royalty_token, accounts[3])
-    deposit_eth(w3,royalty_token, accounts[0], Web3.toWei(20000, "ether"))
+    deposit_eth(royalty_token, accounts[0], Web3.toWei(20000, "ether"))
     erc20.check_transfer(royalty_token, accounts[2], accounts[3], 30 * (10 ** decimals))
-    deposit_eth(w3,royalty_token, accounts[0], Web3.toWei(10000, "ether"))
+    deposit_eth(royalty_token, accounts[0], Web3.toWei(10000, "ether"))
     dividend_token.update_account(royalty_token, accounts[1])
     dividend_token.update_account(royalty_token, accounts[2])
     dividend_token.update_account(royalty_token, accounts[3])

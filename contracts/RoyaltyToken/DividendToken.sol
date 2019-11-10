@@ -166,6 +166,7 @@ contract DividendToken is BTTSTokenInterface {
     //------------------------------------------------------------------------
     function _canTransfer (address from, address to, uint256 value) internal returns (bool success) {
         require(data.transferable);
+        // Remove this check to conform to ERC20
         require(value > 0);
         require(_canReceive(from,to));
         require(_canSend(from,to));
@@ -197,7 +198,7 @@ contract DividendToken is BTTSTokenInterface {
     }
     function _dividendsOwing(address _account) internal view returns(uint256) {
         uint256 newDividendPoints = totalDividendPoints.safeSub(lastEthPoints[_account]);
-        // Returns amout ETH owed from current token balance
+        // Returns amount ETH owed from current token balance
         return (data.balances[_account] * newDividendPoints) / pointMultiplier;
     }
 
