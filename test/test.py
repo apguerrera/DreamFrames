@@ -107,7 +107,8 @@ if __name__ == '__main__':
 
     print_balances(frame_token, accounts)
 
-    deposit_eth(crowdsale, accounts[0], Web3.toWei(40000, "ether"))
+    #deposit_eth(w3,crowdsale, accounts[5], Web3.toWei(20000, "ether"))
+    deposit_eth(w3,crowdsale, accounts[0], Web3.toWei(40000, "ether"))
 
     print_balances(frame_token, accounts)
 

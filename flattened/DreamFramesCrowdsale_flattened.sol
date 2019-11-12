@@ -296,8 +296,8 @@ contract DreamFramesCrowdsale is Operated {
       producerFrames = _producerFrames;
       bonusOffList = _bonusOffList;
 
-      require(hardCapUsd >= _maxFrames.mul(_frameUsd).div(TENPOW18));
-      require(softCapUsd <= _maxFrames.mul(frameUsdWithBonus()).div(TENPOW18) );
+      // require(hardCapUsd >= _maxFrames.mul(_frameUsd).div(TENPOW18));
+      // require(softCapUsd <= _maxFrames.mul(frameUsdWithBonus()).div(TENPOW18) );
       frameRushToken = BTTSTokenInterface(_frameRushToken);
       royaltyToken = BTTSTokenInterface(_royaltyToken);
       ethUsdPriceFeed = PriceFeedInterface(_ethUsdPriceFeed);
