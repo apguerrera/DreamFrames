@@ -16,6 +16,7 @@ accountNames = {}
 #  Web3 Connection
 #--------------------------------------------------------------
 
+
 # check that there is connection to ethereum node
 def test_w3_connected(w3):
     print('connect to ethereum node: ', end='')
@@ -26,7 +27,6 @@ def test_w3_connected(w3):
 #--------------------------------------------------------------
 #  Transactions
 #--------------------------------------------------------------
-
 # transact from sender to receiver, amount in wei
 def transact(w3, sender, receiver, amount):
     tx_hash = w3.eth.sendTransaction({'from': sender, 'to': receiver, 'value': amount})
@@ -80,10 +80,13 @@ def deposit_eth(contract, sender, amount):
     return tx_hash
 
 
+def get_balance(w3, account):
+    return w3.eth.getBalance(account, w3.eth.blockNumber)
+
+
 #--------------------------------------------------------------
 #  Deployment
 #--------------------------------------------------------------
-
 # test that contract is deployed correctly
 def test_deploy(w3, account, path, name, args=()):
     print('{}: deploy contract with args: {}: '.format(name, prettify_args(args)), end='')
@@ -195,6 +198,7 @@ def get_contract(w3, address, abi):
 #  Contract Calls
 #--------------------------------------------------------------
 
+
 # make transaction to contract invoking function, return transaction hash
 def transact_function(account, contract, function_name, args=()):
     tx_hash = contract.functions[function_name](*args).transact({'from': account})
@@ -206,6 +210,7 @@ def call_function(contract, function_name, args=(), account=None):
     if account is None:
         account = contract.web3.eth.accounts[-1]
     return contract.functions[function_name](*args).call({'from': account})
+
 
 def wait_transaction(w3, tx_hash):
     tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
@@ -277,15 +282,18 @@ def prettify_args(args):
             res.append(arg)
     return res
 
+
 # Error return
 def wrong(subject, got, expected):
-    return 'wrong {}, expected: {}, got: {}'.format(subject, expected, got)
+    return f'wrong {subject}, got: {got}, expected: {expected}'
+
 
 # print message headers for terminal output
 def print_break(msgToPrint):
     print('-' * 30)
     print(msgToPrint)
     print('-' * 30)
+
 
 # print balances of a set token
 def print_balances(token, accounts):
