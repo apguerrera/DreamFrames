@@ -170,6 +170,7 @@ contract DividendToken is BTTSTokenInterface {
     //------------------------------------------------------------------------
     function _canTransfer (address from, address to, uint256 value) internal returns (bool success) {
         require(data.transferable);
+        // remove this check in order to conform to ERC20
         require(value > 0);
         require(_canSend(from,to));
         require(_canReceive(from,to));
@@ -180,10 +181,7 @@ contract DividendToken is BTTSTokenInterface {
         require(to != address(0));
         require(whiteList.isInWhiteList(to));
         // Set last points for sending to new accounts.
-        if (data.balances[to] == 0 && lastEthPoints[to] == 0 && totalDividendPoints > 0) {
-          lastEthPoints[to] = totalDividendPoints[address(0x0)];
-        }
-        if (data.balances[to] == 0 && lastDivPoints[to] == 0 && totalDividendPoints > 0) {
+        if (data.balances[to] == 0 && lastDivPoints[to] == 0 && totalDividendPoints[address(0x0)] > 0) {
           lastEthPoints[to] = totalDividendPoints[address(0x0)];
         }
         _updateAccount(to);
@@ -224,7 +222,7 @@ contract DividendToken is BTTSTokenInterface {
        // Check if new deposits have been made since last withdraw
        if (lastDivPoints[_account] < totalDividendPoints[address(dividendTokenAddress)]) {
              _updateAccountByToken(_account,address(dividendTokenAddress));
-             lastDivPoints[_account] = totalDividendPoints[address(dividendTokenAddress)]
+             lastDivPoints[_account] = totalDividendPoints[address(dividendTokenAddress)];
        }
        if (lastEthPoints[_account] < totalDividendPoints[address(0x0)]) {
              _updateAccountByToken(_account,address(0x0));
@@ -248,6 +246,9 @@ contract DividendToken is BTTSTokenInterface {
         require(ERC20Interface(dividendTokenAddress).transferFrom(msg.sender, address(this), _amount));
         _depositDividends(_amount, address(dividendTokenAddress));
     }
+    // remove this function since it doesn't work as expected
+    // in approve function inside ERC20 contract msg.sender is set to this contract's address
+    // so approval from dividend token to itself happens, not from user account to dividend token
     function approveTokenDividend(uint _amount) external  {
         require(_amount > 0);
         require(ERC20Interface(dividendTokenAddress).approve(address(this), _amount));
@@ -310,7 +311,7 @@ contract DividendToken is BTTSTokenInterface {
         if (_token == address(dividendTokenAddress)) {
               require(ERC20Interface(_token).transfer(_account, _amount));
         } else if (_token == address(0x0)) {
-              _account.transfer(_amount));
+              _account.transfer(_amount);
         }
     }
 
