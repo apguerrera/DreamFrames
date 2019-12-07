@@ -61,16 +61,25 @@ contract DreamFramesCrowdsale is Operated {
   event Purchased(address indexed addr, uint256 frames, uint256 ethToTransfer, uint256 framesSold, uint256 contributedEth);
   event RoyaltyCrowdsaleUpdated(address indexed oldRoyaltyCrowdsaleAddress, address indexed  newRoyaltyCrowdsaleAddres);
 
-  constructor(address _frameRushToken, address _royaltyToken, address _ethUsdPriceFeed,  address _whiteList, address payable _wallet, uint256 _startDate, uint256 _endDate, uint256 _minFrames, uint256 _maxFrames, uint256 _producerFrames, uint256 _frameUsd, uint256 _bonusOffList, uint256 _hardCapUsd, uint256 _softCapUsd) public {
+  constructor(address _frameRushToken, address _royaltyToken, address _ethUsdPriceFeed, address _whiteList ) public {
       require(_frameRushToken != address(0));
+      require(_royaltyToken != address(0));
       require(_ethUsdPriceFeed != address(0) );
+      require(_whiteList != address(0) );
+      initOperated(msg.sender);
+      frameRushToken = BTTSTokenInterface(_frameRushToken);
+      royaltyToken = BTTSTokenInterface(_royaltyToken);
+      ethUsdPriceFeed = PriceFeedInterface(_ethUsdPriceFeed);
+      whiteList = WhiteListInterface(_whiteList);
+  }
+
+  function init(address payable _wallet, uint256 _startDate, uint256 _endDate, uint256 _minFrames, uint256 _maxFrames, uint256 _producerFrames, uint256 _frameUsd, uint256 _bonusOffList, uint256 _hardCapUsd, uint256 _softCapUsd) public {
       require(_wallet != address(0));
       require(_endDate > _startDate);
       // require(_startDate >= now);
       require(_maxFrames > 0 && _frameUsd > 0);
       require(_maxFrames > _minFrames);
       require(_maxFrames.mod(_minFrames) == 0);
-      initOperated(msg.sender);
       lockedAccountThresholdUsd = 10000;
       minFrames = _minFrames;
       hardCapUsd = _hardCapUsd;
@@ -85,10 +94,8 @@ contract DreamFramesCrowdsale is Operated {
 
       // require(hardCapUsd >= _maxFrames.mul(_frameUsd).div(TENPOW18));
       // require(softCapUsd <= _maxFrames.mul(frameUsdWithBonus()).div(TENPOW18) );
-      frameRushToken = BTTSTokenInterface(_frameRushToken);
-      royaltyToken = BTTSTokenInterface(_royaltyToken);
-      ethUsdPriceFeed = PriceFeedInterface(_ethUsdPriceFeed);
-      whiteList = WhiteListInterface(_whiteList);
+
+
   }
   // Setter functions
   function setWallet(address payable _wallet) public onlyOwner {

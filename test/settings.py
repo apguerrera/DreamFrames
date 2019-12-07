@@ -24,6 +24,14 @@ MKR_PRICE_PATH = 'DreamFramesToken/MakerDAOETHUSDPriceFeedSimulator.sol'
 MKR_PRICE_NAME = 'MakerDAOETHUSDPriceFeedSimulator'
 PRICE_FEED_PATH = 'DreamFramesToken/MakerDAOPriceFeedAdaptor.sol'
 PRICE_FEED_NAME = 'MakerDAOPriceFeedAdaptor'
+WLF_PATH = 'Factory/WhiteListFactory.sol'
+WLF_NAME = 'WhiteListFactory'
+DFF_PATH = 'Factory/DreamFramesFactory.sol'
+DFF_NAME = 'DreamFramesFactory'
+TF_PATH = 'Factory/TokenFactory.sol'
+TF_NAME = 'TokenFactory'
+RTF_PATH = 'Factory/RoyaltyTokenFactory.sol'
+RTF_NAME = 'RoyaltyTokenFactory'
 
 # Contract variables
 decimals = 18
