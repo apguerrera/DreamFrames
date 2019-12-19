@@ -39,7 +39,7 @@ contract DreamFramesFactory is Operated {
 
     // AG - to be updated
     // event TokenContractsDeployed(address indexed movie, string movieName, address indexed token, string tokenSymbol, string tokenName, uint8 tokenDecimals, address indexed housemateName, uint tokensForNewHousemates);
-    event CrowdsaleContractsDeployed( address indexed token, address indexed royaltyToken, address wallet);
+    event CrowdsaleContractsDeployed(address indexed token, address indexed royaltyToken, address wallet);
 
     constructor() public {
         super.initOperated(msg.sender);
@@ -70,8 +70,8 @@ contract DreamFramesFactory is Operated {
     // Deployment functions
     function deployTokenContract(
         address owner,
+        string memory symbol,
         string memory name,
-        string memory  symbol,
         uint8 decimals,
         uint256 totalSupply,
         bool mintable,

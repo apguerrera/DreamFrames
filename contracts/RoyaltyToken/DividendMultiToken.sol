@@ -22,7 +22,7 @@ import "./WhiteListInterface.sol";
 // https://github.com/bokkypoobah/BokkyPooBahsTokenTeleportationServiceSmartContract
 // Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
 // ----------------------------------------------------------------------------
-contract DividendToken is BTTSTokenInterface {
+contract DividendMultiToken is BTTSTokenInterface {
     using BTTSLib for BTTSLib.Data;
     using BTTSLib for uint256;
 

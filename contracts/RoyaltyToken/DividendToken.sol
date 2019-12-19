@@ -164,7 +164,7 @@ contract DividendToken is BTTSTokenInterface {
     //------------------------------------------------------------------------
     // Transfer Restrictions
     //------------------------------------------------------------------------
-    function _canTransfer (address from, address to, uint256 value) internal returns (bool success) {
+    function _canTransfer (address from, address to, uint256 value) internal view returns (bool success) {
         require(data.transferable);
         // Remove this check to conform to ERC20
         require(value > 0);
@@ -173,20 +173,24 @@ contract DividendToken is BTTSTokenInterface {
         success = true;
     }
 
-    function _canReceive(address from, address to) internal returns (bool success) {
+    function _canReceive(address from, address to) internal view returns (bool success) {
         require(to != address(0));
         require(whiteList.isInWhiteList(to));
-        // Set last points for sending to new accounts.
-        if (data.balances[to] == 0 && lastEthPoints[to] == 0 && totalDividendPoints > 0) {
-          lastEthPoints[to] = totalDividendPoints;
-        }
-        _updateAccount(to);
+
+//        Set last points for sending to new accounts.
+//        TODO: canTransfer has "view" state mutability, but this tries to make storage changes
+//        if (data.balances[to] == 0 && lastEthPoints[to] == 0 && totalDividendPoints > 0) {
+//          lastEthPoints[to] = totalDividendPoints;
+//        }
+//        _updateAccount(to);
+
         success = true;
     }
-    function _canSend(address from, address to) internal returns (bool success) {
+    function _canSend(address from, address to) internal view returns (bool success) {
         require(from != address(0));
         require(whiteList.isInWhiteList(from));
-        _updateAccount(from);
+//         TODO: canTransfer has "view" state mutability, but this tries to make storage changes
+//        _updateAccount(from);
         success = true;
     }
 

@@ -69,7 +69,7 @@ contract RoyaltyTokenFactory is Operated {
         if (_token == address(0)) {
             owner.transfer((_tokens == 0 ? address(this).balance : _tokens));
         } else {
-            ERC20Interface(token).transfer(owner, tokens == 0 ? ERC20Interface(token).balanceOf(address(this)) : tokens);
+            ERC20Interface(_token).transfer(owner, _tokens == 0 ? ERC20Interface(_token).balanceOf(address(this)) : _tokens);
         }
     }
 }
