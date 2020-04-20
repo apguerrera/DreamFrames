@@ -147,14 +147,16 @@ contract DividendToken is BTTSTokenInterface {
        return data.allowed[tokenOwner][spender];
     }
     function transfer(address to, uint tokens) public returns (bool success) {
-       _canTransfer(msg.sender,to, tokens);
+       // updateAccounts
+       require(_canTransfer(msg.sender,to, tokens));
        return data.transfer(to, tokens);
     }
     function approve(address spender, uint tokens) public returns (bool success) {
        return data.approve(spender, tokens);
     }
     function transferFrom(address from, address to, uint tokens) public returns (bool success) {
-        _canTransfer(from,to, tokens);
+       // updateAccounts
+        require(_canTransfer(from,to, tokens));
        return data.transferFrom(from, to, tokens);
     }
     function approveAndCall(address spender, uint tokens, bytes memory _data) public returns (bool success) {
@@ -164,34 +166,21 @@ contract DividendToken is BTTSTokenInterface {
     //------------------------------------------------------------------------
     // Transfer Restrictions
     //------------------------------------------------------------------------
-    function _canTransfer (address from, address to, uint256 value) internal view returns (bool success) {
-        require(data.transferable);
-        // Remove this check to conform to ERC20
-        require(value > 0);
-        require(_canReceive(from,to));
-        require(_canSend(from,to));
-        success = true;
+    function _canTransfer(address from, address to, uint256 value) internal view returns (bool success) {
+        if (data.transferable && _canSend(from,to) && _canReceive(from,to) ) {
+            success = true;
+        }
     }
 
     function _canReceive(address from, address to) internal view returns (bool success) {
-        require(to != address(0));
-        require(whiteList.isInWhiteList(to));
-
-//        Set last points for sending to new accounts.
-//        TODO: canTransfer has "view" state mutability, but this tries to make storage changes
-//        if (data.balances[to] == 0 && lastEthPoints[to] == 0 && totalDividendPoints > 0) {
-//          lastEthPoints[to] = totalDividendPoints;
-//        }
-//        _updateAccount(to);
-
-        success = true;
+        if (to != address(0) && whiteList.isInWhiteList(to) ) {
+            success = true;
+        }
     }
     function _canSend(address from, address to) internal view returns (bool success) {
-        require(from != address(0));
-        require(whiteList.isInWhiteList(from));
-//         TODO: canTransfer has "view" state mutability, but this tries to make storage changes
-//        _updateAccount(from);
-        success = true;
+        if (to != address(0) && whiteList.isInWhiteList(from) ) {
+            success = true;
+        }
     }
 
     //------------------------------------------------------------------------

@@ -20,7 +20,6 @@ import "../Shared/BTTSTokenLibrary120.sol";
 // ----------------------------------------------------------------------------
 contract DreamFramesToken is BTTSTokenInterface {
     using BTTSLib for BTTSLib.Data;
-
     BTTSLib.Data data;
 
     // ------------------------------------------------------------------------

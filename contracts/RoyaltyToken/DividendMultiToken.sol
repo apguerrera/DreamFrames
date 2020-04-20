@@ -105,8 +105,13 @@ contract DividendMultiToken is BTTSTokenInterface {
        data.setMinter(_minter);
     }
     function mint(address tokenOwner, uint tokens, bool lockAccount) public returns (bool success) {
-      require(_canReceive(address(0),tokenOwner));
-       return data.mint(tokenOwner, tokens, lockAccount);
+        require(_canReceive(address(0),tokenOwner));
+        // Set last points for sending to new accounts.
+        // if (data.balances[tokenOwner] == 0 && lastDivPoints[tokenOwner] == 0 && totalDividendPoints[address(0x0)] > 0) {
+        //   lastEthPoints[tokenOwner] = totalDividendPoints[address(0x0)];
+        // }
+        _updateAccount(tokenOwner);
+        return data.mint(tokenOwner, tokens, lockAccount);
     }
     function accountLocked(address tokenOwner) public view returns (bool) {
        return data.accountLocked[tokenOwner];
@@ -151,47 +156,48 @@ contract DividendMultiToken is BTTSTokenInterface {
        return data.allowed[tokenOwner][spender];
     }
     function transfer(address to, uint tokens) public returns (bool success) {
-       _canTransfer(msg.sender,to, tokens);
+       require(_canTransfer(msg.sender,to, tokens));
+        _updateAccount(msg.sender);
+        _updateAccount(to);
        return data.transfer(to, tokens);
     }
     function approve(address spender, uint tokens) public returns (bool success) {
        return data.approve(spender, tokens);
     }
     function transferFrom(address from, address to, uint tokens) public returns (bool success) {
-       _canTransfer(from,to, tokens);
+       require(_canTransfer(from,to, tokens));
+        _updateAccount(from);
+        _updateAccount(to);
        return data.transferFrom(from, to, tokens);
     }
     function approveAndCall(address spender, uint tokens, bytes memory _data) public returns (bool success) {
        return data.approveAndCall(spender, tokens, _data);
     }
 
+    function _updateTransfer(address from, address to, uint tokens){
+        require(_canTransfer(from,to, tokens));
+        _updateAccount(from);
+        _updateAccount(to); 
+    }
+
     //------------------------------------------------------------------------
     // Transfer Restrictions
     //------------------------------------------------------------------------
-    function _canTransfer (address from, address to, uint256 value) internal returns (bool success) {
-        require(data.transferable);
-        // remove this check in order to conform to ERC20
-        require(value > 0);
-        require(_canSend(from,to));
-        require(_canReceive(from,to));
-        success = true;
+    function _canTransfer(address from, address to, uint256 value) internal view returns (bool success) {
+        if (data.transferable && _canSend(from,to) && _canReceive(from,to) ) {
+            success = true;
+        }
     }
 
-    function _canReceive(address from, address to) internal returns (bool success) {
-        require(to != address(0));
-        require(whiteList.isInWhiteList(to));
-        // Set last points for sending to new accounts.
-        if (data.balances[to] == 0 && lastDivPoints[to] == 0 && totalDividendPoints[address(0x0)] > 0) {
-          lastEthPoints[to] = totalDividendPoints[address(0x0)];
+    function _canReceive(address from, address to) internal view returns (bool success) {
+        if (to != address(0) && whiteList.isInWhiteList(to) ) {
+            success = true;
         }
-        _updateAccount(to);
-        success = true;
     }
-    function _canSend(address from, address to) internal returns (bool success) {
-        require(from != address(0));
-        require(whiteList.isInWhiteList(from));
-        _updateAccount(from);
-        success = true;
+    function _canSend(address from, address to) internal view returns (bool success) {
+        if (to != address(0) && whiteList.isInWhiteList(from) ) {
+            success = true;
+        }
     }
 
     //------------------------------------------------------------------------
@@ -349,8 +355,7 @@ contract DividendMultiToken is BTTSTokenInterface {
         return data.signedApproveCheck(tokenOwner, spender, tokens, fee, nonce, sig, feeAccount);
     }
     function signedApprove(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
-        // AG: Test BTTS if nessasary
-        // require(_canTransfer(tokenOwner,spender, tokens));
+        require(_canTransfer(tokenOwner,spender, tokens));
         return data.signedApprove(tokenOwner, spender, tokens, fee, nonce, sig, feeAccount);
     }
     function signedTransferFromHash(address spender, address from, address to, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash) {
@@ -370,8 +375,7 @@ contract DividendMultiToken is BTTSTokenInterface {
         return data.signedApproveAndCallCheck(tokenOwner, spender, tokens, _data, fee, nonce, sig, feeAccount);
     }
     function signedApproveAndCall(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
-        // AG: Test BTTS if nessasary
-        // require(_canTransfer(tokenOwner,spender, tokens));
+        require(_canTransfer(tokenOwner,spender, tokens));
         return data.signedApproveAndCall(tokenOwner, spender, tokens, _data, fee, nonce, sig, feeAccount);
     }
 
