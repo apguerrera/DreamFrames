@@ -1,6 +1,74 @@
 pragma solidity ^0.5.4;
 
 
+
+// ----------------------------------------------------------------------------
+// Owned contract
+// ----------------------------------------------------------------------------
+contract Owned {
+    address payable public owner;
+    address public newOwner;
+    bool private initialised;
+
+    event OwnershipTransferred(address indexed _from, address indexed _to);
+
+    modifier onlyOwner {
+        require(msg.sender == owner);
+        _;
+    }
+
+    function initOwned(address  _owner) internal {
+        require(!initialised);
+        owner = address(uint160(_owner));
+        initialised = true;
+    }
+    function transferOwnership(address _newOwner) public onlyOwner {
+        newOwner = _newOwner;
+    }
+    function acceptOwnership()  public  {
+        require(msg.sender == newOwner);
+        emit OwnershipTransferred(owner, newOwner);
+        owner = address(uint160(newOwner));
+        newOwner = address(0);
+    }
+    function transferOwnershipImmediately(address _newOwner) public onlyOwner {
+        emit OwnershipTransferred(owner, _newOwner);
+        owner = address(uint160(_newOwner));
+    }
+}
+
+
+// ----------------------------------------------------------------------------
+// Maintain a list of operators that are permissioned to execute certain
+// functions
+// ----------------------------------------------------------------------------
+contract Operated is Owned {
+    mapping(address => bool) public operators;
+
+    event OperatorAdded(address _operator);
+    event OperatorRemoved(address _operator);
+
+    modifier onlyOperator() {
+        require(operators[msg.sender] || owner == msg.sender);
+        _;
+    }
+
+    function initOperated(address _owner) internal {
+        initOwned(_owner);
+    }
+    function addOperator(address _operator) public onlyOwner {
+        require(!operators[_operator]);
+        operators[_operator] = true;
+        emit OperatorAdded(_operator);
+    }
+    function removeOperator(address _operator) public onlyOwner {
+        require(operators[_operator]);
+        delete operators[_operator];
+        emit OperatorRemoved(_operator);
+    }
+}
+
+
 // ----------------------------------------------------------------------------
 // DreamFrameDividendToken Contract
 //
@@ -11,6 +79,27 @@ pragma solidity ^0.5.4;
 // (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
 // (c) Adrian Guerrera / Deepyr Pty Ltd for Dreamframes 2019. The MIT Licence.
 // ----------------------------------------------------------------------------
+ pragma solidity ^0.5.4;
+
+// ----------------------------------------------------------------------------
+// BokkyPooBah's Token Teleportation Service v1.10
+//
+// https://github.com/bokkypoobah/BokkyPooBahsTokenTeleportationServiceSmartContract
+//
+// Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
+// ----------------------------------------------------------------------------
+
+
+// import "../Shared/BTTSTokenInterface120.sol";
+
+// ----------------------------------------------------------------------------
+// BokkyPooBah's Token Teleportation Service v1.20
+//
+// https://github.com/bokkypoobah/BokkyPooBahsTokenTeleportationServiceSmartContract
+//
+// Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
+// ----------------------------------------------------------------------------
+
 
 // ----------------------------------------------------------------------------
 // BokkyPooBah's Token Teleportation Service Interface v1.20
@@ -115,15 +204,6 @@ contract BTTSTokenInterface is ERC20Interface {
          OverflowError                      // 9 Overflow error
      }
 }
-
-// ----------------------------------------------------------------------------
-// BokkyPooBah's Token Teleportation Service v1.20
-//
-// https://github.com/bokkypoobah/BokkyPooBahsTokenTeleportationServiceSmartContract
-//
-// Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
-// ----------------------------------------------------------------------------
-
 
 // ----------------------------------------------------------------------------
 // BokkyPooBah's Token Teleportation Service Library v1.20
@@ -511,6 +591,171 @@ library BTTSLib {
    }
 }
 
+
+// ----------------------------------------------------------------------------
+// BokkyPooBah's Token Teleportation Service Token v1.10
+//
+// Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
+// ----------------------------------------------------------------------------
+contract DreamFramesToken is BTTSTokenInterface {
+    using BTTSLib for BTTSLib.Data;
+
+    BTTSLib.Data data;
+
+    // ------------------------------------------------------------------------
+    // Constructor
+    // ------------------------------------------------------------------------
+    // AG: Should be external but required calldata
+    function init(address owner, string calldata symbol, string calldata name, uint8 decimals, uint initialSupply, bool mintable, bool transferable) external  {
+        data.init(owner, symbol, name, decimals, initialSupply, mintable, transferable);
+    }
+
+    // ------------------------------------------------------------------------
+    // Ownership
+    // ------------------------------------------------------------------------
+    function owner() public view returns (address) {
+        return data.owner;
+    }
+    function newOwner() public view returns (address) {
+        return data.newOwner;
+    }
+    function transferOwnership(address _newOwner) public {
+        data.transferOwnership(_newOwner);
+    }
+    function acceptOwnership() public {
+        data.acceptOwnership();
+    }
+    function transferOwnershipImmediately(address _newOwner) public {
+        data.transferOwnershipImmediately(_newOwner);
+    }
+
+    // ------------------------------------------------------------------------
+    // Token
+    // ------------------------------------------------------------------------
+    function symbol() public view returns (string memory) {
+        return data.symbol;
+    }
+    function name() public view returns (string memory) {
+        return data.name;
+    }
+    function decimals() public view returns (uint8) {
+        return data.decimals;
+    }
+
+    // ------------------------------------------------------------------------
+    // Minting and management
+    // ------------------------------------------------------------------------
+    function minter() public view returns (address) {
+        return data.minter;
+    }
+    function setMinter(address _minter) public {
+        data.setMinter(_minter);
+    }
+    function mint(address tokenOwner, uint tokens, bool lockAccount) public returns (bool success) {
+        return data.mint(tokenOwner, tokens, lockAccount);
+    }
+    function accountLocked(address tokenOwner) public view returns (bool) {
+        return data.accountLocked[tokenOwner];
+    }
+    function unlockAccount(address tokenOwner) public {
+        data.unlockAccount(tokenOwner);
+    }
+    function mintable() public view returns (bool) {
+        return data.mintable;
+    }
+    function transferable() public view returns (bool) {
+        return data.transferable;
+    }
+    function disableMinting() public {
+        data.disableMinting();
+    }
+    function enableTransfers() public {
+        data.enableTransfers();
+    }
+    function nextNonce(address spender) public view returns (uint) {
+        return data.nextNonce[spender];
+    }
+
+    // ------------------------------------------------------------------------
+    // Other functions
+    // ------------------------------------------------------------------------
+    function transferAnyERC20Token(address tokenAddress, uint tokens) public returns (bool success) {
+        return data.transferAnyERC20Token(tokenAddress, tokens);
+    }
+
+    // ------------------------------------------------------------------------
+    // Don't accept ethers
+    // ------------------------------------------------------------------------
+    function () external payable {
+         revert();
+    }
+
+    // ------------------------------------------------------------------------
+    // Token functions
+    // ------------------------------------------------------------------------
+    function totalSupply() public view returns (uint) {
+        return data.totalSupply - data.balances[address(0)];
+    }
+    function balanceOf(address tokenOwner) public view returns (uint balance) {
+        return data.balances[tokenOwner];
+    }
+    function allowance(address tokenOwner, address spender) public view returns (uint remaining) {
+        return data.allowed[tokenOwner][spender];
+    }
+    function transfer(address to, uint tokens) public returns (bool success) {
+        return data.transfer(to, tokens);
+    }
+    function approve(address spender, uint tokens) public returns (bool success) {
+        return data.approve(spender, tokens);
+    }
+    function transferFrom(address from, address to, uint tokens) public returns (bool success) {
+        return data.transferFrom(from, to, tokens);
+    }
+    function approveAndCall(address spender, uint tokens, bytes memory _data) public returns (bool success) {
+        return data.approveAndCall(spender, tokens, _data);
+    }
+
+    // ------------------------------------------------------------------------
+    // Signed function
+    // ------------------------------------------------------------------------
+    function signedTransferHash(address tokenOwner, address to, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash) {
+        return data.signedTransferHash(tokenOwner, to, tokens, fee, nonce);
+    }
+    function signedTransferCheck(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result) {
+        return data.signedTransferCheck(tokenOwner, to, tokens, fee, nonce, sig, feeAccount);
+    }
+    function signedTransfer(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
+        return data.signedTransfer(tokenOwner, to, tokens, fee, nonce, sig, feeAccount);
+    }
+    function signedApproveHash(address tokenOwner, address spender, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash) {
+        return data.signedApproveHash(tokenOwner, spender, tokens, fee, nonce);
+    }
+    function signedApproveCheck(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result) {
+        return data.signedApproveCheck(tokenOwner, spender, tokens, fee, nonce, sig, feeAccount);
+    }
+    function signedApprove(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
+        return data.signedApprove(tokenOwner, spender, tokens, fee, nonce, sig, feeAccount);
+    }
+    function signedTransferFromHash(address spender, address from, address to, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash) {
+        return data.signedTransferFromHash(spender, from, to, tokens, fee, nonce);
+    }
+    function signedTransferFromCheck(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result) {
+        return data.signedTransferFromCheck(spender, from, to, tokens, fee, nonce, sig, feeAccount);
+    }
+    function signedTransferFrom(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
+        return data.signedTransferFrom(spender, from, to, tokens, fee, nonce, sig, feeAccount);
+    }
+    function signedApproveAndCallHash(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce) public view returns (bytes32 hash) {
+        return data.signedApproveAndCallHash(tokenOwner, spender, tokens, _data, fee, nonce);
+    }
+    function signedApproveAndCallCheck(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result) {
+        return data.signedApproveAndCallCheck(tokenOwner, spender, tokens, _data, fee, nonce, sig, feeAccount);
+    }
+    function signedApproveAndCall(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
+        return data.signedApproveAndCall(tokenOwner, spender, tokens, _data, fee, nonce, sig, feeAccount);
+    }
+}
+
 // ----------------------------------------------------------------------------
 // Bonus List interface
 // ----------------------------------------------------------------------------
@@ -525,11 +770,9 @@ contract WhiteListInterface {
 // https://github.com/bokkypoobah/BokkyPooBahsTokenTeleportationServiceSmartContract
 // Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
 // ----------------------------------------------------------------------------
-contract DividendToken is BTTSTokenInterface {
-    using BTTSLib for BTTSLib.Data;
+contract RoyaltyToken is DreamFramesToken {
     using BTTSLib for uint256;
 
-    BTTSLib.Data data;
     WhiteListInterface public whiteList;
 
     // Dividends
@@ -564,104 +807,25 @@ contract DividendToken is BTTSTokenInterface {
         _;
     }
 
-
-    function owner() public view returns (address) {
-       return data.owner;
-    }
-    function newOwner() public view returns (address) {
-       return data.newOwner;
-    }
-    function transferOwnership(address _newOwner) public {
-       data.transferOwnership(_newOwner);
-    }
-    function acceptOwnership() public {
-       data.acceptOwnership();
-    }
-    function transferOwnershipImmediately(address _newOwner) public {
-       data.transferOwnershipImmediately(_newOwner);
-    }
-
-    // ------------------------------------------------------------------------
-    // Token
-    // ------------------------------------------------------------------------
-    function symbol() public view returns (string memory) {
-       return data.symbol;
-    }
-    function name() public view returns (string memory) {
-       return data.name;
-    }
-    function decimals() public view returns (uint8) {
-       return data.decimals;
-    }
-
     // ------------------------------------------------------------------------
     // Minting and management
     // ------------------------------------------------------------------------
-    function minter() public view returns (address) {
-       return data.minter;
-    }
-    function setMinter(address _minter) public {
-       data.setMinter(_minter);
-    }
     function mint(address tokenOwner, uint tokens, bool lockAccount) public returns (bool success) {
       require(_canReceive(address(0x0),tokenOwner));
        return data.mint(tokenOwner, tokens, lockAccount);
     }
-    function accountLocked(address tokenOwner) public view returns (bool) {
-       return data.accountLocked[tokenOwner];
-    }
-    function unlockAccount(address tokenOwner) public {
-       data.unlockAccount(tokenOwner);
-    }
-    function mintable() public view returns (bool) {
-       return data.mintable;
-    }
-    function transferable() public view returns (bool) {
-       return data.transferable;
-    }
-    function disableMinting() public {
-       data.disableMinting();
-    }
-    function enableTransfers() public {
-       data.enableTransfers();
-    }
-    function nextNonce(address spender) public view returns (uint) {
-       return data.nextNonce[spender];
-    }
-
-    // ------------------------------------------------------------------------
-    // Other functions
-    // ------------------------------------------------------------------------
-    function transferAnyERC20Token(address tokenAddress, uint tokens) public returns (bool success) {
-       return data.transferAnyERC20Token(tokenAddress, tokens);
-    }
-
 
     // ------------------------------------------------------------------------
     // Token functions
     // ------------------------------------------------------------------------
-    function totalSupply() public view returns (uint) {
-       return data.totalSupply - data.balances[address(0)];
-    }
-    function balanceOf(address tokenOwner) public view returns (uint balance) {
-       return data.balances[tokenOwner];
-    }
-    function allowance(address tokenOwner, address spender) public view returns (uint remaining) {
-       return data.allowed[tokenOwner][spender];
-    }
+
     function transfer(address to, uint tokens) public returns (bool success) {
        _canTransfer(msg.sender,to, tokens);
        return data.transfer(to, tokens);
     }
-    function approve(address spender, uint tokens) public returns (bool success) {
-       return data.approve(spender, tokens);
-    }
     function transferFrom(address from, address to, uint tokens) public returns (bool success) {
         _canTransfer(from,to, tokens);
        return data.transferFrom(from, to, tokens);
-    }
-    function approveAndCall(address spender, uint tokens, bytes memory _data) public returns (bool success) {
-       return data.approveAndCall(spender, tokens, _data);
     }
 
     //------------------------------------------------------------------------
@@ -778,45 +942,85 @@ contract DividendToken is BTTSTokenInterface {
     // ------------------------------------------------------------------------
     // Signed function
     // ------------------------------------------------------------------------
-    function signedTransferHash(address tokenOwner, address to, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash) {
-        return data.signedTransferHash(tokenOwner, to, tokens, fee, nonce);
-    }
-    function signedTransferCheck(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result) {
-        return data.signedTransferCheck(tokenOwner, to, tokens, fee, nonce, sig, feeAccount);
-    }
-
     function signedTransfer(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
         require(_canTransfer(tokenOwner,to, tokens));
         return data.signedTransfer(tokenOwner, to, tokens, fee, nonce, sig, feeAccount);
     }
-    function signedApproveHash(address tokenOwner, address spender, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash) {
-        return data.signedApproveHash(tokenOwner, spender, tokens, fee, nonce);
-    }
-    function signedApproveCheck(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result) {
-        return data.signedApproveCheck(tokenOwner, spender, tokens, fee, nonce, sig, feeAccount);
-    }
-    function signedApprove(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
-        return data.signedApprove(tokenOwner, spender, tokens, fee, nonce, sig, feeAccount);
-    }
-    function signedTransferFromHash(address spender, address from, address to, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash) {
-        return data.signedTransferFromHash(spender, from, to, tokens, fee, nonce);
-    }
-    function signedTransferFromCheck(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result) {
-        return data.signedTransferFromCheck(spender, from, to, tokens, fee, nonce, sig, feeAccount);
-    }
+
     function signedTransferFrom(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
         require(_canTransfer(from,to, tokens));
         return data.signedTransferFrom(spender, from, to, tokens, fee, nonce, sig, feeAccount);
     }
-    function signedApproveAndCallHash(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce) public view returns (bytes32 hash) {
-        return data.signedApproveAndCallHash(tokenOwner, spender, tokens, _data, fee, nonce);
-    }
-    function signedApproveAndCallCheck(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result) {
-        return data.signedApproveAndCallCheck(tokenOwner, spender, tokens, _data, fee, nonce, sig, feeAccount);
-    }
-    function signedApproveAndCall(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
-        return data.signedApproveAndCall(tokenOwner, spender, tokens, _data, fee, nonce, sig, feeAccount);
-    }
+
+}
 
 
+// ----------------------------------------------------------------------------
+// Based on BokkyPooBah's Fixed Supply Token 👊 Factory
+//
+// Notes:
+//   * The `newContractAddress` deprecation is just advisory
+// Execute `deployTokenContract(...)` with the following parameters to deploy
+// your very own FixedSupplyToken contract:
+//   symbol         symbol
+//   name           name
+//   decimals       number of decimal places for the token contract
+//   totalSupply    the fixed token total supply
+//
+// For example, deploying a FixedSupplyToken contract with a `totalSupply`
+// of 1,000.000000000000000000 tokens:
+//   symbol         "ME"
+//   name           "My Token"
+//   decimals       18
+//   initialSupply  10000000000000000000000 = 1,000.000000000000000000 tokens
+//
+// The TokenDeployed() event is logged with the following parameters:
+//   owner          the account that execute this transaction
+//   token          the newly deployed FixedSupplyToken address
+//   symbol         symbol
+//   name           name
+//   decimals       number of decimal places for the token contract
+//   totalSupply    the fixed token total supply
+// ----------------------------------------------------------------------------
+contract RoyaltyTokenFactory is Operated {
+
+    address public newAddress;
+    mapping(address => bool) public isChild;
+    address[] public children;
+
+    event FactoryDeprecated(address newAddress);
+    event RoyaltyTokenDeployed(address indexed owner, address indexed token, string symbol, string name, uint8 decimals, uint totalSupply, bool mintable, bool transferable, address whitelist);
+
+    constructor() public {
+        super.initOperated(msg.sender);
+    }
+    function numberOfChildren() public view returns (uint) {
+        return children.length;
+    }
+    function deprecateFactory(address _newAddress) public onlyOwner {
+        require(_newAddress == address(0));
+        emit FactoryDeprecated(_newAddress);
+        newAddress = _newAddress;
+    }
+
+    function deployRoyaltyTokenContract(address _owner, string memory _symbol, string memory _name, uint8 _decimals, uint _totalSupply, bool _mintable, bool _transferable, address _whitelist) public onlyOperator returns (RoyaltyToken token) {
+        require(_decimals <= 27);
+        require(_totalSupply > 0);
+        token = new RoyaltyToken();
+        token.init(_owner, _symbol, _name, _decimals, _totalSupply, _mintable, _transferable, _whitelist);
+        isChild[address(token)] = true;
+        children.push(address(token));
+        emit RoyaltyTokenDeployed(_owner, address(token), _symbol, _name, _decimals, _totalSupply, _mintable, _transferable, _whitelist);
+    }
+    function () external payable {
+        revert();
+    }
+
+    function recoverTokens(address _token, uint _tokens) public payable onlyOwner {
+        if (_token == address(0)) {
+            owner.transfer((_tokens == 0 ? address(this).balance : _tokens));
+        } else {
+            ERC20Interface(token).transfer(owner, tokens == 0 ? ERC20Interface(token).balanceOf(address(this)) : tokens);
+        }
+    }
 }

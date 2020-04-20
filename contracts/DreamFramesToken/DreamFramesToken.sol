@@ -20,13 +20,13 @@ import "../Shared/BTTSTokenLibrary120.sol";
 // ----------------------------------------------------------------------------
 contract DreamFramesToken is BTTSTokenInterface {
     using BTTSLib for BTTSLib.Data;
-
     BTTSLib.Data data;
 
     // ------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------
-    constructor(address owner, string memory symbol, string memory name, uint8 decimals, uint initialSupply, bool mintable, bool transferable) public  {
+    // AG: Should be external but required calldata
+    function init(address owner, string calldata symbol, string calldata name, uint8 decimals, uint initialSupply, bool mintable, bool transferable) external  {
         data.init(owner, symbol, name, decimals, initialSupply, mintable, transferable);
     }
 

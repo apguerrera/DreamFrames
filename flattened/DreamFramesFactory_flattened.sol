@@ -1,16 +1,5 @@
 pragma solidity ^0.5.4;
 
-// ----------------------------------------------------------------------------
-// DreamFrames Crowdsale Contract - Purchase FrameRush Tokens with ETH
-//
-// Deployed to : {TBA}
-//
-// Enjoy.
-//
-// (c) BokkyPooBah / Bok Consulting Pty Ltd for GazeCoin 2018. The MIT Licence.
-// (c) Adrian Guerrera / Deepyr Pty Ltd for Dreamframes 2019. The MIT Licence.
-// ----------------------------------------------------------------------------
-
 
 
 // ----------------------------------------------------------------------------
@@ -78,6 +67,18 @@ contract Operated is Owned {
         emit OperatorRemoved(_operator);
     }
 }
+
+// ----------------------------------------------------------------------------
+// DreamFrames Crowdsale Contract - Purchase FrameRush Tokens with ETH
+//
+// Deployed to : {TBA}
+//
+// Enjoy.
+//
+// (c) BokkyPooBah / Bok Consulting Pty Ltd for GazeCoin 2018. The MIT Licence.
+// (c) Adrian Guerrera / Deepyr Pty Ltd for Dreamframes 2019. The MIT Licence.
+// ----------------------------------------------------------------------------
+
 
 // ----------------------------------------------------------------------------
 // Safe maths
@@ -526,4 +527,307 @@ contract DreamFramesCrowdsale is Operated {
       royaltyToken.disableMinting();
   }
 
+}
+
+// ----------------------------------------------------------------------------
+// DreamFrames Crowdsale Contract - Purchase royalty tokens and frames with ETH
+//
+// Deployed to : {TBA}
+//
+// Enjoy.
+//
+// (c) BokkyPooBah / Bok Consulting Pty Ltd for GazeCoin 2018. The MIT Licence.
+// (c) Adrian Guerrera / Deepyr Pty Ltd for Dreamframes 2019. The MIT Licence.
+// ----------------------------------------------------------------------------
+
+
+
+// ----------------------------------------------------------------------------
+// DreamFramesToken Contract
+// ----------------------------------------------------------------------------
+contract DreamFramesCSInterface {
+    function claimRoyaltyFrames(address tokenOwner, uint256 frames, uint256 ethToTransfer) external;
+    function frameEth() external view returns (uint _rate, bool _live);
+    function calculateFrames(uint256 ethAmount) external view returns (uint256 frames, uint256 ethToTransfer);
+}
+
+contract DreamFramesRoyaltyCrowdsale is Operated {
+
+    using SafeMath for uint256;
+
+    uint256 public contributedEth;
+    DreamFramesCSInterface public crowdsaleContract;
+    address payable public wallet;
+    mapping(address => uint256) public royaltyEthAmount;
+    uint256 public royaltiesSold;
+    uint256 public maxRoyaltyFrames;
+    uint256 public startDate;
+    uint256 public endDate;
+    event Purchased(address indexed addr, uint256 frames, uint256 ethToTransfer, uint256 royaltiesSold, uint256 contributedEth);
+    event SetFrameCrowdsale(address oldCrowdsaleContract, address newCrowdsaleContract);
+    event WalletUpdated(address indexed oldWallet, address indexed newWallet);
+    event MaxRoyaltyFramesUpdated(uint256 oldMaxRoyaltyFrames,  uint256 newMaxRoyaltyFrames);
+
+    constructor(address payable _wallet, address _crowdsaleContract, uint256 _startDate, uint256 _endDate, uint256 _maxRoyaltyFrames) public {
+      require(_wallet != address(0));
+      require(_crowdsaleContract != address(0));
+      require(_endDate > _startDate);
+      // require(_startDate >= now);
+      wallet = _wallet;
+      startDate = _startDate;
+      endDate = _endDate;
+      maxRoyaltyFrames = _maxRoyaltyFrames;
+      crowdsaleContract = DreamFramesCSInterface(_crowdsaleContract);
+      initOperated(msg.sender);
+    }
+
+    // Setter functions
+    function setFrameCrowdsaleContract(address _crowdsaleContract) public onlyOwner {
+      require(_crowdsaleContract != address(0));
+       emit SetFrameCrowdsale(address(crowdsaleContract), _crowdsaleContract);
+       crowdsaleContract = DreamFramesCSInterface(_crowdsaleContract);
+    }
+    function setWallet(address payable _wallet) public onlyOwner {
+        require(_wallet != address(0));
+        emit WalletUpdated(wallet, _wallet);
+        wallet = _wallet;
+    }
+    function setMaxRoyaltyFrames(uint256 _maxRoyaltyFrames) public onlyOwner {
+      require(_maxRoyaltyFrames >= royaltiesSold);
+      emit MaxRoyaltyFramesUpdated(maxRoyaltyFrames, _maxRoyaltyFrames);
+      maxRoyaltyFrames = _maxRoyaltyFrames;
+    }
+
+    // Call functions
+    function framesRemaining() public view returns (uint256) {
+      return maxRoyaltyFrames.sub(royaltiesSold);
+    }
+    function pctSold() public view returns (uint256) {
+      return royaltiesSold.mul(100).div(maxRoyaltyFrames);
+    }
+    function pctRemaining() public view returns (uint256) {
+      return maxRoyaltyFrames.sub(royaltiesSold).mul(100).div(maxRoyaltyFrames);
+    }
+    function calculateRoyaltyFrames(uint256 ethAmount) public view returns (uint256 frames, uint256 ethToTransfer) {
+        // Number of frames available to purchase
+        (frames, ethToTransfer) = crowdsaleContract.calculateFrames(ethAmount);
+
+        // Add maxFrames for investor restrictions
+        uint256 _frameEth;
+        bool _live;
+        (_frameEth, _live) = crowdsaleContract.frameEth();
+        require(_live);
+        if (royaltiesSold.add(frames) >= maxRoyaltyFrames) {
+            frames = maxRoyaltyFrames.sub(royaltiesSold);
+        }
+        ethToTransfer = frames.mul(_frameEth);
+
+    }
+
+    // Deposit function
+    function () external payable {
+        // require(now >= startDate && now <= endDate);
+        // Get number of frames, will revert if sold out
+        uint256 ethToTransfer;
+        uint256 frames;
+        (frames, ethToTransfer) = calculateRoyaltyFrames( msg.value);
+
+        // Update crowdsale contract state
+        royaltiesSold = royaltiesSold.add(frames);
+        contributedEth = contributedEth.add(ethToTransfer);
+        royaltyEthAmount[msg.sender] = royaltyEthAmount[msg.sender].add(ethToTransfer);
+
+        // Accept Payments
+        uint256 ethToRefund = msg.value.sub(ethToTransfer);
+        if (ethToTransfer > 0) {
+            wallet.transfer(ethToTransfer);
+        }
+        if (ethToRefund > 0) {
+            msg.sender.transfer(ethToRefund);
+        }
+        // Issue royalty tokens
+        crowdsaleContract.claimRoyaltyFrames(msg.sender, frames, ethToTransfer);
+        emit Purchased(msg.sender, frames, ethToTransfer, royaltiesSold, contributedEth);
+    }
+
+    function offlineRoyaltyPurchase(address tokenOwner, uint256 frames) external onlyOperator {
+          require(frames > 0);
+          require(royaltiesSold.add(frames) <= maxRoyaltyFrames);
+          (uint256 _frameEth, bool _live) = crowdsaleContract.frameEth();
+          require(_live);
+
+          // Update crowdsale contract state
+          uint256 ethToTransfer = frames.mul(_frameEth);
+          royaltiesSold = royaltiesSold.add(frames);
+          contributedEth = contributedEth.add(ethToTransfer);
+          royaltyEthAmount[tokenOwner] = royaltyEthAmount[tokenOwner].add(ethToTransfer);
+
+          // Claim royalty frames
+          crowdsaleContract.claimRoyaltyFrames(tokenOwner,frames, ethToTransfer);
+          emit Purchased(tokenOwner, frames, 0, royaltiesSold, contributedEth);
+      }
+
+
+
+}
+// import "../DreamFramesToken/DreamFramesToken.sol";
+// import "../RoyaltyToken/DividendToken.sol";
+
+
+contract ITokenFactory {
+    function deployTokenContract(address owner, string memory symbol, string memory name, uint8 decimals, uint totalSupply, bool mintable, bool transferable) public  returns (address);
+}
+
+contract IRoyaltyTokenFactory {
+    function deployRoyaltyTokenContract(address owner, string memory symbol, string memory name, uint8 decimals, uint totalSupply, bool mintable, bool transferable, address whitelist) public  returns (address);
+}
+
+
+// ----------------------------------------------------------------------------
+// House Factory
+// ----------------------------------------------------------------------------
+contract DreamFramesFactory is Operated {
+
+    mapping(address => bool) _verify;
+    address[] public deployedFanTokens;
+    address[] public deployedRoyaltyTokens;
+    DreamFramesCrowdsale[] public deployedTokenCrowdsales;
+    DreamFramesRoyaltyCrowdsale[] public deployedRoyaltyCrowdsales;
+
+    address public whiteList;
+    address public priceFeed;
+    ITokenFactory public tokenFactory;
+    IRoyaltyTokenFactory public royaltyTokenFactory;
+
+    event WhiteListUpdated(address indexed oldWhiteList, address indexed newWhiteList);
+    event PriceFeedUpdated(address indexed oldPriceFeed, address indexed newPriceFeed);
+    event TokenFactoryUpdated(address indexed oldTokenFactory, address indexed newTokenFactory);
+    event RoyaltyTokenFactoryUpdated(address indexed oldRoyaltyTokenFactory, address indexed newRoyaltyTokenFactory);
+
+    // AG - to be updated
+    // event TokenContractsDeployed(address indexed movie, string movieName, address indexed token, string tokenSymbol, string tokenName, uint8 tokenDecimals, address indexed housemateName, uint tokensForNewHousemates);
+    event CrowdsaleContractsDeployed( address indexed token, address indexed royaltyToken, address wallet);
+
+    constructor() public {
+        super.initOperated(msg.sender);
+    }
+
+    // Setter functions
+    function setWhiteList(address _whiteList) public onlyOwner {
+        require(_whiteList != address(0));
+        emit WhiteListUpdated(whiteList, _whiteList);
+        whiteList = _whiteList;
+    }
+    function setTokenFactory(address _tokenFactory) public onlyOwner {
+        require(_tokenFactory != address(0));
+        emit TokenFactoryUpdated(address(tokenFactory), _tokenFactory);
+        tokenFactory = ITokenFactory(_tokenFactory);
+    }
+    function setRoyaltyTokenFactory(address _royaltyTokenFactory) public onlyOwner {
+        require(_royaltyTokenFactory != address(0));
+        emit RoyaltyTokenFactoryUpdated(address(royaltyTokenFactory), _royaltyTokenFactory);
+        royaltyTokenFactory = IRoyaltyTokenFactory(_royaltyTokenFactory);
+    }
+    function setPriceFeed(address _priceFeed) public onlyOwner {
+        require(_priceFeed != address(0));
+        emit WhiteListUpdated(priceFeed, _priceFeed);
+        priceFeed = _priceFeed;
+    }
+
+    // Deployment functions
+    function deployTokenContract(
+        address owner,
+        string memory name,
+        string memory  symbol,
+        uint8 decimals,
+        uint256 totalSupply,
+        bool mintable,
+        bool transferable
+    ) public onlyOwner returns (address token) {
+        token = tokenFactory.deployTokenContract(
+                                    owner,
+                                    symbol,
+                                    name,
+                                    decimals,
+                                    totalSupply,
+                                    mintable,
+                                    transferable
+                                );
+        _verify[address(token)] = true;
+        deployedFanTokens.push(token);
+
+    }
+
+    // Deployment functions
+    function deployRoyaltyTokenContract(
+        address _owner,
+        string memory _symbol,
+        string memory _name,
+        uint8 _decimals,
+        uint256 _totalSupply,
+        bool _mintable,
+        bool _transferable
+    ) public onlyOwner returns (address royaltyToken) {
+        royaltyToken = royaltyTokenFactory.deployRoyaltyTokenContract(
+                                    _owner, 
+                                    _symbol,
+                                    _name,
+                                    _decimals,
+                                    _totalSupply,
+                                    _mintable,
+                                    _transferable,
+                                    whiteList
+                                );
+        _verify[address(royaltyToken)] = true;
+        deployedRoyaltyTokens.push(royaltyToken);
+
+    }
+
+    function deployCrowdsaleContracts(
+        address royalty,
+        address token,
+        address payable wallet,
+        uint256 startDate,
+        uint256 endDate,
+        uint256 minFrames,
+        uint256 maxFrames,
+        uint256 maxRoyaltyFrames,
+        uint256 producerFrames,
+        uint256 frameUsd,
+        uint256 bonusOffList,
+        uint256 hardCapUsd,
+        uint256 softCapUsd
+    ) public onlyOwner returns (DreamFramesCrowdsale crowdsale , DreamFramesRoyaltyCrowdsale royaltyCS ) {
+        // Deploy Crowdsale contract
+        crowdsale = new DreamFramesCrowdsale(token,royalty, priceFeed, whiteList);
+        crowdsale.init(wallet, startDate, endDate, minFrames, maxFrames, producerFrames, frameUsd, bonusOffList, hardCapUsd, softCapUsd);
+        // Deploy Royalty Crowdsale
+        royaltyCS = new DreamFramesRoyaltyCrowdsale(wallet, address(crowdsale), startDate, endDate, maxRoyaltyFrames);
+        // Set operators 
+        royaltyCS.setFrameCrowdsaleContract(address(crowdsale));
+        crowdsale.setRoyaltyCrowdsale(address(royaltyCS));
+
+        _verify[address(crowdsale)] = true;
+        deployedTokenCrowdsales.push(crowdsale);      
+        _verify[address(royaltyCS)] = true;
+        deployedRoyaltyCrowdsales.push(royaltyCS);
+        emit CrowdsaleContractsDeployed(address(royalty), address(token), wallet);
+    }
+
+    // Counter functions
+    function verify(address addr) public view returns (bool valid) {
+        valid = _verify[addr];
+    }
+    function numberOfDeployedFanTokens() public view returns (uint) {
+        return deployedFanTokens.length;
+    }
+    function numberOfDeployedRoyaltyTokens() public view returns (uint) {
+        return deployedRoyaltyTokens.length;
+    }
+    function transferAnyERC20Token(address tokenAddress, uint tokens) public onlyOwner returns (bool success) {
+        return ERC20Interface(tokenAddress).transfer(owner, tokens);
+    }
+    function () external payable {
+        revert();
+    }
 }
