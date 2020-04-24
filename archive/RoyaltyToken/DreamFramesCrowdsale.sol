@@ -14,8 +14,8 @@ pragma solidity ^0.5.4;
 import "../Shared/Operated.sol";
 import "../Shared/SafeMath.sol";
 import "../Shared/BTTSTokenInterface120.sol";
-import "../../interfaces/PriceFeedInterface.sol";
-import "../../interfaces/BonusListInterface.sol";
+import "./PriceFeedInterface.sol";
+import "../RoyaltyToken/WhiteListInterface.sol";
 
 // ----------------------------------------------------------------------------
 // DreamFramesToken Contract
@@ -27,7 +27,6 @@ contract DreamFramesCrowdsale is Operated {
 
   BTTSTokenInterface public dreamFramesToken;
   PriceFeedInterface public ethUsdPriceFeed;
-  BonusListInterface public bonusList;
 
   address payable public wallet;
   uint256 public startDate;
@@ -39,7 +38,6 @@ contract DreamFramesCrowdsale is Operated {
   uint256 public framesSold;
   bool public finalised;
   uint256 public bonusOffList;
-  uint256 public bonusOnList;
   uint256 public contributedEth;
   uint256 public softCapUsd;
   uint256 public hardCapUsd;
@@ -54,15 +52,14 @@ contract DreamFramesCrowdsale is Operated {
   event MinFramesUpdated(uint256 oldMinFrames, uint256 newMinFrames);
   event FrameUsdUpdated(uint256 oldFrameUsd, uint256 newFrameUsd);
   event BonusOffListUpdated(uint256 oldBonusOffList, uint256 newBonusOffList);
-  event BonusOnListUpdated(uint256 oldBonusOnList, uint256 newBonusOnList);
-
   event Purchased(address indexed addr, uint256 frames, uint256 ethToTransfer, uint256 framesSold, uint256 contributedEth);
+  event RoyaltyCrowdsaleUpdated(address indexed oldRoyaltyCrowdsaleAddress, address indexed  newRoyaltyCrowdsaleAddres);
 
   constructor() public {
 
   }
 
-  function init(address _dreamFramesToken, address _ethUsdPriceFeed, address payable _wallet, uint256 _startDate, uint256 _endDate, uint256 _minFrames, uint256 _maxFrames, uint256 _producerFrames, uint256 _frameUsd, uint256 _bonusOffList,uint256 _bonusOnList, uint256 _hardCapUsd, uint256 _softCapUsd) public {
+  function init(address _dreamFramesToken, address _ethUsdPriceFeed, address payable _wallet, uint256 _startDate, uint256 _endDate, uint256 _minFrames, uint256 _maxFrames, uint256 _producerFrames, uint256 _frameUsd, uint256 _bonusOffList, uint256 _hardCapUsd, uint256 _softCapUsd) public {
       require(_wallet != address(0));
       require(_endDate > _startDate);
       // require(_startDate >= now);
@@ -86,7 +83,6 @@ contract DreamFramesCrowdsale is Operated {
       maxFrames = _maxFrames;
       producerFrames = _producerFrames;
       bonusOffList = _bonusOffList;
-      bonusOnList = _bonusOnList;
 
       // require(hardCapUsd >= _maxFrames.mul(_frameUsd).div(TENPOW18));
       // require(softCapUsd <= _maxFrames.mul(frameUsdWithBonus()).div(TENPOW18) );
@@ -140,18 +136,6 @@ contract DreamFramesCrowdsale is Operated {
       bonusOffList = _bonusOffList;
   }
 
-  function setBonusOnList(uint256 _bonusOnList) public onlyOwner {
-      require(!finalised);
-      require(_bonusOnList <= 100);
-      // cannot exceed diff between soft and hard caps
-      emit BonusOnListUpdated(bonusOnList, _bonusOnList);
-      bonusOnList = _bonusOnList;
-  }
-  function setBonusList(address _bonusList) public onlyOwner {
-      require(!finalised);
-      bonusList = BonusListInterface(_bonusList);
-  }
-
   function symbol() public view returns (string memory _symbol) {
       _symbol = dreamFramesToken.symbol();
   }
@@ -163,20 +147,10 @@ contract DreamFramesCrowdsale is Operated {
   function ethUsd() public view returns (uint256 _rate, bool _live) {
       return ethUsdPriceFeed.getRate();
   }
-
-  function getBonus(address _address) public returns (uint256) {
-      if (bonusList.isInBonusList(_address) && bonusOnList > bonusOffList ) {
-          return bonusOnList;
-      }
-      return bonusOffList;
-  }
-
   // USD per frame, with bonus
   // e.g., 128.123412344122 * 10^18
   function frameUsdWithBonus() public view returns (uint256 _rate) {
-      uint256 bonus = bonusOffList; // AG could be getBonus(address);
-      _rate = frameUsd.mul(100).div(bonus.add(100));
-
+      _rate = frameUsd.mul(100).div(bonusOffList.add(100));
   }
   // ETH per frame, e.g., 2.757061128879679264 * 10^18
   function frameEth() public view returns (uint256 _rate, bool _live) {
@@ -239,6 +213,11 @@ contract DreamFramesCrowdsale is Operated {
     }
     frames = frames.div(minFrames).mul(minFrames);
     ethToTransfer = frames.mul(_frameEth);
+  }
+
+  function calculateRoyaltyFrames(uint256 ethAmount) public view returns (uint256 frames, uint256 ethToTransfer) {
+      (frames, ethToTransfer) = calculateFrames(ethAmount);
+
   }
 
   function () external payable {

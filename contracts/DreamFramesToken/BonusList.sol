@@ -7,12 +7,12 @@ pragma solidity ^0.5.4;
 //
 // Enjoy.
 //
-// (c) Adrian Guerrera / Deepyr Pty Ltd for Dream Frames 2019. The MIT Licence.
+// (c) Adrian Guerrera / Deepyr Pty Ltd for DreamFrames 2019. The MIT Licence.
 // (c) BokkyPooBah / Bok Consulting Pty Ltd for GazeCoin 2018. The MIT Licence.
 // ----------------------------------------------------------------------------
 
 import "../Shared/Operated.sol";
-import "./BonusListInterface.sol";
+import "../../interfaces/BonusListInterface.sol";
 
 
 // ----------------------------------------------------------------------------

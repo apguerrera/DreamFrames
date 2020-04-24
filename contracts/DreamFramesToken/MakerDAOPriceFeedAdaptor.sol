@@ -12,7 +12,7 @@ pragma solidity ^0.5.4;
 // Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
 // ----------------------------------------------------------------------------
 
-import "./PriceFeedInterface.sol";
+import "../../interfaces/PriceFeedInterface.sol";
 
 
 // ----------------------------------------------------------------------------

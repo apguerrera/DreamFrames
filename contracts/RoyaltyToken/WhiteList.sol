@@ -12,7 +12,7 @@ pragma solidity ^0.5.4;
 // ----------------------------------------------------------------------------
 
 import "../Shared/Operated.sol";
-import "./WhiteListInterface.sol";
+import "../../interfaces/WhiteListInterface.sol";
 
 
 // ----------------------------------------------------------------------------
