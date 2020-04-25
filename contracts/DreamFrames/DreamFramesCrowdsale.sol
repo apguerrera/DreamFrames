@@ -13,7 +13,7 @@ pragma solidity ^0.5.4;
 
 import "../Shared/Operated.sol";
 import "../Shared/SafeMath.sol";
-import "../Shared/BTTSTokenInterface120.sol";
+import "../../interfaces/BTTSTokenInterface120.sol";
 import "../../interfaces/PriceFeedInterface.sol";
 import "../../interfaces/BonusListInterface.sol";
 
@@ -40,12 +40,12 @@ contract DreamFramesCrowdsale is Operated {
   bool public finalised;
   uint256 public bonusOffList;
   uint256 public bonusOnList;
-  uint256 public contributedEth;
+  uint256 public contributedUsd;
   uint256 public softCapUsd;
   uint256 public hardCapUsd;
   uint256 public lockedAccountThresholdUsd;
 
-  mapping(address => uint256) public accountEthAmount;
+  mapping(address => uint256) public accountUsdAmount;
 
   event WalletUpdated(address indexed oldWallet, address indexed newWallet);
   event StartDateUpdated(uint256 oldStartDate, uint256 newStartDate);
@@ -56,7 +56,7 @@ contract DreamFramesCrowdsale is Operated {
   event BonusOffListUpdated(uint256 oldBonusOffList, uint256 newBonusOffList);
   event BonusOnListUpdated(uint256 oldBonusOnList, uint256 newBonusOnList);
 
-  event Purchased(address indexed addr, uint256 frames, uint256 ethToTransfer, uint256 framesSold, uint256 contributedEth);
+  event Purchased(address indexed addr, uint256 frames, uint256 ethToTransfer, uint256 framesSold, uint256 contributedUsd);
 
   constructor() public {
 
@@ -88,11 +88,10 @@ contract DreamFramesCrowdsale is Operated {
       bonusOffList = _bonusOffList;
       bonusOnList = _bonusOnList;
 
-      // require(hardCapUsd >= _maxFrames.mul(_frameUsd).div(TENPOW18));
+      // require(hardCapUsd >= _maxFrames.mul(_frameUsd).div(TENPOW18));   AG: Test logic
       // require(softCapUsd <= _maxFrames.mul(frameUsdWithBonus()).div(TENPOW18) );
-
-
   }
+
   // Setter functions
   function setWallet(address payable _wallet) public onlyOwner {
       require(!finalised);
@@ -139,7 +138,6 @@ contract DreamFramesCrowdsale is Operated {
       emit BonusOffListUpdated(bonusOffList, _bonusOffList);
       bonusOffList = _bonusOffList;
   }
-
   function setBonusOnList(uint256 _bonusOnList) public onlyOwner {
       require(!finalised);
       require(_bonusOnList <= 100);
@@ -158,13 +156,14 @@ contract DreamFramesCrowdsale is Operated {
   function name() public view returns (string memory _name) {
       _name = dreamFramesToken.name();
   }
+
   // ETH per USD from price feed
   // e.g., 171.123232454415 * 10^18
   function ethUsd() public view returns (uint256 _rate, bool _live) {
       return ethUsdPriceFeed.getRate();
   }
 
-  function getBonus(address _address) public returns (uint256) {
+  function getBonus(address _address) public view returns (uint256) {
       if (bonusList.isInBonusList(_address) && bonusOnList > bonusOffList ) {
           return bonusOnList;
       }
@@ -173,17 +172,26 @@ contract DreamFramesCrowdsale is Operated {
 
   // USD per frame, with bonus
   // e.g., 128.123412344122 * 10^18
-  function frameUsdWithBonus() public view returns (uint256 _rate) {
-      uint256 bonus = bonusOffList; // AG could be getBonus(address);
+  function frameUsdWithBonus(address _address) public view returns (uint256 _rate) {
+      uint256 bonus = getBonus(_address); 
       _rate = frameUsd.mul(100).div(bonus.add(100));
-
   }
+
   // ETH per frame, e.g., 2.757061128879679264 * 10^18
   function frameEth() public view returns (uint256 _rate, bool _live) {
       uint256 _ethUsd;
       (_ethUsd, _live) = ethUsd();
       if (_live) {
-          _rate = frameUsdWithBonus().mul(TENPOW18).div(_ethUsd);
+          _rate = frameUsd.mul(TENPOW18).div(_ethUsd);
+      }
+  }
+
+  // ETH per frame, e.g., 2.757061128879679264 * 10^18
+  function frameEthBonus(address _address) public view returns (uint256 _rate, bool _live) {
+      uint256 _ethUsd;
+      (_ethUsd, _live) = ethUsd();
+      if (_live) {
+          _rate = frameUsdWithBonus(_address).mul(TENPOW18).div(_ethUsd);
       }
   }
 
@@ -197,49 +205,36 @@ contract DreamFramesCrowdsale is Operated {
     return maxFrames.sub(framesSold).mul(100).div(maxFrames);
   }
 
-  function lockedAccountThresholdEth() public view returns (uint256 _amount) {
-    uint256 _ethUsd;
-    bool _live;
-    (_ethUsd, _live) = ethUsd();
-    require(_live);
-    return lockedAccountThresholdUsd.mul(TENPOW18).div(_ethUsd);
-  }
-  function hardCapEth() public view returns (uint256) {
-    uint256 _ethUsd;
-    bool _live;
-    (_ethUsd, _live) = ethUsd();
-    require(_live);
-    return hardCapUsd.mul(TENPOW18).mul(TENPOW18).div(_ethUsd);
-  }
-  function softCapEth() public view returns (uint256) {
-    uint256 _ethUsd;
-    bool _live;
-    (_ethUsd, _live) = ethUsd();
-    require(_live);
-    return softCapUsd.mul(TENPOW18).mul(TENPOW18).div(_ethUsd);
+
+
+  function calculateFrames(uint256 _ethAmount) public view returns (uint256 frames, uint256 ethToTransfer) {
+      return calculateUserFrames(_ethAmount, msg.sender);
   }
 
-  function calculateFrames(uint256 ethAmount) public view returns (uint256 frames, uint256 ethToTransfer) {
+  function calculateUserFrames(uint256 _ethAmount, address _tokenOwner) public view returns (uint256 frames, uint256 ethToTransfer) {
     // Get frameEth rate including any bonuses
     uint256 _frameEth;
+    uint256 _ethUsd;
     bool _live;
-    (_frameEth, _live) = frameEth();
+    (_ethUsd, _live) = ethUsd();
+    (_frameEth, _live) = frameEthBonus(msg.sender);
     require(_live);
-    // Factor in hard cap
-    uint256 _hardCapEth = hardCapEth();
-    require(contributedEth < _hardCapEth);
-    if (contributedEth.add(ethAmount) >= _hardCapEth) {
-        ethAmount = _hardCapEth.sub(contributedEth);
+    
+    // USD able to be spent
+    uint256 usdAmount = _ethAmount.mul(TENPOW18).div(_ethUsd);
+    require(contributedUsd < hardCapUsd);
+    if (contributedUsd.add(usdAmount) >= hardCapUsd) {
+        usdAmount = hardCapUsd.sub(contributedUsd);
     }
+    
     // Get number of frames available to be purchased
-    frames = ethAmount.div(_frameEth);
-    // Get number of frames available to be purchased
+    frames = _ethAmount.div(_frameEth);
     if (framesSold.add(frames) >= maxFrames) {
         frames = maxFrames.sub(framesSold);
     }
-    frames = frames.div(minFrames).mul(minFrames);
     ethToTransfer = frames.mul(_frameEth);
   }
+
 
   function () external payable {
     // require(now >= startDate && now <= endDate);
@@ -250,8 +245,8 @@ contract DreamFramesCrowdsale is Operated {
     (frames, ethToTransfer) = calculateFrames( msg.value);
 
     // Update crowdsale state
-    contributedEth = contributedEth.add(ethToTransfer);
-    accountEthAmount[msg.sender] = accountEthAmount[msg.sender].add(ethToTransfer);
+    uint256 usdToTransfer = frames.mul(frameUsdWithBonus(msg.sender));
+    contributedUsd = contributedUsd.add(usdToTransfer);
 
     // Accept Payments
     uint256 ethToRefund = msg.value.sub(ethToTransfer);
@@ -263,18 +258,18 @@ contract DreamFramesCrowdsale is Operated {
     }
     // Distribute tokens
     claimFrames(msg.sender,frames);
-    emit Purchased(msg.sender, frames, ethToTransfer, framesSold, contributedEth);
+    emit Purchased(msg.sender, frames, ethToTransfer, framesSold, contributedUsd);
   }
 
   // Contract owner allocates frames to tokenOwner
-  function claimFrames(address tokenOwner, uint256 frames) internal  {
+  function claimFrames(address _tokenOwner, uint256 _frames) internal  {
       require(!finalised);
-      require(frames > 0);
+      require(_frames > 0);
       // Tokens locked and KYC check required if over AccountThresholdEth
-      bool lockAccount = accountEthAmount[tokenOwner] > lockedAccountThresholdEth();
+      bool lockAccount = accountUsdAmount[_tokenOwner] > lockedAccountThresholdUsd;
       // Issue dreamFrames tokens
-      require(dreamFramesToken.mint(tokenOwner, frames.mul(TENPOW18), lockAccount));
-      framesSold = framesSold.add(frames);
+      require(dreamFramesToken.mint(_tokenOwner, _frames.mul(TENPOW18), lockAccount));
+      framesSold = framesSold.add(_frames);
       if (framesSold >= maxFrames) {
           finalised = true;
       }
@@ -290,19 +285,21 @@ contract DreamFramesCrowdsale is Operated {
       require(framesSold.add(frames) <= maxFrames);
       (uint256 _frameEth, bool _live) = frameEth();
       require(_live);
-      uint256 ethToTransfer = frames.mul(_frameEth);
-      contributedEth = contributedEth.add(ethToTransfer);
-      accountEthAmount[tokenOwner] = accountEthAmount[tokenOwner].add(ethToTransfer);
+
+      uint256 usdToTransfer = frames.mul(frameUsdWithBonus(tokenOwner));
+      contributedUsd = contributedUsd.add(usdToTransfer);
+      accountUsdAmount[tokenOwner] = accountUsdAmount[tokenOwner].add(usdToTransfer);
       claimFrames(tokenOwner,frames);
-      emit Purchased(tokenOwner, frames, 0, framesSold, contributedEth);
+      emit Purchased(tokenOwner, frames, 0, framesSold, contributedUsd);
   }
 
   // Contract owner finalises to disable frame minting
-  function finalise() public onlyOwner {
+  function finalise(address _producer) public onlyOwner {
       require(!finalised || dreamFramesToken.mintable());
       require(now > endDate || framesSold >= maxFrames);
 
       finalised = true;
+      require(dreamFramesToken.mint(_producer, producerFrames.mul(TENPOW18), false));
       dreamFramesToken.disableMinting();
 
   }

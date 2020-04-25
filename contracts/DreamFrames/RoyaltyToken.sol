@@ -11,8 +11,8 @@ pragma solidity ^0.5.4;
 // (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
 // (c) Adrian Guerrera / Deepyr Pty Ltd for Dreamframes 2019. The MIT Licence.
 // ----------------------------------------------------------------------------
-import "../DreamFramesToken/DreamFramesToken.sol";
-import "./WhiteListInterface.sol";
+import "./DreamFramesToken.sol";
+import "../../interfaces/WhiteListInterface.sol";
 
 
 // ----------------------------------------------------------------------------
@@ -38,30 +38,28 @@ contract RoyaltyToken is DreamFramesToken {
     // Dividend Events
     event DividendReceived(uint256 time, address indexed sender, uint256 amount);
     event WithdrawalDividends(address indexed holder, uint256 amount);
-    event LogUint(uint256 amount, string msglog);
+    event SetWhiteList(address whiteList);
 
 
     // ------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------
-    function init(address _owner, string calldata _symbol, string calldata _name, uint8 _decimals, uint _initialSupply, bool _mintable, bool _transferable, address _whiteList) external {
-       data.init(_owner, _symbol, _name, _decimals, _initialSupply, _mintable, _transferable);
-       whiteList = WhiteListInterface(_whiteList);
+    function initRoyaltyToken(address _owner, string calldata _symbol, string calldata _name, uint8 _decimals, uint _initialSupply, bool _mintable, bool _transferable, address _whiteList) external {
+        whiteList = WhiteListInterface(_whiteList);
+        require(whiteList.isInWhiteList(_owner));
+        data.init(_owner, _symbol, _name, _decimals, _initialSupply, _mintable, _transferable);
     }
 
-
-    // ------------------------------------------------------------------------
-    // Ownership
-    // ------------------------------------------------------------------------
-    modifier onlyOwner {
-        require(msg.sender == data.owner);
-        _;
-    }
 
     // ------------------------------------------------------------------------
     // Whitelist
     // ------------------------------------------------------------------------
-    // function setWhiteList () function public onlyOwner {}
+    function setWhiteList (address _whiteList)  public  {
+        // require(msg.sender == data.owner);
+        whiteList = WhiteListInterface(_whiteList);
+        emit SetWhiteList(_whiteList);
+    }
+
 
     // ------------------------------------------------------------------------
     // Minting and management
@@ -174,7 +172,8 @@ contract RoyaltyToken is DreamFramesToken {
         _updateAccount(msg.sender);
         _withdrawDividends(msg.sender);
     }
-    function withdrawDividendsByAccount (address payable _account) external onlyOwner {
+    function withdrawDividendsByAccount (address payable _account) external  {
+        require(msg.sender == data.owner);
         _updateAccount(_account);
         _withdrawDividends(_account);
     }

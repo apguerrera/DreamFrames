@@ -30,7 +30,7 @@ def test_frame_token_transferOwnership(frame_token):
     tx = frame_token.acceptOwnership( {'from': accounts[2]})
 
     assert 'OwnershipTransferred' in tx.events
-    assert tx.events['OwnershipTransferred'] == {'previousOwner': accounts[0], 'newOwner': accounts[2]}
+    assert tx.events['OwnershipTransferred'] == {'from': accounts[0], 'to': accounts[2]}
     with reverts():
         frame_token.transferOwnership(accounts[2], {'from': accounts[0]})
 

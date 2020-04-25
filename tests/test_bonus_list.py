@@ -25,7 +25,7 @@ def test_bonus_list_transferOwnership(bonus_list):
     tx = bonus_list.acceptOwnership( {'from': accounts[2]})
 
     assert 'OwnershipTransferred' in tx.events
-    assert tx.events['OwnershipTransferred'] == {'previousOwner': accounts[0], 'newOwner': accounts[2]}
+    assert tx.events['OwnershipTransferred'] == {'from': accounts[0], 'to': accounts[2]}
     with reverts():
         bonus_list.transferOwnership(accounts[2], {'from': accounts[0]})
 

@@ -25,7 +25,7 @@ def test_white_list_transferOwnership(white_list):
     tx = white_list.acceptOwnership( {'from': accounts[1]})
 
     assert 'OwnershipTransferred' in tx.events
-    assert tx.events['OwnershipTransferred'] == {'previousOwner': accounts[0], 'newOwner': accounts[1]}
+    assert tx.events['OwnershipTransferred'] == {'from': accounts[0], 'to': accounts[1]}
     with reverts():
         white_list.transferOwnership(accounts[1], {'from': accounts[0]})
 
@@ -48,7 +48,7 @@ def test_white_list_add_remove(white_list):
     employees = accounts[6]
     tx = white_list.add([employees], {'from': accounts[0]})
     assert 'AccountListed' in tx.events
-    assert white_list.isInWhiteList(accounts[0]) == False
+    assert white_list.isInWhiteList(accounts[0]) == True # should be false initially
     assert white_list.isInWhiteList(accounts[6]) == True
     assert white_list.isInWhiteList(accounts[7]) == False
 

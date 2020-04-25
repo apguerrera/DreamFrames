@@ -25,7 +25,7 @@ def test_price_simulator_transferOwnership(price_simulator):
     tx = price_simulator.acceptOwnership( {'from': accounts[1]})
 
     assert 'OwnershipTransferred' in tx.events
-    assert tx.events['OwnershipTransferred'] == {'previousOwner': accounts[0], 'newOwner': accounts[1]}
+    assert tx.events['OwnershipTransferred'] == {'from': accounts[0], 'to': accounts[1]}
     with reverts():
         price_simulator.transferOwnership(accounts[1], {'from': accounts[0]})
 

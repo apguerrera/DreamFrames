@@ -10,8 +10,6 @@ from brownie import Contract
 ######################################
 
 
-    
-
 @pytest.fixture(scope='module', autouse=True)
 def btts_lib(BTTSLib):
     btts_lib = BTTSLib.deploy({'from': accounts[0]})
@@ -33,16 +31,6 @@ def frame_token(DreamFramesToken, btts_lib):
     return frame_token
 
 
-@pytest.fixture(scope='module', autouse=True)
-def white_list(WhiteList):
-    white_list = WhiteList.deploy({"from": accounts[0]})
-    return white_list
-
-@pytest.fixture(scope='module', autouse=True)
-def bonus_list(BonusList):
-    bonus_list = BonusList.deploy({"from": accounts[0]})
-    return bonus_list
-
 
 @pytest.fixture(scope='module', autouse=True)
 def bonus_list(BonusList):
@@ -60,12 +48,12 @@ def price_feed(MakerDAOPriceFeedAdaptor, price_simulator):
     return price_feed
 
 @pytest.fixture(scope='module', autouse=True)
-def frames_crowdsale(DreamFramesCrowdsale, frame_token, price_feed):
+def frames_crowdsale(DreamFramesCrowdsale, frame_token, price_feed, bonus_list):
     wallet = accounts[1]
     startDate = rpc.time()
     endDate = startDate + 50000
     minFrames = 1
-    maxFrames  = '100000 ether'
+    maxFrames  = 100000
     producerFrames = 25000
     frameUsd = '100 ether'
     bonusOffList = 30 
@@ -80,5 +68,35 @@ def frames_crowdsale(DreamFramesCrowdsale, frame_token, price_feed):
     tx = frames_crowdsale.addOperator(accounts[1], {"from": accounts[0]})
     assert 'OperatorAdded' in tx.events
     tx = frame_token.setMinter(frames_crowdsale, {"from": accounts[0]})
+    tx = frames_crowdsale.setBonusList(bonus_list, {"from": accounts[0]})
 
     return frames_crowdsale
+
+
+@pytest.fixture(scope='module', autouse=True)
+def white_list(WhiteList):
+    white_list = WhiteList.deploy({"from": accounts[0]})
+    return white_list
+
+@pytest.fixture(scope='module', autouse=True)
+def royalty_token(RoyaltyToken, btts_lib, white_list):
+    name = 'Royalty Token'
+    symbol = 'RFT'
+    decimals = 18
+    mintable = True
+    transferable = True
+    initial_supply = '500 ether'
+    royalty_token = RoyaltyToken.deploy({'from': accounts[0]})
+    white_list.add([accounts[0]],{'from': accounts[0]})
+    royalty_token.initRoyaltyToken(accounts[0],symbol, name,
+                                  decimals,
+                                  initial_supply,mintable,transferable,white_list,
+                                  {'from': accounts[0]})
+
+    return royalty_token
+
+
+@pytest.fixture(scope='module', autouse=True)
+def token_converter(FrameTokenConverter, frame_token, royalty_token):
+    token_converter = FrameTokenConverter.deploy({"from": accounts[0]})
+    return token_converter
