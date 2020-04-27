@@ -31,3 +31,11 @@ Run console (very useful for debugging): `brownie console`
 
 Run script: `brownie run scripts/deploy_dream_frames_factory.py`
 
+
+## Testing with Docker
+
+A Dockerfile is available if you are experiencing issues testing locally.
+
+run with:
+`docker build -f Dockerfile -t brownie .`
+`docker run -v $PWD:/usr/src brownie pytest tests`

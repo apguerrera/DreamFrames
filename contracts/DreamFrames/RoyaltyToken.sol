@@ -60,6 +60,10 @@ contract RoyaltyToken is DreamFramesToken {
         emit SetWhiteList(_whiteList);
     }
 
+    function isInWhiteList(address _address) public view returns (bool) {
+        return whiteList.isInWhiteList(_address); 
+    }
+
 
     // ------------------------------------------------------------------------
     // Minting and management
@@ -96,7 +100,7 @@ contract RoyaltyToken is DreamFramesToken {
 
     function _canReceive(address from, address to) internal returns (bool success) {
         require(to != address(0));
-        require(whiteList.isInWhiteList(to));
+        require(isInWhiteList(to), 'Not in whitelist');
         // Set last points for sending to new accounts.
         if (data.balances[to] == 0 && lastEthPoints[to] == 0 && totalDividendPoints > 0) {
           lastEthPoints[to] = totalDividendPoints;
@@ -106,7 +110,7 @@ contract RoyaltyToken is DreamFramesToken {
     }
     function _canSend(address from, address to) internal returns (bool success) {
         require(from != address(0));
-        require(whiteList.isInWhiteList(from));
+        require(isInWhiteList(from), 'Not in whitelist');
         _updateAccount(from);
         success = true;
     }

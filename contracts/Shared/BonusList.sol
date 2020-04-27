@@ -31,7 +31,8 @@ contract BonusList is BonusListInterface, Operated {
         return bonusList[account];
     }
 
-    function add(address[] memory accounts) public onlyOperator {
+    function add(address[] memory accounts) public  {
+        require(operators[msg.sender] || owner == msg.sender);
         require(accounts.length != 0);
         for (uint i = 0; i < accounts.length; i++) {
             require(accounts[i] != address(0));
@@ -41,7 +42,8 @@ contract BonusList is BonusListInterface, Operated {
             }
         }
     }
-    function remove(address[] memory accounts) public onlyOperator {
+    function remove(address[] memory accounts) public  {
+        require(operators[msg.sender] || owner == msg.sender);
         require(accounts.length != 0);
         for (uint i = 0; i < accounts.length; i++) {
             require(accounts[i] != address(0));

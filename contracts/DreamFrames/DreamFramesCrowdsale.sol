@@ -88,64 +88,73 @@ contract DreamFramesCrowdsale is Operated {
       bonusOffList = _bonusOffList;
       bonusOnList = _bonusOnList;
 
-      // require(hardCapUsd >= _maxFrames.mul(_frameUsd).div(TENPOW18));   AG: Test logic
-      // require(softCapUsd <= _maxFrames.mul(frameUsdWithBonus()).div(TENPOW18) );
+    //   require(hardCapUsd >= _maxFrames.mul(_frameUsd).div(TENPOW18));  
+    //   require(softCapUsd <= _maxFrames.mul(frameUsdWithBonus(address(this))).div(TENPOW18) );
   }
 
   // Setter functions
-  function setWallet(address payable _wallet) public onlyOwner {
+  function setWallet(address payable _wallet) public  {
+      require(msg.sender == owner);
       require(!finalised);
       require(_wallet != address(0));
       emit WalletUpdated(wallet, _wallet);
       wallet = _wallet;
   }
-  function setStartDate(uint256 _startDate) public onlyOwner {
+  function setStartDate(uint256 _startDate) public  {
+      require(msg.sender == owner);
       require(!finalised);
       require(_startDate >= now);
       emit StartDateUpdated(startDate, _startDate);
       startDate = _startDate;
   }
-  function setEndDate(uint256 _endDate) public onlyOwner {
+  function setEndDate(uint256 _endDate) public  {
+      require(msg.sender == owner);
       require(!finalised);
       require(_endDate > startDate);
       emit EndDateUpdated(endDate, _endDate);
       endDate = _endDate;
   }
-  function setMaxFrames(uint256 _maxFrames) public onlyOwner {
+  function setMaxFrames(uint256 _maxFrames) public  {
+      require(msg.sender == owner);
       require(!finalised);
       require(_maxFrames >= framesSold);
       require(_maxFrames.mod(minFrames) == 0);
       emit MaxFramesUpdated(maxFrames, _maxFrames);
       maxFrames = _maxFrames;
   }
-  function setMinFrames(uint256 _minFrames) public onlyOwner {
+  function setMinFrames(uint256 _minFrames) public  {
+      require(msg.sender == owner);
       require(!finalised);
       require(_minFrames <= maxFrames);
       require(maxFrames.mod(_minFrames) == 0);
       emit MinFramesUpdated(minFrames, _minFrames);
       minFrames = _minFrames;
   }
-  function setFrameUsd(uint256 _frameUsd) public onlyOwner {
+  function setFrameUsd(uint256 _frameUsd) public  {
+      require(msg.sender == owner);
       require(!finalised);
       require(_frameUsd > 0);
       emit FrameUsdUpdated(frameUsd, _frameUsd);
       frameUsd = _frameUsd;
   }
-  function setBonusOffList(uint256 _bonusOffList) public onlyOwner {
+  function setBonusOffList(uint256 _bonusOffList) public  {
+      require(msg.sender == owner);
       require(!finalised);
       require(_bonusOffList <= 100);
       // some smarts for hitting softcap limit
       emit BonusOffListUpdated(bonusOffList, _bonusOffList);
       bonusOffList = _bonusOffList;
   }
-  function setBonusOnList(uint256 _bonusOnList) public onlyOwner {
+  function setBonusOnList(uint256 _bonusOnList) public  {
+      require(msg.sender == owner);
       require(!finalised);
       require(_bonusOnList <= 100);
       // cannot exceed diff between soft and hard caps
       emit BonusOnListUpdated(bonusOnList, _bonusOnList);
       bonusOnList = _bonusOnList;
   }
-  function setBonusList(address _bonusList) public onlyOwner {
+  function setBonusList(address _bonusList) public  {
+      require(msg.sender == owner);
       require(!finalised);
       bonusList = BonusListInterface(_bonusList);
   }
@@ -279,7 +288,8 @@ contract DreamFramesCrowdsale is Operated {
 
   // Contract owner allocates frames to tokenOwner for offline purchase
 
-  function offlineFramesPurchase(address tokenOwner, uint256 frames) external onlyOperator {
+  function offlineFramesPurchase(address tokenOwner, uint256 frames) external  {
+      require(operators[msg.sender] || owner == msg.sender);
       require(!finalised);
       require(frames > 0);
       require(framesSold.add(frames) <= maxFrames);
@@ -294,7 +304,8 @@ contract DreamFramesCrowdsale is Operated {
   }
 
   // Contract owner finalises to disable frame minting
-  function finalise(address _producer) public onlyOwner {
+  function finalise(address _producer) public  {
+      require(msg.sender == owner);
       require(!finalised || dreamFramesToken.mintable());
       require(now > endDate || framesSold >= maxFrames);
 

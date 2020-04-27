@@ -28,7 +28,8 @@ contract MakerDAOETHUSDPriceFeedSimulator is Owned {
         hasValue = _hasValue;
         emit SetValue(0, false, value, hasValue);
     }
-    function setValue(uint _value, bool _hasValue) public onlyOwner {
+    function setValue(uint _value, bool _hasValue) public  {
+        require(msg.sender == owner);
         emit SetValue(value, hasValue, _value, _hasValue);
         value = _value;
         hasValue = _hasValue;

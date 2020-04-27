@@ -1,7 +1,7 @@
 pragma solidity ^0.5.4;
 
-import "./ERC721.sol";
-import "./ERC721BasicToken.sol";
+import "../../interfaces/ERC721.sol";
+import "../Shared/ERC721BasicToken.sol";
 import "../Shared/SupportsInterfaceWithLookup.sol";
 
 

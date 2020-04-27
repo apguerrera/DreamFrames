@@ -3,6 +3,7 @@ from brownie.network.transaction import TransactionReceipt
 from brownie.convert import to_address
 import pytest
 from brownie import Contract
+from brownie.test import strategy
 
 ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 FRAME_USD = 100 * (10**18)
@@ -205,3 +206,30 @@ def test_frames_crowdsale_finalise(frames_crowdsale, frame_token):
     assert frame_token.balanceOf(producer, {'from': accounts[0]}) == PRODUCER_FRAMES * 10 ** 18
     with reverts():
         tx = frames_crowdsale.finalise(  producer,{'from': accounts[0]})
+
+
+
+
+######################################
+# Crowdsale State
+######################################
+
+# def test_stateful_crowdsale(BaseStateMachine, state_machine, NFToken, accounts):
+#     class StateMachine():
+
+#         def __init__(cls, NFToken, accounts, total_supply):
+#             cls.accounts = accounts
+#             cls.total_supply = total_supply
+#             cls.token = NFToken.deploy("Test NFT", "NFT", total_supply, {"from": accounts[0]})
+
+#         def invariant_balances(self):
+#             for account, balance in self.balances.items():
+#                 assert self.nft.balanceOf(account) == balance
+
+#         def invariant_softcap(self):
+#             for account, balance in self.balances.items():
+#                 assert self.nft.balanceOf(account) == hardcap
+
+#         def invariant_hardcap(self):
+#             for account, balance in self.balances.items():
+#                 assert self.nft.balanceOf(account) == hardcap

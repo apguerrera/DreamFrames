@@ -1,4 +1,8 @@
 pytest==5.4.1
 py-solc-x==0.8.1
-web3==5.7.1
-eth-brownie==1.7.0
+web3>=5.7.0
+black==19.10b0
+eth-brownie>=1.6.4,<2.0.0
+flake8==3.7.9
+isort==4.3.21
+tox==3.14.3

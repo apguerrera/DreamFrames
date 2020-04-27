@@ -40,7 +40,7 @@ def test_royalty_token_transferOwnership(royalty_token):
 ######################################
 
 def test_erc20_transfer(royalty_token, white_list):
-    white_list.add([accounts[2],],{'from': accounts[0]})
+    white_list.add([accounts[2]],{'from': accounts[0]})
     tx = royalty_token.transfer(accounts[2], '2 ether', {'from': accounts[0]})
 
     assert royalty_token.balanceOf(accounts[0]) == TOTAL_SUPPLY - 2 * 10**18
@@ -65,7 +65,7 @@ def test_erc20_approve(royalty_token):
 
 
 def test_erc20_transfer_from(royalty_token, white_list):
-    white_list.add([accounts[3],],{'from': accounts[0]})
+    white_list.add([accounts[3]],{'from': accounts[0]})
     royalty_token.approve(accounts[2], '10 ether', {'from': accounts[0]})
 
     tx = royalty_token.transferFrom(accounts[0], accounts[3], '5 ether', {'from': accounts[2]})

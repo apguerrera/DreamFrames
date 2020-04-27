@@ -93,7 +93,7 @@ def test_btts_minter(frame_token):
     tx = frame_token.setMinter(accounts[3],{'from': accounts[0]})
     assert 'MinterUpdated' in tx.events
     assert tx.events['MinterUpdated'] == {'from': accounts[2], 'to': accounts[3]}
-
+    assert frame_token.minter() == accounts[3]
 
 def test_btts_disableMinting(frame_token):
     tx = frame_token.setMinter(accounts[2],{'from': accounts[0]})
@@ -113,7 +113,6 @@ def test_btts_disableMinting(frame_token):
 
 
 
-
     # function minter() public view returns (address) {
     #     return data.minter;
     # }
@@ -129,15 +128,10 @@ def test_btts_disableMinting(frame_token):
     # function unlockAccount(address tokenOwner) public {
     #     data.unlockAccount(tokenOwner);
     # }
-    # function mintable() public view returns (bool) {
-    #     return data.mintable;
-    # }
     # function transferable() public view returns (bool) {
     #     return data.transferable;
     # }
-    # function disableMinting() public {
-    #     data.disableMinting();
-    # }
+
     # function enableTransfers() public {
     #     data.enableTransfers();
     # }

@@ -4,6 +4,7 @@ from brownie.convert import to_address
 import pytest
 from brownie import Contract
 
+ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 ######################################
 # Deploy Contracts
@@ -97,6 +98,12 @@ def royalty_token(RoyaltyToken, btts_lib, white_list):
 
 
 @pytest.fixture(scope='module', autouse=True)
-def token_converter(FrameTokenConverter, frame_token, royalty_token):
-    token_converter = FrameTokenConverter.deploy({"from": accounts[0]})
+def token_converter(RoyaltyTokenConverter, frame_token, royalty_token):
+    token_converter = RoyaltyTokenConverter.deploy({"from": accounts[0]})
+    token_converter.initTokenConverter(frame_token,royalty_token, True, {"from": accounts[0]})
+    tx = royalty_token.setMinter(token_converter, {"from": accounts[0]})
     return token_converter
+
+@pytest.fixture(scope='module', autouse=True)
+def token_factory(TokenFactory, frame_token, royalty_token):
+    token_factory = TokenFactory.deploy(frame_token,royalty_token,0, {"from": accounts[0]})
