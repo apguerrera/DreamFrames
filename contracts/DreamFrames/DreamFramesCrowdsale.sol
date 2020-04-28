@@ -15,7 +15,7 @@ import "../Shared/Operated.sol";
 import "../Shared/SafeMath.sol";
 import "../../interfaces/BTTSTokenInterface120.sol";
 import "../../interfaces/PriceFeedInterface.sol";
-import "../../interfaces/BonusListInterface.sol";
+import "../../interfaces/WhiteListInterface.sol";
 
 // ----------------------------------------------------------------------------
 // DreamFramesToken Contract
@@ -27,7 +27,7 @@ contract DreamFramesCrowdsale is Operated {
 
   BTTSTokenInterface public dreamFramesToken;
   PriceFeedInterface public ethUsdPriceFeed;
-  BonusListInterface public bonusList;
+  WhiteListInterface public bonusList;
 
   address payable public wallet;
   uint256 public startDate;
@@ -156,7 +156,7 @@ contract DreamFramesCrowdsale is Operated {
   function setBonusList(address _bonusList) public  {
       require(msg.sender == owner);
       require(!finalised);
-      bonusList = BonusListInterface(_bonusList);
+      bonusList = WhiteListInterface(_bonusList);
   }
 
   function symbol() public view returns (string memory _symbol) {
@@ -173,7 +173,7 @@ contract DreamFramesCrowdsale is Operated {
   }
 
   function getBonus(address _address) public view returns (uint256) {
-      if (bonusList.isInBonusList(_address) && bonusOnList > bonusOffList ) {
+      if (bonusList.isInWhiteList(_address) && bonusOnList > bonusOffList ) {
           return bonusOnList;
       }
       return bonusOffList;

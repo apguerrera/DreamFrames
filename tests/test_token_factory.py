@@ -34,4 +34,20 @@ def test_token_factory_transferOwnership(token_factory):
 # Factory Tests
 ######################################
 
-    assert token_factory.numberOfChildren( {'from': accounts[0]}) == 0
+def test_token_factory_numberOfChildren(token_factory):
+    assert token_factory.numberOfChildren() == 2
+
+def test_token_factory_deployFrameTokenContract(token_factory):
+    tx = token_factory.deployFrameTokenContract( {'from': accounts[1]})
+    assert 'FrameTokenDeployed' in tx.events
+    assert token_factory.numberOfChildren() == 3
+
+    tx = token_factory.deployFrameTokenContract( {'from': accounts[1], 'value':'0.1 ether'})
+    assert 'FrameTokenDeployed' in tx.events
+    assert token_factory.numberOfChildren() == 4
+
+def test_token_factory_deploy_below_fee(token_factory):
+    tx = token_factory.setMinimumFee('0.2 ether', {'from': accounts[0]})
+    with reverts():
+        token_factory.deployFrameTokenContract( {'from': accounts[1], 'value':'0.1 ether'})
+

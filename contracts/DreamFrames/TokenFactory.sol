@@ -5,7 +5,6 @@ import "../Shared/Owned.sol";
 import "../Shared/SafeMath.sol";
 import "../Shared/CloneFactory.sol";
 import "../../interfaces/ERC20Interface.sol";
-// import "../../interfaces/IDreamFrameToken.sol";
 
 
 // ----------------------------------------------------------------------------
@@ -23,6 +22,7 @@ contract TokenFactory is  Owned, CloneFactory {
 
     address public frameTokenTemplate;
     address public royaltyTokenTemplate;
+    address public whiteListTemplate;
 
     address public newAddress;
     uint256 public minimumFee = 0;
@@ -31,15 +31,17 @@ contract TokenFactory is  Owned, CloneFactory {
 
     event FrameTokenDeployed(address indexed owner, address indexed addr, address frameToken, uint256 fee);
     event RoyaltyTokenDeployed(address indexed owner, address indexed addr, address royaltyToken, uint256 fee);
+    event WhiteListDeployed(address indexed owner, address indexed addr, address whiteList);
 
     event FactoryDeprecated(address _newAddress);
     event MinimumFeeUpdated(uint oldFee, uint newFee);
 
 
-    constructor(address _frameTokenTemplate, address _royaltyTokenTemplate, uint256 _minimumFee) public  {
+    constructor(address _frameTokenTemplate, address _royaltyTokenTemplate, address _whiteListTemplate, uint256 _minimumFee) public  {
         initOwned(msg.sender);
         frameTokenTemplate = _frameTokenTemplate;
         royaltyTokenTemplate = _royaltyTokenTemplate;
+        whiteListTemplate = _whiteListTemplate;
         minimumFee = _minimumFee;
     }
 
@@ -78,16 +80,14 @@ contract TokenFactory is  Owned, CloneFactory {
             owner.transfer(msg.value);
         }
     }
-    // function deployWhiteList() public payable  returns (address whiteList)  {
-    //     require(msg.value >= minimumFee);
-    //     whiteList = createClone(whiteListTemplate);
-    //     isChild[address(whiteList)] = true;
-    //     children.push(address(whiteList));
-    //     emit WhiteListDeployed(msg.sender, address(whiteList), whiteListTemplate, msg.value);
-    //     if (msg.value > 0) {
-    //         owner.transfer(msg.value);
-    //     }
-    // }
+    
+    function deployWhiteList() public payable  returns (address whiteList)  {
+        whiteList = createClone(whiteListTemplate);
+        isChild[address(whiteList)] = true;
+        children.push(address(whiteList));
+        emit WhiteListDeployed(msg.sender, address(whiteList), whiteListTemplate);
+    }
+
     // footer functions
     function transferAnyERC20Token(address tokenAddress, uint256 tokens) public  returns (bool success) {
         require(msg.sender == owner);

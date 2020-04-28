@@ -60,8 +60,8 @@ def test_frames_crowdsale_bonus_add_getBonus(frames_crowdsale, bonus_list):
     assert bonus == BONUS
     tx = bonus_list.add([employee], {'from': accounts[0]})
     assert 'AccountListed' in tx.events
-    assert bonus_list.isInBonusList(accounts[0]) == False
-    assert bonus_list.isInBonusList(employee) == True
+    assert bonus_list.isInWhiteList(accounts[0]) == False
+    assert bonus_list.isInWhiteList(employee) == True
 
     bonus = frames_crowdsale.getBonus(employee, {'from': accounts[0]})
     assert bonus != BONUS

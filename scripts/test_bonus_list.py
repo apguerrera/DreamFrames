@@ -48,13 +48,13 @@ def test_bonus_list_add_remove(bonus_list):
     employees = accounts[6]
     tx = bonus_list.add([employees], {'from': accounts[0]})
     assert 'AccountListed' in tx.events
-    assert bonus_list.isInBonusList(accounts[0]) == False
-    assert bonus_list.isInBonusList(accounts[6]) == True
-    assert bonus_list.isInBonusList(accounts[7]) == False
+    assert bonus_list.isInWhiteList(accounts[0]) == False
+    assert bonus_list.isInWhiteList(accounts[6]) == True
+    assert bonus_list.isInWhiteList(accounts[7]) == False
 
     tx = bonus_list.remove([employees], {'from': accounts[0]})
     assert 'AccountListed' in tx.events
-    assert bonus_list.isInBonusList(accounts[6]) == False
+    assert bonus_list.isInWhiteList(accounts[6]) == False
 
 def test_bonus_list_add_none(bonus_list):
     with reverts():
