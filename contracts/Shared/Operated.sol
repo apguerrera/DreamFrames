@@ -21,12 +21,14 @@ contract Operated is Owned {
     function initOperated(address _owner) internal {
         initOwned(_owner);
     }
-    function addOperator(address _operator) public onlyOwner {
+    function addOperator(address _operator) public  {
+        require(msg.sender == owner);
         require(!operators[_operator]);
         operators[_operator] = true;
         emit OperatorAdded(_operator);
     }
-    function removeOperator(address _operator) public onlyOwner {
+    function removeOperator(address _operator) public  {
+        require(msg.sender == owner);
         require(operators[_operator]);
         delete operators[_operator];
         emit OperatorRemoved(_operator);

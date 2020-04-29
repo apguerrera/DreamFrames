@@ -8,7 +8,7 @@ pragma solidity ^0.5.4;
 // Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
 // ----------------------------------------------------------------------------
 
-import "./BTTSTokenInterface120.sol";
+import "../../interfaces/BTTSTokenInterface120.sol";
 
 // ----------------------------------------------------------------------------
 // BokkyPooBah's Token Teleportation Service Library v1.20
