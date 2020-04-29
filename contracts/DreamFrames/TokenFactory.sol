@@ -40,7 +40,14 @@ contract TokenFactory is  Owned, CloneFactory {
     event MinimumFeeUpdated(uint oldFee, uint newFee);
 
 
-    constructor(address _frameTokenTemplate, address _royaltyTokenTemplate, address _whiteListTemplate, uint256 _minimumFee) public  {
+    constructor(
+        address _frameTokenTemplate,
+        address _royaltyTokenTemplate,
+        address _whiteListTemplate,
+        uint256 _minimumFee
+    )
+        public
+    {
         initOwned(msg.sender);
         frameTokenTemplate = _frameTokenTemplate;
         royaltyTokenTemplate = _royaltyTokenTemplate;
@@ -63,7 +70,10 @@ contract TokenFactory is  Owned, CloneFactory {
         minimumFee = _minimumFee;
     }
 
+
+    // ----------------------------------------------------------------------------
     // Token Deployments
+    // ----------------------------------------------------------------------------
 
     function deployFrameToken(
         address _owner,
@@ -96,7 +106,7 @@ contract TokenFactory is  Owned, CloneFactory {
         bool _mintable,
         bool _transferable
     )
-        public payable returns (address royaltyToken)
+        public  payable returns (address royaltyToken)
     {
         require(msg.value >= minimumFee);
         royaltyToken = createClone(royaltyTokenTemplate);
@@ -115,7 +125,12 @@ contract TokenFactory is  Owned, CloneFactory {
         }
     }
 
-    function deployWhiteList(address owner, address[] memory whiteListed ) public payable  returns (address whiteList)  {
+    function deployWhiteList(
+        address owner,
+        address[] memory whiteListed
+    )
+        public payable returns (address whiteList)
+    {
         whiteList = createClone(whiteListTemplate);
         WhiteListInterface(whiteList).initWhiteList(address(this));
         WhiteListInterface(whiteList).add(whiteListed);
@@ -125,8 +140,17 @@ contract TokenFactory is  Owned, CloneFactory {
         emit WhiteListDeployed(msg.sender, address(whiteList), whiteListTemplate, owner);
     }
 
-    // footer functions
-    function transferAnyERC20Token(address tokenAddress, uint256 tokens) public  returns (bool success) {
+
+    // ----------------------------------------------------------------------------
+    // Footer Functions
+    // ----------------------------------------------------------------------------
+
+    function transferAnyERC20Token(
+        address tokenAddress,
+        uint256 tokens
+    )
+        public  returns (bool success)
+    {
         require(msg.sender == owner);
         return ERC20Interface(tokenAddress).transfer(owner, tokens);
     }

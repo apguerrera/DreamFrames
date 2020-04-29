@@ -52,17 +52,6 @@ def frame_token(token_factory, DreamFramesToken):
 
 
 
-@pytest.fixture(scope='module', autouse=True)
-def white_list(token_factory, WhiteList):
-    tx = token_factory.deployWhiteList(accounts[0], [accounts[0]], {'from': accounts[0]})
-    white_list = WhiteList.at(tx.return_value)
-    return white_list
-
-@pytest.fixture(scope='module', autouse=True)
-def bonus_list(WhiteList):
-    bonus_list = WhiteList.deploy({"from": accounts[0]})
-    bonus_list.initWhiteList(accounts[0], {"from": accounts[0]})
-    return bonus_list
 
 @pytest.fixture(scope='module', autouse=True)
 def royalty_token(RoyaltyToken,token_factory):
@@ -89,6 +78,18 @@ def price_simulator(MakerDAOETHUSDPriceFeedSimulator):
 def price_feed(MakerDAOPriceFeedAdaptor, price_simulator):
     price_feed = MakerDAOPriceFeedAdaptor.deploy(price_simulator, {"from": accounts[0]})
     return price_feed
+
+@pytest.fixture(scope='module', autouse=True)
+def white_list(token_factory, WhiteList):
+    tx = token_factory.deployWhiteList(accounts[0], [accounts[0]], {'from': accounts[0]})
+    white_list = WhiteList.at(tx.return_value)
+    return white_list
+
+@pytest.fixture(scope='module', autouse=True)
+def bonus_list(WhiteList):
+    bonus_list = WhiteList.deploy({"from": accounts[0]})
+    bonus_list.initWhiteList(accounts[0], {"from": accounts[0]})
+    return bonus_list
 
 @pytest.fixture(scope='module', autouse=True)
 def frames_crowdsale(DreamFramesCrowdsale, frame_token, price_feed, bonus_list):

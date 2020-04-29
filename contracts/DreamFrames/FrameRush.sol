@@ -1,7 +1,9 @@
 pragma solidity ^0.5.4;
 
 // ----------------------------------------------------------------------------
-// DreamFrames Token Converter
+// DreamFrames FrameRush 
+//
+// Claim ERC721 memorabilia by burning Frame Tokens  
 //
 // Authors:
 // * Adrian Guerrera / Deepyr Pty Ltd
@@ -80,9 +82,13 @@ contract FrameRush is Operated {
     function claimCollectableToken(address _account, uint256 _tokenId )
         external returns (bool success)
     {
-        require(_canClaim(_account, _tokenId));
+        require( isClaimable );
+        uint256 amount = 25;
+        require(frameToken.transferFrom(_account, address(0), amount));
+        // require(collectableToken.mint(_account, _tokenId));  // Not supported yet
         emit ClaimedCollectableToken(_account, _tokenId);
         success = true;
+
     }
 
     // ----------------------------------------------------------------------------
@@ -90,14 +96,26 @@ contract FrameRush is Operated {
     // ----------------------------------------------------------------------------
 
     function _canClaim(address _account, uint256 _tokenId )
-        internal pure returns (bool success)
+        internal view returns (bool success)
     {
         require(_tokenId != 0);
         require(_account != address(0)); 
+        uint256 amount = 25;
 
-        // AG: replace with amount check logic
-        // check can send, check can receive
-        // check convert logic
+        // Check inputs
+        if (  _account == address(0)) {
+            return false;
+        }
+        // Check token balances
+        if ( frameToken.balanceOf(_account) < amount || frameToken.accountLocked(_account) ) {
+            return false;
+        }
+        // Check flags
+        if ( !isClaimable || !frameToken.transferable() /*|| !collectableToken.mintable()*/ ) {
+            return false;
+        }
+
+
         success = true;
     }
 

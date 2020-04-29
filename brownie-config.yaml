@@ -46,7 +46,7 @@ compiler:
     evm_version: null
     minify_source: false
     solc:
-        version: null
+        version: 0.5.16
         optimize: true
         runs: 200
 colors:

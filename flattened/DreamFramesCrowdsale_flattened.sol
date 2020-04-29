@@ -11,11 +11,232 @@ pragma solidity ^0.5.4;
 // (c) Adrian Guerrera / Deepyr Pty Ltd for Dreamframes 2019. The MIT Licence.
 // ----------------------------------------------------------------------------
 
-import "../Shared/Operated.sol";
-import "../Shared/SafeMath.sol";
-import "../../interfaces/BTTSTokenInterface120.sol";
-import "../../interfaces/PriceFeedInterface.sol";
-import "../../interfaces/WhiteListInterface.sol";
+
+
+// ----------------------------------------------------------------------------
+// Owned contract
+// ----------------------------------------------------------------------------
+contract Owned {
+    address payable public owner;
+    address public newOwner;
+    bool private initialised;
+
+     event OwnershipTransferred(address indexed from, address indexed to);
+
+    function initOwned(address  _owner) internal {
+        require(!initialised);
+        owner = address(uint160(_owner));
+        initialised = true;
+    }
+    function transferOwnership(address _newOwner) public {
+        require(msg.sender == owner);
+        newOwner = _newOwner;
+    }
+    function acceptOwnership()  public  {
+        require(msg.sender == newOwner);
+        emit OwnershipTransferred(owner, newOwner);
+        owner = address(uint160(newOwner));
+        newOwner = address(0);
+    }
+    function transferOwnershipImmediately(address _newOwner) public {
+        require(msg.sender == owner);
+        emit OwnershipTransferred(owner, _newOwner);
+        owner = address(uint160(_newOwner));
+    }
+}
+
+
+// ----------------------------------------------------------------------------
+// Maintain a list of operators that are permissioned to execute certain
+// functions
+// ----------------------------------------------------------------------------
+contract Operated is Owned {
+    mapping(address => bool) public operators;
+
+    event OperatorAdded(address _operator);
+    event OperatorRemoved(address _operator);
+
+    modifier onlyOperator() {
+        require(operators[msg.sender] || owner == msg.sender);
+        _;
+    }
+
+    function initOperated(address _owner) internal {
+        initOwned(_owner);
+    }
+    function addOperator(address _operator) public  {
+        require(msg.sender == owner);
+        require(!operators[_operator]);
+        operators[_operator] = true;
+        emit OperatorAdded(_operator);
+    }
+    function removeOperator(address _operator) public  {
+        require(msg.sender == owner);
+        require(operators[_operator]);
+        delete operators[_operator];
+        emit OperatorRemoved(_operator);
+    }
+}
+
+// ----------------------------------------------------------------------------
+// Safe maths
+// ----------------------------------------------------------------------------
+
+library SafeMath {
+    function add(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        c = a + b;
+        require(c >= a);
+    }
+    function sub(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        require(b <= a);
+        c = a - b;
+    }
+    function mul(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        c = a * b;
+        require(a == 0 || c / a == b);
+    }
+    function div(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        require(b > 0);
+        c = a / b;
+    }
+    function max(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        c = a >= b ? a : b;
+    }
+    function min(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        c = a <= b ? a : b;
+    }
+    function mod(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        require(b != 0);
+        c =  a % b;
+    }
+}
+
+// ----------------------------------------------------------------------------
+// BokkyPooBah's Token Teleportation Service Interface v1.20
+//
+// https://github.com/bokkypoobah/BokkyPooBahsTokenTeleportationServiceSmartContract
+//
+// Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
+// ----------------------------------------------------------------------------
+
+
+// ----------------------------------------------------------------------------
+// ERC Token Standard #20 Interface
+// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md
+// ----------------------------------------------------------------------------
+contract ERC20Interface {
+  event Transfer(address indexed from, address indexed to, uint tokens);
+  event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
+
+  function totalSupply() public view returns (uint);
+  function balanceOf(address tokenOwner) public view returns (uint balance);
+  function allowance(address tokenOwner, address spender) public view returns (uint remaining);
+  function transfer(address to, uint tokens) public returns (bool success);
+  function approve(address spender, uint tokens) public returns (bool success);
+  function transferFrom(address from, address to, uint tokens) public returns (bool success);
+}
+
+// ----------------------------------------------------------------------------
+// Contracts that can have tokens approved, and then a function executed
+// ----------------------------------------------------------------------------
+contract ApproveAndCallFallBack {
+    function receiveApproval(address from, uint256 tokens, address token, bytes memory data) public;
+}
+
+
+// ----------------------------------------------------------------------------
+// BokkyPooBah's Token Teleportation Service Interface v1.10
+//
+// Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
+// ----------------------------------------------------------------------------
+contract BTTSTokenInterface is ERC20Interface {
+  uint public constant bttsVersion = 120;
+
+     bytes public constant signingPrefix = "\x19Ethereum Signed Message:\n32";
+     bytes4 public constant signedTransferSig = "\x75\x32\xea\xac";
+     bytes4 public constant signedApproveSig = "\xe9\xaf\xa7\xa1";
+     bytes4 public constant signedTransferFromSig = "\x34\x4b\xcc\x7d";
+     bytes4 public constant signedApproveAndCallSig = "\xf1\x6f\x9b\x53";
+
+     event OwnershipTransferred(address indexed from, address indexed to);
+     event MinterUpdated(address from, address to);
+     event Mint(address indexed tokenOwner, uint tokens, bool lockAccount);
+     event MintingDisabled();
+     event TransfersEnabled();
+     event AccountUnlocked(address indexed tokenOwner);
+
+     function symbol() public view returns (string memory);
+     function name() public view returns (string memory);
+     function decimals() public view returns (uint8);
+
+     function approveAndCall(address spender, uint tokens, bytes memory data) public returns (bool success);
+
+     // ------------------------------------------------------------------------
+     // signed{X} functions
+     // ------------------------------------------------------------------------
+     function signedTransferHash(address tokenOwner, address to, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash);
+     function signedTransferCheck(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result);
+     function signedTransfer(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success);
+
+     function signedApproveHash(address tokenOwner, address spender, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash);
+     function signedApproveCheck(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result);
+     function signedApprove(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success);
+
+     function signedTransferFromHash(address spender, address from, address to, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash);
+     function signedTransferFromCheck(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result);
+     function signedTransferFrom(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success);
+
+     function signedApproveAndCallHash(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce) public view returns (bytes32 hash);
+     function signedApproveAndCallCheck(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result);
+     function signedApproveAndCall(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success);
+
+     function mint(address tokenOwner, uint tokens, bool lockAccount) public returns (bool success);
+     function unlockAccount(address tokenOwner) public;
+     function accountLocked(address tokenOwner) public view returns (bool);
+
+     function disableMinting() public;
+     function enableTransfers() public;
+     function mintable() public view returns (bool success);
+     function transferable() public view returns (bool success);
+
+     function setMinter(address minter) public;
+
+     // ------------------------------------------------------------------------
+     // signed{X}Check return status
+     // ------------------------------------------------------------------------
+     enum CheckResult {
+         Success,                           // 0 Success
+         NotTransferable,                   // 1 Tokens not transferable yet
+         AccountLocked,                     // 2 Account locked
+         SignerMismatch,                    // 3 Mismatch in signing account
+         InvalidNonce,                      // 4 Invalid nonce
+         InsufficientApprovedTokens,        // 5 Insufficient approved tokens
+         InsufficientApprovedTokensForFees, // 6 Insufficient approved tokens for fees
+         InsufficientTokens,                // 7 Insufficient tokens
+         InsufficientTokensForFees,         // 8 Insufficient tokens for fees
+         OverflowError                      // 9 Overflow error
+     }
+}
+
+// ----------------------------------------------------------------------------
+// PriceFeed Interface - _live is true if the rate is valid, false if invalid
+// ----------------------------------------------------------------------------
+contract PriceFeedInterface {
+    function getRate() public view returns (uint _rate, bool _live);
+}
+
+// ----------------------------------------------------------------------------
+// Bonus List interface
+// ----------------------------------------------------------------------------
+contract WhiteListInterface {
+    function isInWhiteList(address account) public view returns (bool);
+    function add(address[] memory accounts) public ;
+    function remove(address[] memory accounts) public ;
+    function initWhiteList(address owner) public ;
+    function transferOwnershipImmediately(address _newOwner) public;
+
+
+}
 
 // ----------------------------------------------------------------------------
 // DreamFramesToken Contract
