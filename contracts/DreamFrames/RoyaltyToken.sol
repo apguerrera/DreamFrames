@@ -45,8 +45,10 @@ contract RoyaltyToken is DreamFramesToken {
     // Constructor
     // ------------------------------------------------------------------------
     function initRoyaltyToken(address _owner, string calldata _symbol, string calldata _name, uint8 _decimals, uint _initialSupply, bool _mintable, bool _transferable, address _whiteList) external {
-        whiteList = WhiteListInterface(_whiteList);
-        require(whiteList.isInWhiteList(_owner));
+        if (_initialSupply > 0 ) {
+            require(WhiteListInterface(_whiteList).isInWhiteList(_owner));
+        }
+        setWhiteList(_whiteList);
         data.init(_owner, _symbol, _name, _decimals, _initialSupply, _mintable, _transferable);
     }
 
@@ -55,13 +57,17 @@ contract RoyaltyToken is DreamFramesToken {
     // Whitelist
     // ------------------------------------------------------------------------
     function setWhiteList (address _whiteList)  public  {
-        // require(msg.sender == data.owner);
+        // require(msg.sender == data.owner);  AG: 
         whiteList = WhiteListInterface(_whiteList);
         emit SetWhiteList(_whiteList);
     }
 
     function isInWhiteList(address _address) public view returns (bool) {
         return whiteList.isInWhiteList(_address); 
+    }
+
+    function getWhiteList() public returns (address){
+        return address(whiteList);
     }
 
 

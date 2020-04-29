@@ -26,10 +26,15 @@ def royalty_token_template(RoyaltyToken, btts_lib):
     royalty_token_template = RoyaltyToken.deploy({'from': accounts[0]})
     return royalty_token_template
 
+@pytest.fixture(scope='module', autouse=True)
+def white_list_template(WhiteList):
+    white_list_template = WhiteList.deploy({"from": accounts[0]})
+    return white_list_template
+
 
 @pytest.fixture(scope='module', autouse=True)
-def token_factory(TokenFactory, frame_token_template, royalty_token_template, white_list):
-    token_factory = TokenFactory.deploy(frame_token_template,royalty_token_template,white_list,0, {"from": accounts[0]})
+def token_factory(TokenFactory, frame_token_template, royalty_token_template, white_list_template):
+    token_factory = TokenFactory.deploy(frame_token_template,royalty_token_template,white_list_template,0, {"from": accounts[0]})
     return token_factory
 
 @pytest.fixture(scope='module', autouse=True)
@@ -40,21 +45,27 @@ def frame_token(token_factory, DreamFramesToken):
     mintable = True
     transferable = True
     initial_supply = '1000 ether'
-    tx = token_factory.deployFrameTokenContract({'from': accounts[0]})
+    tx = token_factory.deployFrameToken(accounts[0],symbol, name,decimals,
+                                  initial_supply,mintable,transferable,{'from': accounts[0]})
     frame_token = DreamFramesToken.at(tx.return_value)
-    frame_token.init(accounts[0],symbol, name,
-                                  decimals,
-                                  initial_supply,mintable,transferable,
-                                  {'from': accounts[0]})
     return frame_token
 
+
+
 @pytest.fixture(scope='module', autouse=True)
-def white_list(WhiteList):
-    white_list = WhiteList.deploy({"from": accounts[0]})
+def white_list(token_factory, WhiteList):
+    tx = token_factory.deployWhiteList(accounts[0], [accounts[0]], {'from': accounts[0]})
+    white_list = WhiteList.at(tx.return_value)
     return white_list
 
 @pytest.fixture(scope='module', autouse=True)
-def royalty_token(RoyaltyToken,token_factory, white_list):
+def bonus_list(WhiteList):
+    bonus_list = WhiteList.deploy({"from": accounts[0]})
+    bonus_list.initWhiteList(accounts[0], {"from": accounts[0]})
+    return bonus_list
+
+@pytest.fixture(scope='module', autouse=True)
+def royalty_token(RoyaltyToken,token_factory):
     name = 'Royalty Token'
     symbol = 'RFT'
     decimals = 18
@@ -62,20 +73,12 @@ def royalty_token(RoyaltyToken,token_factory, white_list):
     transferable = True
     initial_supply = '500 ether'
     owner = accounts[0]
-    tx = token_factory.deployRoyaltyTokenContract({'from': accounts[0]})
-    royalty_token = RoyaltyToken.at(tx.return_value)
-    white_list.add([owner],{'from': accounts[0]})
-    royalty_token.initRoyaltyToken(owner,symbol, name,
+    tx = token_factory.deployRoyaltyToken(owner,symbol, name,
                                   decimals,
-                                  initial_supply,mintable,transferable,white_list,
-                                  {'from': accounts[0]})
-
+                                  initial_supply,mintable,transferable, {'from': accounts[0]})
+    royalty_token = RoyaltyToken.at(tx.return_value)
     return royalty_token
 
-@pytest.fixture(scope='module', autouse=True)
-def bonus_list(WhiteList):
-    bonus_list = WhiteList.deploy({"from": accounts[0]})
-    return bonus_list
 
 @pytest.fixture(scope='module', autouse=True)
 def price_simulator(MakerDAOETHUSDPriceFeedSimulator):

@@ -5,6 +5,9 @@ import "../Shared/Owned.sol";
 import "../Shared/SafeMath.sol";
 import "../Shared/CloneFactory.sol";
 import "../../interfaces/ERC20Interface.sol";
+import "../../interfaces/RoyaltyTokenInterface.sol";
+import "../../interfaces/FrameTokenInterface.sol";
+import "../../interfaces/WhiteListInterface.sol";
 
 
 // ----------------------------------------------------------------------------
@@ -31,7 +34,7 @@ contract TokenFactory is  Owned, CloneFactory {
 
     event FrameTokenDeployed(address indexed owner, address indexed addr, address frameToken, uint256 fee);
     event RoyaltyTokenDeployed(address indexed owner, address indexed addr, address royaltyToken, uint256 fee);
-    event WhiteListDeployed(address indexed owner, address indexed addr, address whiteList);
+    event WhiteListDeployed(address indexed operator, address indexed addr, address whiteList, address owner);
 
     event FactoryDeprecated(address _newAddress);
     event MinimumFeeUpdated(uint oldFee, uint newFee);
@@ -59,33 +62,67 @@ contract TokenFactory is  Owned, CloneFactory {
         emit MinimumFeeUpdated(minimumFee, _minimumFee);
         minimumFee = _minimumFee;
     }
-    function deployFrameTokenContract() public payable returns (address frameToken)  {
+
+    // Token Deployments
+
+    function deployFrameToken(
+        address _owner,
+        string memory _symbol,
+        string memory _name,
+        uint8 _decimals,
+        uint _initialSupply,
+        bool _mintable,
+        bool _transferable
+    )
+        public payable returns (address frameToken)
+    {
         require(msg.value >= minimumFee);
         frameToken = createClone(frameTokenTemplate);
         isChild[address(frameToken)] = true;
         children.push(address(frameToken));
+        FrameTokenInterface(frameToken).init(_owner, _symbol, _name, _decimals, _initialSupply, _mintable, _transferable);
         emit FrameTokenDeployed(msg.sender, address(frameToken), frameTokenTemplate, msg.value);
         if (msg.value > 0) {
             owner.transfer(msg.value);
         }
     }
 
-    function deployRoyaltyTokenContract() public payable  returns (address royaltyToken)  {
+    function deployRoyaltyToken(
+        address _owner,
+        string memory _symbol,
+        string memory _name,
+        uint8 _decimals,
+        uint _initialSupply,
+        bool _mintable,
+        bool _transferable
+    )
+        public payable returns (address royaltyToken)
+    {
         require(msg.value >= minimumFee);
         royaltyToken = createClone(royaltyTokenTemplate);
         isChild[address(royaltyToken)] = true;
         children.push(address(royaltyToken));
+        address[] memory whiteListed = new address[](1);
+        if (_initialSupply > 0 ) {
+            whiteListed[0] = _owner;
+        }
+        address whiteList = deployWhiteList(_owner, whiteListed);
+        RoyaltyTokenInterface(royaltyToken).initRoyaltyToken(_owner, _symbol, _name, _decimals, _initialSupply, _mintable, _transferable, whiteList);
+
         emit RoyaltyTokenDeployed(msg.sender, address(royaltyToken), royaltyTokenTemplate, msg.value);
         if (msg.value > 0) {
             owner.transfer(msg.value);
         }
     }
-    
-    function deployWhiteList() public payable  returns (address whiteList)  {
+
+    function deployWhiteList(address owner, address[] memory whiteListed ) public payable  returns (address whiteList)  {
         whiteList = createClone(whiteListTemplate);
+        WhiteListInterface(whiteList).initWhiteList(address(this));
+        WhiteListInterface(whiteList).add(whiteListed);
+        WhiteListInterface(whiteList).transferOwnershipImmediately(owner);
         isChild[address(whiteList)] = true;
         children.push(address(whiteList));
-        emit WhiteListDeployed(msg.sender, address(whiteList), whiteListTemplate);
+        emit WhiteListDeployed(msg.sender, address(whiteList), whiteListTemplate, owner);
     }
 
     // footer functions

@@ -24,9 +24,11 @@ contract WhiteList is WhiteListInterface, Operated {
     event AccountListed(address indexed account, bool status);
 
     constructor() public {
-        initOperated(msg.sender);
     }
 
+    function initWhiteList(address _owner) public {
+        initOperated(_owner);
+    }
     function isInWhiteList(address account) public view returns (bool) {
         return whiteList[account];
     }
