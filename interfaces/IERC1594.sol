@@ -4,7 +4,7 @@ pragma solidity ^0.5.4;
 /// @title IERC1400 Security Token Standard
 /// @dev See https://github.com/SecurityTokenStandard/EIP-Spec
 
-import "./ERC20Interface.sol";
+import "../interfaces/ERC20Interface.sol";
 /// @title IERC1594 Security Token Standard
 /// @dev See https://github.com/SecurityTokenStandard/EIP-Spec
 

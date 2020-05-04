@@ -71,7 +71,7 @@ def royalty_token(RoyaltyToken,token_factory):
 
 @pytest.fixture(scope='module', autouse=True)
 def price_simulator(MakerDAOETHUSDPriceFeedSimulator):
-    price_simulator = MakerDAOETHUSDPriceFeedSimulator.deploy('200 ether', True, {"from": accounts[0]})
+    price_simulator = MakerDAOETHUSDPriceFeedSimulator.deploy('20000 ether', True, {"from": accounts[0]})
     return price_simulator
 
 @pytest.fixture(scope='module', autouse=True)
@@ -97,13 +97,13 @@ def frames_crowdsale(DreamFramesCrowdsale, frame_token, price_feed, bonus_list):
     startDate = rpc.time()
     endDate = startDate + 50000
     minFrames = 1
-    maxFrames  = 100000
+    maxFrames  = 1000000
     producerFrames = 25000
     frameUsd = '100 ether'
     bonusOffList = 30 
     bonusOnList = 40 
-    hardCapUsd = 3000000
-    softCapUsd = 1500000
+    hardCapUsd = '3000000 ether'
+    softCapUsd = '1500000 ether' 
     frames_crowdsale = DreamFramesCrowdsale.deploy({"from": accounts[0]})
     frames_crowdsale.init(frame_token, price_feed
                     , wallet, startDate, endDate, minFrames

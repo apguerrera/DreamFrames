@@ -1,6 +1,6 @@
 pragma solidity ^0.5.4;
 
-import "./ERC721Receiver.sol";
+import "../interfaces/ERC721Receiver.sol";
 
 
 contract ERC721Holder is ERC721Receiver {

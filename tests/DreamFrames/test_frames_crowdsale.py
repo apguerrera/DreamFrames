@@ -7,11 +7,12 @@ from brownie.test import strategy
 
 ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 FRAME_USD = 100 * (10**18)
-ETH_USD = 200 * (10**18)
+ETH_USD = 20000 * (10**18)
 BONUS = 30 
 FRAME_USD_BONUS = int( FRAME_USD * 100 / (100 + BONUS ))
 MAX_FRAMES = 100000 
 PRODUCER_FRAMES = 25000 
+HARD_CAP = 3000000 * (10**18)
 
 # reset the chain after every test case
 @pytest.fixture(autouse=True)
@@ -75,7 +76,7 @@ def test_frames_crowdsale_mintable(frame_token):
 
 
 def test_frames_crowdsale_ethUsd(frames_crowdsale):
-    assert frames_crowdsale.ethUsd({'from': accounts[0]}) == ('200 ether',True)
+    assert frames_crowdsale.ethUsd({'from': accounts[0]}) == (ETH_USD,True)
 
     
 def test_frames_crowdsale_frameUsdWithBonus(frames_crowdsale):
@@ -86,8 +87,8 @@ def test_frames_crowdsale_frameUsd(frames_crowdsale):
     assert frames_crowdsale.frameUsd({'from': accounts[0]}) == '100 ether'
 
 
-def test_frames_crowdsale_frameEth(frames_crowdsale):
-    target_frame_eth = FRAME_USD_BONUS * (10**18) / (200 * 10**18) 
+def test_frames_crowdsale_frameEthBonus(frames_crowdsale):
+    target_frame_eth = FRAME_USD_BONUS * (10**18) / ETH_USD
     (frame_eth,live) = frames_crowdsale.frameEthBonus(accounts[2], {'from': accounts[0]}) 
     assert live == True
     assert dust(frame_eth) == dust(target_frame_eth)   # AG: dust 
@@ -95,7 +96,7 @@ def test_frames_crowdsale_frameEth(frames_crowdsale):
 
 def test_frames_crowdsale_calculateFrames(frames_crowdsale):
     (frames,eth_to_transfer) = frames_crowdsale.calculateFrames('10 ether', {'from': accounts[0]})
-    assert frames == int(ETH_USD / FRAME_USD_BONUS * 10)
+    assert frames == int(( 10 * ETH_USD  ) / FRAME_USD_BONUS )
     assert dust(eth_to_transfer) == dust(10 * 10**18)  # AG: dust 
 
 def test_frames_crowdsale_calculateFrames_short(frames_crowdsale):
@@ -108,15 +109,15 @@ def test_frames_crowdsale_calculateFrames_short(frames_crowdsale):
 
 def test_frames_crowdsale_calculateFrames_hardcap(frames_crowdsale):
     (frames,eth_amount) = frames_crowdsale.calculateFrames('100000 ether', {'from': accounts[0]})
-    assert frames == MAX_FRAMES
+    assert frames == HARD_CAP / FRAME_USD_BONUS
     (frame_eth, live) = frames_crowdsale.frameEthBonus(accounts[2],{'from': accounts[0]})
     eth_to_transfer = frames * frame_eth
     assert dust(eth_to_transfer) == dust(eth_amount)  # AG: dust 
 
 
-def test_frames_crowdsale_framesRemaining(frames_crowdsale):
-    frames_remaining = frames_crowdsale.framesRemaining({'from': accounts[0]})
-    assert frames_remaining == MAX_FRAMES
+def test_frames_crowdsale_usdRemaining(frames_crowdsale):
+    usd_remaining = frames_crowdsale.usdRemaining({'from': accounts[0]})
+    assert usd_remaining == HARD_CAP
 
 def test_frames_crowdsale_pctSold(frames_crowdsale):
     pct_sold = frames_crowdsale.pctSold({'from': accounts[0]})
@@ -135,12 +136,13 @@ def test_frames_crowdsale_pctRemaining(frames_crowdsale):
 def test_frames_crowdsale_purchaseEth(frames_crowdsale,frame_token):
 
     frames = 10
+    gas = 300000
     (frame_eth, live) = frames_crowdsale.frameEthBonus(accounts[3],{'from': accounts[0]})
-    eth_to_transfer = frames * frame_eth
+    eth_to_transfer = frames * frame_eth + gas
 
     tx = accounts[3].transfer(frames_crowdsale, eth_to_transfer)
     assert 'Purchased' in tx.events
-    assert frame_token.balanceOf(accounts[3]) == '{} ether'.format(frames)
+    assert frame_token.balanceOf(accounts[3]) == frames * 10 **18
 
 
 def test_frames_crowdsale_purchaseEth_too_much(frames_crowdsale,frame_token):
@@ -151,13 +153,13 @@ def test_frames_crowdsale_purchaseEth_too_much(frames_crowdsale,frame_token):
 
     tx = tokenOwner.transfer(frames_crowdsale, eth_to_transfer)
     assert 'Purchased' in tx.events
-
-    tx = frames_crowdsale.offlineFramesPurchase(tokenOwner,MAX_FRAMES-frames, {'from': accounts[0]})
+    offline_frames = HARD_CAP / FRAME_USD_BONUS - frames
+    tx = frames_crowdsale.offlineFramesPurchase(tokenOwner,offline_frames, {'from': accounts[0]})
     assert 'Purchased' in tx.events
 
-    assert frame_token.balanceOf(tokenOwner) == MAX_FRAMES * 10 ** 18
-    frames_remaining = frames_crowdsale.framesRemaining({'from': accounts[0]})
-    assert frames_remaining == 0
+    # assert frame_token.balanceOf(tokenOwner) == MAX_FRAMES * 10 ** 18
+    usd_remaining = frames_crowdsale.usdRemaining({'from': accounts[0]})
+    assert usd_remaining < FRAME_USD
 
 
 
@@ -190,8 +192,8 @@ def test_frames_crowdsale_offlineFramesPurchase(frames_crowdsale):
     frames = 10
     tx = frames_crowdsale.offlineFramesPurchase(tokenOwner, frames, {'from': accounts[0]})
     assert 'Purchased' in tx.events
-    frames_remaining = frames_crowdsale.framesRemaining({'from': accounts[0]})
-    assert frames_remaining == MAX_FRAMES - frames
+    # frames_remaining = frames_crowdsale.framesRemaining({'from': accounts[0]})
+    # assert frames_remaining == MAX_FRAMES - frames
 
 
 ######################################

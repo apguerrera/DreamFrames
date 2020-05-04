@@ -89,3 +89,55 @@ def main():
 
 
 
+
+
+
+# Running 'scripts.deploy_TokenCrowdsale.main'...
+# Transaction sent: 0xf787b544ad201e06d8e116bbc039b3c3033e7399c5ae30a7e2e9038fe1adde7f
+#   Gas price: 1.0 gwei   Gas limit: 346697
+# Waiting for confirmation...
+#   MakerDAOETHUSDPriceFeedSimulator.constructor confirmed - Block: 7811762   Gas used: 346697 (100.00%)
+#   MakerDAOETHUSDPriceFeedSimulator deployed at: 0xb60a463bBc431Af8B9F807a67763d57cD62A688f
+
+# Transaction sent: 0x3c2a7b0579f0b1441e8d343bdac4523846df75b254b611f20fe97719536939df
+#   Gas price: 1.0 gwei   Gas limit: 146104
+# Waiting for confirmation...
+#   MakerDAOPriceFeedAdaptor.constructor confirmed - Block: 7811764   Gas used: 146104 (100.00%)
+#   MakerDAOPriceFeedAdaptor deployed at: 0x31e206f5Aa5Dfae6CCBb980fE9eE5fcd52a32978
+
+# Transaction sent: 0x7bbe604281222d8221de998117f28b7a5b2e62224d474be91b0cac0a330dd7a8
+#   Gas price: 1.0 gwei   Gas limit: 587550
+# Waiting for confirmation...
+#   WhiteList.constructor confirmed - Block: 7811766   Gas used: 587550 (100.00%)
+#   WhiteList deployed at: 0x0FD555484b9be247A0b05B8Bb1755C75169650D0
+
+# Transaction sent: 0x3df9a33447194fd23a3c5c2af5ef4cd55aa3153be834b5a014c1e811c0b80492
+#   Gas price: 1.0 gwei   Gas limit: 64277
+# Waiting for confirmation...
+#   WhiteList.initWhiteList confirmed - Block: 7811769   Gas used: 64277 (100.00%)
+
+# Transaction sent: 0x8863612e91a61e137c91d0d279f38bcef3738408eef607e119fdae5c2469fd5b
+#   Gas price: 1.0 gwei   Gas limit: 1764403
+# Waiting for confirmation...
+#   DreamFramesCrowdsale.constructor confirmed - Block: 7811772   Gas used: 1764403 (100.00%)
+#   DreamFramesCrowdsale deployed at: 0xd0E93209fb0a6E5997eA2178Fbf55397cC10026E
+
+# Transaction sent: 0xc35f76e987eba44c8b7cfa919e7de5495f8e2eee1ec6998b3718c6f750a77865
+#   Gas price: 1.0 gwei   Gas limit: 349821
+# Waiting for confirmation...
+#   DreamFramesCrowdsale.init confirmed - Block: 7811774   Gas used: 349821 (100.00%)
+
+# Transaction sent: 0x020a76cb850b698dfcbaf631a00daf225026eb156276124110f564cd63fba404
+#   Gas price: 1.0 gwei   Gas limit: 45508
+# Waiting for confirmation...
+#   DreamFramesCrowdsale.addOperator confirmed - Block: 7811776   Gas used: 45508 (100.00%)
+
+# Transaction sent: 0xcc77a28949eb2323f796c85f73b11c85e4f53d226a410a9b45ead5202310ba74
+#   Gas price: 1.0 gwei   Gas limit: 34532
+# Waiting for confirmation...
+#   DreamFramesToken.setMinter confirmed - Block: 7811778   Gas used: 34254 (99.19%)
+
+# Transaction sent: 0x5c78b9003b29a53de7e487a216887ec7acc128382ccef058a9d7bc5084c95c89
+#   Gas price: 1.0 gwei   Gas limit: 44238
+# Waiting for confirmation...
+#   DreamFramesCrowdsale.setBonusList confirmed - Block: 7811780   Gas used: 44238 (100.00%)

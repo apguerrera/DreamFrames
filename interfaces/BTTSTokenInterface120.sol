@@ -8,7 +8,7 @@ pragma solidity ^0.5.4;
 // Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
 // ----------------------------------------------------------------------------
 
-import "./ERC20Interface.sol";
+import "../interfaces/ERC20Interface.sol";
 
 // ----------------------------------------------------------------------------
 // Contracts that can have tokens approved, and then a function executed

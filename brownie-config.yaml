@@ -21,6 +21,7 @@ network:
                 accounts: 10
                 evm_version: istanbul
                 mnemonic: brownie
+
         # set your Infura API token to the environment variable WEB3_INFURA_PROJECT_ID
         mainnet:
             host: https://mainnet.infura.io/v3/$WEB3_INFURA_PROJECT_ID

@@ -155,15 +155,20 @@ contract RoyaltyToken is DreamFramesToken {
     // Dividends: Token Deposits
     //------------------------------------------------------------------------
 
+   function depositDividends() external payable {
+        require(msg.value > 0);
+        _depositDividends(msg.value);
+    }
+
     function _depositDividends(uint256 _amount) internal {
       // Convert deposit into points
-      totalDividendPoints += (_amount * pointMultiplier ) / totalSupply();
-      totalUnclaimedDividends += _amount;
+        totalDividendPoints += (_amount * pointMultiplier ) / totalSupply();
+        totalUnclaimedDividends += _amount;
         emit DividendReceived(now, msg.sender, _amount);
     }
 
     function getLastEthPoints(address _account) external view returns (uint256) {
-      return lastEthPoints[_account];
+        return lastEthPoints[_account];
     }
 
 
