@@ -93,7 +93,7 @@ def bonus_list(WhiteList):
 
 @pytest.fixture(scope='module', autouse=True)
 def frames_crowdsale(DreamFramesCrowdsale, frame_token, price_feed, bonus_list):
-    wallet = accounts[1]
+    wallet = accounts[9]
     startDate = rpc.time()
     endDate = startDate + 50000
     minFrames = 1
@@ -108,7 +108,7 @@ def frames_crowdsale(DreamFramesCrowdsale, frame_token, price_feed, bonus_list):
     frames_crowdsale.init(frame_token, price_feed
                     , wallet, startDate, endDate, minFrames
                     , maxFrames, producerFrames, frameUsd, bonusOffList,bonusOnList, hardCapUsd, softCapUsd
-                    , {"from": accounts[0]})
+                    , {"from": accounts[1]})
     tx = frames_crowdsale.addOperator(accounts[1], {"from": accounts[0]})
     assert 'OperatorAdded' in tx.events
     tx = frame_token.setMinter(frames_crowdsale, {"from": accounts[0]})

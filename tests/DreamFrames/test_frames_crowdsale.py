@@ -192,8 +192,7 @@ def test_frames_crowdsale_offlineFramesPurchase(frames_crowdsale):
     frames = 10
     tx = frames_crowdsale.offlineFramesPurchase(tokenOwner, frames, {'from': accounts[0]})
     assert 'Purchased' in tx.events
-    # frames_remaining = frames_crowdsale.framesRemaining({'from': accounts[0]})
-    # assert frames_remaining == MAX_FRAMES - frames
+
 
 
 ######################################
@@ -212,26 +211,28 @@ def test_frames_crowdsale_finalise(frames_crowdsale, frame_token):
 
 
 
-######################################
-# Crowdsale State
-######################################
 
-# def test_stateful_crowdsale(BaseStateMachine, state_machine, NFToken, accounts):
-#     class StateMachine():
-
-#         def __init__(cls, NFToken, accounts, total_supply):
-#             cls.accounts = accounts
-#             cls.total_supply = total_supply
-#             cls.token = NFToken.deploy("Test NFT", "NFT", total_supply, {"from": accounts[0]})
-
-#         def invariant_balances(self):
-#             for account, balance in self.balances.items():
-#                 assert self.nft.balanceOf(account) == balance
-
-#         def invariant_softcap(self):
-#             for account, balance in self.balances.items():
-#                 assert self.nft.balanceOf(account) == hardcap
-
-#         def invariant_hardcap(self):
-#             for account, balance in self.balances.items():
-#                 assert self.nft.balanceOf(account) == hardcap
+#     contract: DreamFramesCrowdsale - 56.5%
+#     DreamFramesCrowdsale.name - 0.0%
+#     DreamFramesCrowdsale.setFrameUsd - 0.0%
+#     DreamFramesCrowdsale.setMinFrames - 0.0%
+#     DreamFramesCrowdsale.finalise - 75.0%
+#     DreamFramesCrowdsale.setEndDate - 0.0%
+#     DreamFramesCrowdsale.getBonus - 87.5%
+#     DreamFramesCrowdsale.setMaxFrames - 0.0%
+#     DreamFramesCrowdsale.init - 75.0%
+#     DreamFramesCrowdsale.setStartDate - 0.0%
+#     DreamFramesCrowdsale.setBonusOffList - 75.0%
+#     DreamFramesCrowdsale.symbol - 0.0%
+#     DreamFramesCrowdsale.setBonusOnList - 75.0%
+#     DreamFramesCrowdsale.setBonusList - 75.0%
+#     DreamFramesCrowdsale.setWallet - 0.0%
+#     DreamFramesCrowdsale.offlineFramesPurchase - 83.3%
+#     DreamFramesCrowdsale.claimFrames - 87.5%
+#     Operated.addOperator - 75.0%
+#     Operated.removeOperator - 0.0%
+#     Operated.initOperated - 100.0%
+#     Owned.acceptOwnership - 75.0%
+#     Owned.transferOwnershipImmediately - 0.0%
+#     Owned.transferOwnership - 100.0%
+#     Owned.initOwned - 75.0%
