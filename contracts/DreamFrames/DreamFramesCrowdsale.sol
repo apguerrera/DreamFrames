@@ -55,6 +55,8 @@ contract DreamFramesCrowdsale is Operated {
     event FrameUsdUpdated(uint256 oldFrameUsd, uint256 newFrameUsd);
     event BonusOffListUpdated(uint256 oldBonusOffList, uint256 newBonusOffList);
     event BonusOnListUpdated(uint256 oldBonusOnList, uint256 newBonusOnList);
+    event BonusListUpdated(address oldBonusList, address newBonusList);
+
     event Purchased(address indexed addr, uint256 frames, uint256 ethToTransfer, uint256 framesSold, uint256 contributedUsd);
 
     constructor() public {
@@ -94,68 +96,70 @@ contract DreamFramesCrowdsale is Operated {
     // ----------------------------------------------------------------------------
 
     function setWallet(address payable _wallet) public  {
-        require(msg.sender == owner);
-        require(!finalised);
+        require(msg.sender == owner);         // dev: Not owner
+        require(!finalised);                  // dev: Finalised
         require(_wallet != address(0));
         emit WalletUpdated(wallet, _wallet);
         wallet = _wallet;
     }
     function setStartDate(uint256 _startDate) public  {
-        require(msg.sender == owner);
-        require(!finalised);
+        require(msg.sender == owner);         // dev: Not owner
+        require(!finalised);                  // dev: Finalised
         require(_startDate >= now);
         emit StartDateUpdated(startDate, _startDate);
         startDate = _startDate;
     }
     function setEndDate(uint256 _endDate) public  {
-        require(msg.sender == owner);
-        require(!finalised);
+        require(msg.sender == owner);         // dev: Not owner
+        require(!finalised);                  // dev: Finalised
         require(_endDate > startDate);
         emit EndDateUpdated(endDate, _endDate);
         endDate = _endDate;
     }
     function setMaxFrames(uint256 _maxFrames) public  {
-        require(msg.sender == owner);
-        require(!finalised);
+        require(msg.sender == owner);         // dev: Not owner
+        require(!finalised);                  // dev: Finalised
         require(_maxFrames >= framesSold);
         require(_maxFrames.mod(minFrames) == 0);
         emit MaxFramesUpdated(maxFrames, _maxFrames);
         maxFrames = _maxFrames;
     }
     function setMinFrames(uint256 _minFrames) public  {
-        require(msg.sender == owner);
-        require(!finalised);
+        require(msg.sender == owner);         // dev: Not owner
+        require(!finalised);                  // dev: Finalised
         require(_minFrames <= maxFrames);
         require(maxFrames.mod(_minFrames) == 0);
         emit MinFramesUpdated(minFrames, _minFrames);
         minFrames = _minFrames;
     }
     function setFrameUsd(uint256 _frameUsd) public  {
-        require(msg.sender == owner);
-        require(!finalised);
+        require(msg.sender == owner);         // dev: Not owner
+        require(!finalised);                  // dev: Finalised
         require(_frameUsd > 0);
         emit FrameUsdUpdated(frameUsd, _frameUsd);
         frameUsd = _frameUsd;
     }
     function setBonusOffList(uint256 _bonusOffList) public  {
-        require(msg.sender == owner);
-        require(!finalised);
+        require(msg.sender == owner);         // dev: Not owner
+        require(!finalised);                  // dev: Finalised
         require(_bonusOffList <= 100);
         // some smarts for hitting softcap limit
         emit BonusOffListUpdated(bonusOffList, _bonusOffList);
         bonusOffList = _bonusOffList;
     }
     function setBonusOnList(uint256 _bonusOnList) public  {
-        require(msg.sender == owner);
-        require(!finalised);
+        require(msg.sender == owner);         // dev: Not owner 
+        require(!finalised);                  // dev: Finalised
         require(_bonusOnList <= 100);
         // cannot exceed diff between soft and hard caps
         emit BonusOnListUpdated(bonusOnList, _bonusOnList);
         bonusOnList = _bonusOnList;
     }
     function setBonusList(address _bonusList) public  {
-        require(msg.sender == owner);
-        require(!finalised);
+        require(msg.sender == owner);         // dev: Not owner
+        require(!finalised);                  // dev: Finalised
+        emit BonusListUpdated(address(bonusList), _bonusList);
+
         bonusList = WhiteListInterface(_bonusList);
     }
 
@@ -239,9 +243,9 @@ contract DreamFramesCrowdsale is Operated {
         uint256 _ethUsd;
         bool _live;
         (_ethUsd, _live) = ethUsd();
-        require(_live);
+        require(_live);                   // dev: Pricefeed not live
         (_frameEth, _live) = frameEthBonus(_tokenOwner);
-        require(_live);
+        require(_live);                   // dev: Pricefeed not live
 
         // USD able to be spent on available frames
         uint256 usdAmount = _ethAmount.mul(_ethUsd).div(TENPOW18);
@@ -270,10 +274,6 @@ contract DreamFramesCrowdsale is Operated {
         uint256 frames;
         (frames, ethToTransfer) = calculateEthFrames( msg.value, msg.sender);
 
-        // Update crowdsale state
-        uint256 usdToTransfer = frames.mul(frameUsdWithBonus(msg.sender));
-        contributedUsd = contributedUsd.add(usdToTransfer);
-
         // Accept ETH Payments
         uint256 ethToRefund = msg.value.sub(ethToTransfer);
         if (ethToTransfer > 0) {
@@ -290,14 +290,30 @@ contract DreamFramesCrowdsale is Operated {
         emit Purchased(msg.sender, frames, ethToTransfer, framesSold, contributedUsd);
     }
 
-    // Contract owner allocates frames to tokenOwner
+
+    // Operator allocates frames to tokenOwner for offchain purchases
+    function offlineFramesPurchase(address _tokenOwner, uint256 _frames) external  {
+        // Only operator and owner can allocate frames offline
+        require(operators[msg.sender] || owner == msg.sender);  // dev: Not operator
+
+        claimFrames(_tokenOwner,_frames);
+        emit Purchased(_tokenOwner, _frames, 0, framesSold, contributedUsd);
+    }
+
+    // Contract allocates frames to tokenOwner
     function claimFrames(address _tokenOwner, uint256 _frames) internal  {
-        require(!finalised);
-        require(_frames > 0);
+        require(!finalised, "Sale Finalised");
+        require(_frames > 0, "No claimable frames");
+
+        // Update crowdsale state
+        uint256 usdToTransfer = _frames.mul(frameUsdWithBonus(_tokenOwner));
+        require(contributedUsd.add(usdToTransfer) <= hardCapUsd, "Exceeds Hardcap");
+        contributedUsd = contributedUsd.add(usdToTransfer);
 
         // Tokens locked and KYC check required if over AccountThresholdUsd
+        accountUsdAmount[_tokenOwner] = accountUsdAmount[_tokenOwner].add(usdToTransfer);
         bool lockAccount = accountUsdAmount[_tokenOwner] > lockedAccountThresholdUsd;
-
+ 
         // Mint FrameTokens 
         require(dreamFramesToken.mint(_tokenOwner, _frames.mul(TENPOW18), lockAccount));
         framesSold = framesSold.add(_frames);
@@ -306,29 +322,9 @@ contract DreamFramesCrowdsale is Operated {
         }
     }
 
-
-    // Contract owner allocates frames to tokenOwner for purchase offchain
-    function offlineFramesPurchase(address tokenOwner, uint256 frames) external  {
-        // Only operator and owner can allocate frames offline
-        require(operators[msg.sender] || owner == msg.sender);
-        require(!finalised);
-        require(frames > 0);
-        // require(framesSold.add(frames) <= maxFrames);
-        (uint256 _frameEth, bool _live) = frameEth();
-        require(_live);
-
-        uint256 usdToTransfer = frames.mul(frameUsdWithBonus(tokenOwner));
-        require(contributedUsd.add(usdToTransfer) <= hardCapUsd);
-
-        contributedUsd = contributedUsd.add(usdToTransfer);
-        accountUsdAmount[tokenOwner] = accountUsdAmount[tokenOwner].add(usdToTransfer);
-        claimFrames(tokenOwner,frames);
-        emit Purchased(tokenOwner, frames, 0, framesSold, contributedUsd);
-    }
-
     // Contract owner finalises crowdsale
     function finalise(address _producer) public  {
-        require(msg.sender == owner);
+        require(msg.sender == owner);         // dev: Not owner
         require(!finalised || dreamFramesToken.mintable());
         require(now > endDate || contributedUsd.add(frameUsd) >= hardCapUsd);
 

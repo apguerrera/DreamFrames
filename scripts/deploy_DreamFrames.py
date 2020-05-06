@@ -9,8 +9,8 @@ def deploy_frame_token(token_factory):
     initial_supply = '1000 ether'
     tx = token_factory.deployFrameToken(accounts[0],symbol, name,decimals,
                                   initial_supply,mintable,transferable,{'from': accounts[0]})
-    # frame_token = DreamFramesToken.at(tx.new_contracts[0])
-    # return frame_token
+    frame_token = DreamFramesToken.at(tx.events['FrameTokenDeployed']['addr'])
+    return frame_token
 
 def deploy_royalty_token(token_factory):
     name = 'Royalty Token'
@@ -23,8 +23,8 @@ def deploy_royalty_token(token_factory):
     tx = token_factory.deployRoyaltyToken(owner,symbol, name,
                                   decimals,
                                   initial_supply,mintable,transferable, {'from': accounts[0]})
-    # royalty_token = RoyaltyToken.at(tx.new_contracts[0])
-    # return royalty_token
+    royalty_token = RoyaltyToken.at(tx.events['RoyaltyTokenDeployed']['addr'])
+    return royalty_token
 
 def deploy_bonus_list():
     bonus_list = WhiteList.deploy({"from": accounts[0]})
@@ -33,8 +33,9 @@ def deploy_bonus_list():
 
 def deploy_frames_crowdsale(frame_token, price_feed, bonus_list):
     wallet = accounts[1]
-    startDate = rpc.time()
-    endDate = startDate + 50000
+    startDate = int(time.time())
+    days = 5
+    endDate = startDate + 60 * 60 * 24 * days
     minFrames = 1
     maxFrames  = 100000
     producerFrames = 25000
@@ -88,20 +89,8 @@ def main():
     price_feed = MakerDAOPriceFeedAdaptor.deploy(price_simulator, {"from": accounts[0]})
     bonus_list = deploy_bonus_list()
 
-    # frames_crowdsale = deploy_frames_crowdsale(frame_token, price_feed, bonus_list)
-    # token_converter = deploy_token_converter(frame_token, royalty_token)
-
-    # # deploy and set token factory (also add dream frames factory as an operator of token factory)
-    # token_factory = TokenFactory.deploy({'from': accounts[0]})
-    # token_factory.addOperator(dream_frames_factory)
-    # dream_frames_factory.setTokenFactory(token_factory)
-
-    # # deploy and set royalty token factory (also add dream frames factory as an operator of royalty token factory)
-    # royalty_token_factory = RoyaltyTokenFactory.deploy({'from': accounts[0]})
-    # royalty_token_factory.addOperator(dream_frames_factory)
-    # dream_frames_factory.setRoyaltyTokenFactory(royalty_token_factory)
-
-
+    frames_crowdsale = deploy_frames_crowdsale(frame_token, price_feed, bonus_list)
+    token_converter = deploy_token_converter(frame_token, royalty_token)
 
 
 

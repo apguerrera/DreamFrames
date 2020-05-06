@@ -34,6 +34,8 @@ def test_frame_token_transferOwnership(frame_token):
     with reverts():
         frame_token.transferOwnership(accounts[2], {'from': accounts[0]})
 
+
+
 ######################################
 # ERC20 Tests
 ######################################

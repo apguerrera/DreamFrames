@@ -25,12 +25,11 @@ def deploy_price_feed():
     return price_feed
 
 
-
-
 def deploy_frames_crowdsale(frame_token, price_feed, bonus_list):
     wallet = accounts[1]
     startDate = int(time.time())
-    endDate = startDate + 50000
+    days = 5
+    endDate = startDate + 60 * 60 * 24 * days
     minFrames = 1
     maxFrames  = 100000
     producerFrames = 25000

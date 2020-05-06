@@ -13,6 +13,7 @@ FRAME_USD_BONUS = int( FRAME_USD * 100 / (100 + BONUS ))
 MAX_FRAMES = 100000 
 PRODUCER_FRAMES = 25000 
 HARD_CAP = 3000000 * (10**18)
+SYMBOL = 'DFT'
 
 # reset the chain after every test case
 @pytest.fixture(autouse=True)
@@ -40,6 +41,28 @@ def test_frames_crowdsale_transferOwnership(frames_crowdsale):
         frames_crowdsale.transferOwnership(accounts[1], {'from': accounts[0]})
 
 
+######################################
+# Getter and Setters
+######################################
+
+def test_frames_crowdsale_symbol(frames_crowdsale):
+    assert frames_crowdsale.symbol({'from': accounts[0]}) == SYMBOL
+
+
+def test_frames_crowdsale_setStartDate(frames_crowdsale):
+    tx = frames_crowdsale.setStartDate(rpc.time()+100, {'from': accounts[0]})
+    assert 'StartDateUpdated' in tx.events
+    with reverts("dev: Not owner"):
+        frames_crowdsale.setStartDate(rpc.time()+100, {'from': accounts[3]})
+
+def test_frames_crowdsale_setWallet(frames_crowdsale):
+    wallet = accounts[1]
+    tx = frames_crowdsale.setWallet(wallet, {'from': accounts[0]})
+    assert 'WalletUpdated' in tx.events
+    with reverts("dev: Not owner"):
+        frames_crowdsale.setWallet(wallet, {'from': accounts[3]})
+
+
 
 ######################################
 # Bonus List
@@ -48,10 +71,25 @@ def test_frames_crowdsale_transferOwnership(frames_crowdsale):
 def test_frames_crowdsale_setBonusOffList(frames_crowdsale):
     tx = frames_crowdsale.setBonusOffList(50, {'from': accounts[0]})
     assert 'BonusOffListUpdated' in tx.events
+    with reverts():
+        frames_crowdsale.setBonusOffList(150, {'from': accounts[0]})
+    with reverts("dev: Not owner"):
+        frames_crowdsale.setBonusOffList(50, {'from': accounts[3]})
+
 
 def test_frames_crowdsale_setBonusOnList(frames_crowdsale):
     tx = frames_crowdsale.setBonusOnList(50, {'from': accounts[0]})
     assert 'BonusOnListUpdated' in tx.events
+    with reverts():
+        frames_crowdsale.setBonusOnList(150, {'from': accounts[0]})
+    with reverts("dev: Not owner"):
+        frames_crowdsale.setBonusOnList(50, {'from': accounts[3]})
+
+def test_frames_crowdsale_setBonusList(frames_crowdsale, bonus_list):
+    tx = frames_crowdsale.setBonusList(bonus_list, {'from': accounts[0]})
+    assert 'BonusListUpdated' in tx.events
+    with reverts("dev: Not owner"):
+        frames_crowdsale.setBonusList(bonus_list, {'from': accounts[3]})
 
 
 def test_frames_crowdsale_bonus_add_getBonus(frames_crowdsale, bonus_list):
@@ -85,6 +123,13 @@ def test_frames_crowdsale_frameUsdWithBonus(frames_crowdsale):
 
 def test_frames_crowdsale_frameUsd(frames_crowdsale):
     assert frames_crowdsale.frameUsd({'from': accounts[0]}) == '100 ether'
+
+def test_frames_crowdsale_frameEth(frames_crowdsale):
+    target_frame_eth = FRAME_USD * (10**18) / ETH_USD
+    (frame_eth,live) = frames_crowdsale.frameEth({'from': accounts[0]}) 
+    assert live == True
+    assert dust(frame_eth) == dust(target_frame_eth)   # AG: dust 
+
 
 
 def test_frames_crowdsale_frameEthBonus(frames_crowdsale):
@@ -201,6 +246,8 @@ def test_frames_crowdsale_offlineFramesPurchase(frames_crowdsale):
 
 def test_frames_crowdsale_finalise(frames_crowdsale, frame_token):
     producer = accounts[7]
+    with reverts():
+        tx = frames_crowdsale.finalise(  producer,{'from': accounts[0]})
     rpc.sleep(50001)
     tx = frames_crowdsale.finalise( producer, {'from': accounts[0]})
     assert frames_crowdsale.finalised({'from': accounts[0]}) == True
@@ -208,31 +255,3 @@ def test_frames_crowdsale_finalise(frames_crowdsale, frame_token):
     with reverts():
         tx = frames_crowdsale.finalise(  producer,{'from': accounts[0]})
 
-
-
-
-
-#     contract: DreamFramesCrowdsale - 56.5%
-#     DreamFramesCrowdsale.name - 0.0%
-#     DreamFramesCrowdsale.setFrameUsd - 0.0%
-#     DreamFramesCrowdsale.setMinFrames - 0.0%
-#     DreamFramesCrowdsale.finalise - 75.0%
-#     DreamFramesCrowdsale.setEndDate - 0.0%
-#     DreamFramesCrowdsale.getBonus - 87.5%
-#     DreamFramesCrowdsale.setMaxFrames - 0.0%
-#     DreamFramesCrowdsale.init - 75.0%
-#     DreamFramesCrowdsale.setStartDate - 0.0%
-#     DreamFramesCrowdsale.setBonusOffList - 75.0%
-#     DreamFramesCrowdsale.symbol - 0.0%
-#     DreamFramesCrowdsale.setBonusOnList - 75.0%
-#     DreamFramesCrowdsale.setBonusList - 75.0%
-#     DreamFramesCrowdsale.setWallet - 0.0%
-#     DreamFramesCrowdsale.offlineFramesPurchase - 83.3%
-#     DreamFramesCrowdsale.claimFrames - 87.5%
-#     Operated.addOperator - 75.0%
-#     Operated.removeOperator - 0.0%
-#     Operated.initOperated - 100.0%
-#     Owned.acceptOwnership - 75.0%
-#     Owned.transferOwnershipImmediately - 0.0%
-#     Owned.transferOwnership - 100.0%
-#     Owned.initOwned - 75.0%
