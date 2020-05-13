@@ -14,6 +14,7 @@ def flatten_contracts():
     flatten("DreamFrames/DreamFramesToken.sol", "flattened/DreamFramesToken_flattened.sol")
     flatten("DreamFrames/DreamFramesCrowdsale.sol", "flattened/DreamFramesCrowdsale_flattened.sol")
     flatten("DreamFrames/TokenFactory.sol", "flattened/TokenFactory_flattened.sol")
+    flatten("Shared/CompoundPriceFeedAdaptor.sol", "flattened/CompoundPriceFeedAdaptor_flattened.sol")
 
 
 flatten_contracts()

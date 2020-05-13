@@ -11,6 +11,7 @@ pragma solidity ^0.5.4;
 // (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
 // (c) Adrian Guerrera / Deepyr Pty Ltd for Dreamframes 2019. The MIT Licence.
 // ----------------------------------------------------------------------------
+ pragma solidity ^0.5.4;
 
 // ----------------------------------------------------------------------------
 // BokkyPooBah's Token Teleportation Service v1.10
@@ -693,11 +694,11 @@ contract DreamFramesToken is BTTSTokenInterface {
 // Bonus List interface
 // ----------------------------------------------------------------------------
 contract WhiteListInterface {
-    function isInWhiteList(address account) public view returns (bool);
-    function add(address[] memory accounts) public ;
-    function remove(address[] memory accounts) public ;
-    function initWhiteList(address owner) public ;
-    function transferOwnershipImmediately(address _newOwner) public;
+    function isInWhiteList(address account) external view returns (bool);
+    function add(address[] calldata accounts) external ;
+    function remove(address[] calldata accounts) external ;
+    function initWhiteList(address owner) external ;
+    function transferOwnershipImmediately(address _newOwner) external;
 
 
 }
@@ -843,15 +844,20 @@ contract RoyaltyToken is DreamFramesToken {
     // Dividends: Token Deposits
     //------------------------------------------------------------------------
 
+   function depositDividends() external payable {
+        require(msg.value > 0);
+        _depositDividends(msg.value);
+    }
+
     function _depositDividends(uint256 _amount) internal {
       // Convert deposit into points
-      totalDividendPoints += (_amount * pointMultiplier ) / totalSupply();
-      totalUnclaimedDividends += _amount;
+        totalDividendPoints += (_amount * pointMultiplier ) / totalSupply();
+        totalUnclaimedDividends += _amount;
         emit DividendReceived(now, msg.sender, _amount);
     }
 
     function getLastEthPoints(address _account) external view returns (uint256) {
-      return lastEthPoints[_account];
+        return lastEthPoints[_account];
     }
 
 

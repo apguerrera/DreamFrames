@@ -20,29 +20,29 @@ def deploy_bonus_list():
 
 def deploy_price_feed():
     if network.show_active() == 'ropsten':
-        price_feed_address = web3.toChecksumAddress(0x31e206f5Aa5Dfae6CCBb980fE9eE5fcd52a32978)
-    price_feed = MakerDAOPriceFeedAdaptor.at(price_feed_address)
+        price_feed_address = web3.toChecksumAddress(0x98A20D420bDC161a0ABeC656d147841f793b14b6)
+    price_feed = CompoundPriceFeedAdaptor.at(price_feed_address)
     return price_feed
 
 
 def deploy_frames_crowdsale(frame_token, price_feed, bonus_list):
     wallet = accounts[1]
-    startDate = int(time.time())
-    days = 5
+    startDate = int(time.time()) + 10
+    days = 7
     endDate = startDate + 60 * 60 * 24 * days
-    minFrames = 1
-    maxFrames  = 100000
-    producerFrames = 25000
+
+    producerPct = 30
     frameUsd = '100 ether'
-    bonusOffList = 30 
-    bonusOnList = 40 
-    hardCapUsd = 3000000
-    softCapUsd = 1500000
+    bonusOffList = 10 
+    bonusOnList = 30 
+    hardCapUsd = '3000000 ether'
+    softCapUsd = '1500000 ether' 
     frames_crowdsale = DreamFramesCrowdsale.deploy({"from": accounts[0]})
     frames_crowdsale.init(frame_token, price_feed
-                    , wallet, startDate, endDate, minFrames
-                    , maxFrames, producerFrames, frameUsd, bonusOffList,bonusOnList, hardCapUsd, softCapUsd
+                    , wallet, startDate, endDate
+                    , producerPct, frameUsd, bonusOffList,bonusOnList, hardCapUsd, softCapUsd
                     , {"from": accounts[0]})
+
     tx = frames_crowdsale.addOperator(accounts[1], {"from": accounts[0]})
     assert 'OperatorAdded' in tx.events
     tx = frame_token.setMinter(frames_crowdsale, {"from": accounts[0]})
@@ -68,7 +68,7 @@ def main():
 
     frame_token = deploy_frame_token()
     royalty_token = deploy_royalty_token()
-    deploy_price = deploy_price_feed()
+    price_feed = deploy_price_feed()
     bonus_list = deploy_bonus_list()
 
     frames_crowdsale = deploy_frames_crowdsale(frame_token, price_feed, bonus_list)

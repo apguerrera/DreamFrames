@@ -5,6 +5,7 @@ import pytest
 from brownie import Contract
 
 ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+COMPOUND_ORACLE = '0x5722a3f60fa4f0ec5120dcd6c386289a4758d1b2'
 
 ######################################
 # Deploy Contracts
@@ -79,6 +80,12 @@ def price_feed(MakerDAOPriceFeedAdaptor, price_simulator):
     price_feed = MakerDAOPriceFeedAdaptor.deploy(price_simulator, {"from": accounts[0]})
     return price_feed
 
+
+# @pytest.fixture(scope='module', autouse=True)
+# def price_feed(CompoundPriceFeedAdaptor):
+#     price_feed = CompoundPriceFeedAdaptor.deploy(COMPOUND_ORACLE, {"from": accounts[0]})
+#     return price_feed
+
 @pytest.fixture(scope='module', autouse=True)
 def white_list(token_factory, WhiteList):
     tx = token_factory.deployWhiteList(accounts[0], [accounts[0]], {'from': accounts[0]})
@@ -94,26 +101,25 @@ def bonus_list(WhiteList):
 @pytest.fixture(scope='module', autouse=True)
 def frames_crowdsale(DreamFramesCrowdsale, frame_token, price_feed, bonus_list):
     wallet = accounts[9]
-    startDate = rpc.time()
+    startDate = rpc.time() +10
     endDate = startDate + 50000
-    minFrames = 1
-    maxFrames  = 1000000
-    producerFrames = 25000
+
+    producerPct = 30
     frameUsd = '100 ether'
-    bonusOffList = 30 
-    bonusOnList = 40 
+    bonusOffList = 10 
+    bonusOnList = 30 
     hardCapUsd = '3000000 ether'
     softCapUsd = '1500000 ether' 
     frames_crowdsale = DreamFramesCrowdsale.deploy({"from": accounts[0]})
     frames_crowdsale.init(frame_token, price_feed
-                    , wallet, startDate, endDate, minFrames
-                    , maxFrames, producerFrames, frameUsd, bonusOffList,bonusOnList, hardCapUsd, softCapUsd
+                    , wallet, startDate, endDate
+                    , producerPct, frameUsd, bonusOffList,bonusOnList, hardCapUsd, softCapUsd
                     , {"from": accounts[0]})
     tx = frames_crowdsale.addOperator(accounts[1], {"from": accounts[0]})
     assert 'OperatorAdded' in tx.events
     tx = frame_token.setMinter(frames_crowdsale, {"from": accounts[0]})
     tx = frames_crowdsale.setBonusList(bonus_list, {"from": accounts[0]})
-
+    rpc.sleep(15)
     return frames_crowdsale
 
 
