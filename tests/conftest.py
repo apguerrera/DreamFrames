@@ -4,8 +4,7 @@ from brownie.convert import to_address
 import pytest
 from brownie import Contract
 
-ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
-COMPOUND_ORACLE = '0x5722a3f60fa4f0ec5120dcd6c386289a4758d1b2'
+from settings import *
 
 ######################################
 # Deploy Contracts
@@ -42,11 +41,10 @@ def token_factory(TokenFactory, frame_token_template, royalty_token_template, wh
 def frame_token(token_factory, DreamFramesToken):
     name = 'Dream Frame Token'
     symbol = 'DFT'
-    decimals = 18
     mintable = True
     transferable = True
     initial_supply = '1000 ether'
-    tx = token_factory.deployFrameToken(accounts[0],symbol, name,decimals,
+    tx = token_factory.deployFrameToken(accounts[0],symbol, name,
                                   initial_supply,mintable,transferable,{'from': accounts[0]})
     frame_token = DreamFramesToken.at(tx.return_value)
     return frame_token
@@ -58,13 +56,11 @@ def frame_token(token_factory, DreamFramesToken):
 def royalty_token(RoyaltyToken,token_factory):
     name = 'Royalty Token'
     symbol = 'RFT'
-    decimals = 18
     mintable = True
     transferable = True
     initial_supply = '500 ether'
     owner = accounts[0]
     tx = token_factory.deployRoyaltyToken(owner,symbol, name,
-                                  decimals,
                                   initial_supply,mintable,transferable, {'from': accounts[0]})
     royalty_token = RoyaltyToken.at(tx.return_value)
     return royalty_token
@@ -72,7 +68,7 @@ def royalty_token(RoyaltyToken,token_factory):
 
 @pytest.fixture(scope='module', autouse=True)
 def price_simulator(MakerDAOETHUSDPriceFeedSimulator):
-    price_simulator = MakerDAOETHUSDPriceFeedSimulator.deploy('20000 ether', True, {"from": accounts[0]})
+    price_simulator = MakerDAOETHUSDPriceFeedSimulator.deploy('200 ether', True, {"from": accounts[0]})
     return price_simulator
 
 @pytest.fixture(scope='module', autouse=True)
@@ -104,16 +100,10 @@ def frames_crowdsale(DreamFramesCrowdsale, frame_token, price_feed, bonus_list):
     startDate = rpc.time() +10
     endDate = startDate + 50000
 
-    producerPct = 30
-    frameUsd = '100 ether'
-    bonusOffList = 10 
-    bonusOnList = 30 
-    hardCapUsd = '3000000 ether'
-    softCapUsd = '1500000 ether' 
     frames_crowdsale = DreamFramesCrowdsale.deploy({"from": accounts[0]})
     frames_crowdsale.init(frame_token, price_feed
                     , wallet, startDate, endDate
-                    , producerPct, frameUsd, bonusOffList,bonusOnList, hardCapUsd, softCapUsd
+                    , PRODUCER_PCT, FRAME_USD, BONUS,BONUS_ON_LIST, HARDCAP_USD, SOFTCAP_USD
                     , {"from": accounts[0]})
     tx = frames_crowdsale.addOperator(accounts[1], {"from": accounts[0]})
     assert 'OperatorAdded' in tx.events

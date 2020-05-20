@@ -5,16 +5,7 @@ import pytest
 from brownie import Contract
 from brownie.test import strategy
 
-ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
-FRAME_USD = 100 * (10**18)
-ETH_USD = 20000 * (10**18)
-BONUS = 30 
-FRAME_USD_BONUS = int( FRAME_USD * 100 / (100 + BONUS ))
-MAX_FRAMES = 100000 
-PRODUCER_PCT = 30 
-HARD_CAP = 3000000 * (10**18)
-SYMBOL = 'DFT'
-NAME = 'Dream Frame Token'
+from settings import *
 
 # reset the chain after every test case
 @pytest.fixture(autouse=True)
@@ -22,7 +13,7 @@ def isolation(fn_isolation):
     pass
 
 def dust(value):
-    return int(value / 10 ** 6 )
+    return round(value / 10 ** 6 )
 
 
 ######################################
@@ -51,10 +42,10 @@ def test_frames_crowdsale_transferOwnership(frames_crowdsale):
 ######################################
 
 def test_frames_crowdsale_symbol(frames_crowdsale):
-    assert frames_crowdsale.symbol({'from': accounts[0]}) == SYMBOL
+    assert frames_crowdsale.symbol({'from': accounts[0]}) == FRAME_SYMBOL
 
 def test_frames_crowdsale_name(frames_crowdsale):
-    assert frames_crowdsale.name({'from': accounts[0]}) == NAME
+    assert frames_crowdsale.name({'from': accounts[0]}) == FRAME_NAME
 
 
 def test_frames_crowdsale_setStartDate(frames_crowdsale):
@@ -80,6 +71,7 @@ def test_frames_crowdsale_setWallet(frames_crowdsale):
 
 def test_frames_crowdsale_setFrameUsd(frames_crowdsale):
     wallet = accounts[1]
+    # Eg. dd 10% increase to frame price
     tx = frames_crowdsale.setFrameUsd(FRAME_USD * 1.1, {'from': accounts[0]})
     assert 'FrameUsdUpdated' in tx.events
     assert frames_crowdsale.frameUsd() == FRAME_USD * 1.1
@@ -129,7 +121,7 @@ def test_frames_crowdsale_bonus_add_getBonus(frames_crowdsale, bonus_list):
     assert bonus_list.isInWhiteList(employee) == True
 
     bonus = frames_crowdsale.getBonus(employee, {'from': accounts[0]})
-    assert bonus != BONUS
+    assert bonus == BONUS_ON_LIST
 
 ######################################
 # Frames Calculations 
@@ -180,7 +172,7 @@ def test_frames_crowdsale_calculateFrames_short(frames_crowdsale):
 
 def test_frames_crowdsale_calculateFrames_hardcap(frames_crowdsale):
     (frames,eth_amount) = frames_crowdsale.calculateFrames('100000 ether', {'from': accounts[0]})
-    assert frames == HARD_CAP / FRAME_USD_BONUS
+    assert frames == HARDCAP_USD / FRAME_USD_BONUS
     (frame_eth, live) = frames_crowdsale.frameEthBonus(accounts[2],{'from': accounts[0]})
     eth_to_transfer = frames * frame_eth
     assert dust(eth_to_transfer) == dust(eth_amount)  # AG: dust 
@@ -188,7 +180,7 @@ def test_frames_crowdsale_calculateFrames_hardcap(frames_crowdsale):
 
 def test_frames_crowdsale_usdRemaining(frames_crowdsale):
     usd_remaining = frames_crowdsale.usdRemaining({'from': accounts[0]})
-    assert usd_remaining == HARD_CAP
+    assert usd_remaining == HARDCAP_USD
 
 def test_frames_crowdsale_pctSold(frames_crowdsale):
     pct_sold = frames_crowdsale.pctSold({'from': accounts[0]})
@@ -218,13 +210,13 @@ def test_frames_crowdsale_purchaseEth(frames_crowdsale,frame_token):
 
 def test_frames_crowdsale_purchaseEth_too_much(frames_crowdsale,frame_token):
     tokenOwner = accounts[4]
-    frames = 100
+    frames = 10
     (frame_eth, live) = frames_crowdsale.frameEthBonus(tokenOwner,{'from': tokenOwner})
     eth_to_transfer = frames * frame_eth
 
     tx = tokenOwner.transfer(frames_crowdsale, eth_to_transfer)
     assert 'Purchased' in tx.events
-    offline_frames = HARD_CAP / FRAME_USD_BONUS - frames
+    offline_frames = int(HARDCAP_USD / FRAME_USD_BONUS - frames) 
     tx = frames_crowdsale.offlineFramesPurchase(tokenOwner,offline_frames, {'from': accounts[0]})
     assert 'Purchased' in tx.events
 
@@ -256,15 +248,14 @@ def test_frames_crowdsale_purchaseEth_finalised(frames_crowdsale,frame_token):
 def test_frames_crowdsale_purchaseEth_ended(frames_crowdsale,frame_token):
     tokenOwner = accounts[4]
     frames = 2
-    rpc.sleep(260000)
+    rpc.sleep(60000)
     (frame_eth, live) = frames_crowdsale.frameEthBonus(tokenOwner,{'from': tokenOwner})
     eth_to_transfer = frames * frame_eth
-    # with reverts("Sale ended"):
-    tx = frames_crowdsale.buyFramesEth({'from': tokenOwner, 'value': eth_to_transfer})
-    assert 'Purchased' in tx.events   # AG: Not correct 
+    with reverts("Sale ended"):
+        tx = frames_crowdsale.buyFramesEth({'from': tokenOwner, 'value': eth_to_transfer})
 
-    # with reverts("Sale ended"):
-    #     tx = tokenOwner.transfer(frames_crowdsale, eth_to_transfer)
+    with reverts("Sale ended"):
+        tx = tokenOwner.transfer(frames_crowdsale, eth_to_transfer)
 
 def test_frames_crowdsale_purchaseEth_not_mintable(frames_crowdsale,frame_token):
     tokenOwner = accounts[4]
@@ -285,6 +276,7 @@ def test_frames_crowdsale_purchaseEth_not_mintable(frames_crowdsale,frame_token)
 def test_frames_crowdsale_locked_tokens(frames_crowdsale,frame_token):
     tokenOwner = accounts[4]
     frames = int(10001 * 10 ** 18 /  frames_crowdsale.frameUsdWithBonus(tokenOwner,{'from': accounts[0]}))
+    print(frames)
     tx = frames_crowdsale.offlineFramesPurchase(tokenOwner,frames, {'from': accounts[0]})
     assert 'Purchased' in tx.events
     assert frame_token.balanceOf(tokenOwner) == frames * 10 ** 18
@@ -319,11 +311,32 @@ def test_frames_crowdsale_offlineFramesPurchase(frames_crowdsale):
 # Finalise Crowdsale
 ######################################
 
-def test_frames_crowdsale_finalise(frames_crowdsale, frame_token):
+def test_frames_crowdsale_finalise_below_softcap(frames_crowdsale, frame_token):
     producer = accounts[7]
     tokenOwner = accounts[4]
 
-    frames = 1000
+    frames =  10
+    # From owner
+    tx = frames_crowdsale.offlineFramesPurchase(tokenOwner, frames, {'from': accounts[0]})
+    with reverts():
+        tx = frames_crowdsale.finalise(  producer,{'from': accounts[0]})
+    rpc.sleep(50001)
+    tx = frames_crowdsale.finalise( producer, {'from': accounts[0]})
+    assert frames_crowdsale.finalised({'from': accounts[0]}) == True
+    # No producer credits below softcap
+    producer_frames = 0
+    assert frame_token.balanceOf(producer, {'from': accounts[0]}) == producer_frames * 10 ** 18
+    print(producer_frames)
+    # Already finalised
+    with reverts():
+        tx = frames_crowdsale.finalise(  producer,{'from': accounts[0]})
+
+def test_frames_crowdsale_finalise_after_time(frames_crowdsale, frame_token):
+    producer = accounts[7]
+    tokenOwner = accounts[4]
+
+    frames = SOFTCAP_USD / FRAME_USD_BONUS + 2
+    print(frames)
     # From owner
     tx = frames_crowdsale.offlineFramesPurchase(tokenOwner, frames, {'from': accounts[0]})
     with reverts():
@@ -334,6 +347,3 @@ def test_frames_crowdsale_finalise(frames_crowdsale, frame_token):
     producer_frames = int(frames*PRODUCER_PCT/(100-PRODUCER_PCT))
     assert frame_token.balanceOf(producer, {'from': accounts[0]}) == producer_frames * 10 ** 18
     print(producer_frames)
-    with reverts():
-        tx = frames_crowdsale.finalise(  producer,{'from': accounts[0]})
-

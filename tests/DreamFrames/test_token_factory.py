@@ -40,16 +40,15 @@ def test_token_factory_numberOfChildren(token_factory):
 def test_token_factory_deployFrameTokenContract(token_factory):
     name = 'Test Frame Token'
     symbol = 'TFT'
-    decimals = 18
     mintable = True
     transferable = True
     initial_supply = '10 ether'
-    tx = token_factory.deployFrameToken(accounts[0],symbol, name,decimals,
+    tx = token_factory.deployFrameToken(accounts[0],symbol, name,
                                   initial_supply,mintable,transferable,{'from': accounts[1]})
     assert 'FrameTokenDeployed' in tx.events
     assert token_factory.numberOfChildren() == 5
 
-    tx = token_factory.deployFrameToken(accounts[0],symbol, name,decimals,
+    tx = token_factory.deployFrameToken(accounts[0],symbol, name,
                                   initial_supply,mintable,transferable,
                                    {'from': accounts[1], 'value':'0.1 ether'})
     assert 'FrameTokenDeployed' in tx.events
@@ -58,12 +57,11 @@ def test_token_factory_deployFrameTokenContract(token_factory):
 def test_token_factory_deploy_below_fee(token_factory):
     name = 'Test Frame Token'
     symbol = 'TFT'
-    decimals = 18
     mintable = True
     transferable = True
     initial_supply = '10 ether'
     tx = token_factory.setMinimumFee('0.2 ether', {'from': accounts[0]})
     with reverts():
-        token_factory.deployFrameToken( accounts[0],symbol, name,decimals,
+        token_factory.deployFrameToken( accounts[0],symbol, name,
                                   initial_supply,mintable,transferable, {'from': accounts[1], 'value':'0.1 ether'})
 

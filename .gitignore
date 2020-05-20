@@ -13,3 +13,4 @@ node_modules
 build
 reports
 .tox
+scripts/deploy_*Mainnet.py

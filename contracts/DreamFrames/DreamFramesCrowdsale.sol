@@ -58,6 +58,7 @@ contract DreamFramesCrowdsale is Operated {
     constructor() public {
     }
 
+    /// @notice   
     function init(address _dreamFramesToken, address _ethUsdPriceFeed, address payable _wallet, uint256 _startDate, uint256 _endDate, uint256 _producerPct, uint256 _frameUsd, uint256 _bonusOffList,uint256 _bonusOnList, uint256 _hardCapUsd, uint256 _softCapUsd) public {
         require(_wallet != address(0));
         require(_endDate > _startDate);
@@ -165,20 +166,20 @@ contract DreamFramesCrowdsale is Operated {
         return bonusOffList;
     }
 
-    // USD per frame, with bonus
-    // e.g., 128.123412344122 * 10^18
+    /// @notice USD per frame, with bonus
+    /// @dev e.g., 128.123412344122 * 10^18
     function frameUsdWithBonus(address _address) public view returns (uint256 _rate) {
         uint256 bonus = getBonus(_address);
         _rate = frameUsd.mul(100).div(bonus.add(100));
     }
 
-    // ETH per USD from price feed
-    // e.g., 171.123232454415 * 10^18
+    /// @notice ETH per USD from price feed
+    /// @dev  e.g., 171.123232454415 * 10^18
     function ethUsd() public view returns (uint256 _rate, bool _live) {
         return ethUsdPriceFeed.getRate();
     }
 
-    // ETH per frame, e.g., 2.757061128879679264 * 10^18
+    /// @dev ETH per frame, e.g., 2.757061128879679264 * 10^18
     function frameEth() public view returns (uint256 _rate, bool _live) {
         uint256 _ethUsd;
         (_ethUsd, _live) = ethUsd();
@@ -187,7 +188,7 @@ contract DreamFramesCrowdsale is Operated {
         }
     }
 
-    // ETH per frame, e.g., 2.757061128879679264 * 10^18 - including any bonuses
+    /// @dev ETH per frame, e.g., 2.757061128879679264 * 10^18 - including any bonuses
     function frameEthBonus(address _address) public view returns (uint256 _rate, bool _live) {
         uint256 _ethUsd;
         (_ethUsd, _live) = ethUsd();
@@ -202,7 +203,7 @@ contract DreamFramesCrowdsale is Operated {
 
     function calculateUsdFrames(uint256 _usdAmount, address _tokenOwner) public view returns (uint256 frames, uint256 usdToTransfer) {
         usdToTransfer = _usdAmount;
-        if (contributedUsd.add(usdToTransfer) >= hardCapUsd) {
+        if (contributedUsd.add(usdToTransfer) > hardCapUsd) {
             usdToTransfer = hardCapUsd.sub(contributedUsd);
         }
         // Get number of frames available to be purchased
@@ -210,7 +211,7 @@ contract DreamFramesCrowdsale is Operated {
 
     }
 
-    // Get frameEth rate including any bonuses
+    /// @notice Get frameEth rate including any bonuses
     function calculateEthFrames(uint256 _ethAmount, address _tokenOwner) public view returns (uint256 frames, uint256 ethToTransfer) {
         uint256 _frameEth;
         uint256 _ethUsd;
@@ -233,12 +234,12 @@ contract DreamFramesCrowdsale is Operated {
     // Crowd sale payments
     // ----------------------------------------------------------------------------
 
-    // Buy FrameTokens by sending ETH to this contract address 
+    /// @notice Buy FrameTokens by sending ETH to this contract address 
     function () external payable {
         buyFramesEth();
     }
 
-    // Or calling this function and sending ETH 
+    /// @notice Or calling this function and sending ETH 
     function buyFramesEth() public payable {
         // Get number of frames remaining
         uint256 ethToTransfer;
@@ -262,7 +263,7 @@ contract DreamFramesCrowdsale is Operated {
     }
 
 
-    // Operator allocates frames to tokenOwner for offchain purchases
+    /// @notice Operator allocates frames to tokenOwner for offchain purchases
     function offlineFramesPurchase(address _tokenOwner, uint256 _frames) external  {
         // Only operator and owner can allocate frames offline
         require(operators[msg.sender] || owner == msg.sender);  // dev: Not operator
@@ -271,7 +272,7 @@ contract DreamFramesCrowdsale is Operated {
         emit Purchased(_tokenOwner, _frames, 0, framesSold, contributedUsd);
     }
 
-    // Contract allocates frames to tokenOwner
+    /// @notice Contract allocates frames to tokenOwner
     function claimFrames(address _tokenOwner, uint256 _frames) internal  {
         require(!finalised, "Sale Finalised");
         require(_frames > 0, "No frames available");
@@ -294,17 +295,19 @@ contract DreamFramesCrowdsale is Operated {
         }
     }
 
-    // Contract owner finalises crowdsale
+    /// @notice Contract owner finalises crowdsale
     function finalise(address _producer) public  {
-        require(msg.sender == owner);         // dev: Not owner
-        require(!finalised || dreamFramesToken.mintable());     // dev: Already Finalised
+        require(msg.sender == owner);                            // dev: Not owner
+        require(!finalised || dreamFramesToken.mintable());      // dev: Already Finalised
         require(now > endDate || contributedUsd >= hardCapUsd);  // dev: Not Finished
 
         finalised = true;
-
         uint256 totalFrames = framesSold.mul(100).div(uint256(100).sub(producerPct));
         uint256 producerFrames = totalFrames.sub(framesSold);
-        require(dreamFramesToken.mint(_producer, producerFrames.mul(TENPOW18), false)); // dev: Failed final mint
+        
+        if (producerFrames > 0 && contributedUsd >= softCapUsd ) {
+            require(dreamFramesToken.mint(_producer, producerFrames.mul(TENPOW18), false)); // dev: Failed final mint
+        }
         dreamFramesToken.disableMinting();
 
     }

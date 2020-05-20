@@ -1,27 +1,46 @@
 from brownie import *
 
+# Frame Token
+START_DATE = int(time.time())
+END_DATE = startDate + 60 * 60 * 24 * days
+FRAME_NAME = 'Dream Frame Token'
+FRAME_SYMBOL = 'DFT'
+
+# Royalty Token
+ROYALTY_NAME = 'Royalty Token'
+ROYALTY_SYMBOL = 'RFT'
+
+# Crowdsale     
+CROWDSALE_DAYS = 7 
+START_DATE = int(time.time())
+END_DATE = START_DATE + 60 * 60 * 24 * CROWDSALE_DAYS
+PRODUCER_PCT = 30
+FRAME_USD= 100 * 10 ** 18
+BONUS_OFF_LIST = 0 
+BONUS_ON_LIST = 30 
+HARDCAP_USD = 3000000 * 10 ** 18
+SOFTCAP_USD = 1500000 * 10 ** 18 
+
+
 def deploy_frame_token(token_factory):
-    name = 'Dream Frame Token'
-    symbol = 'DFT'
-    decimals = 18
+    name = FRAME_NAME
+    symbol = FRAME_SYMBOL
     mintable = True
     transferable = True
-    initial_supply = '1000 ether'
-    tx = token_factory.deployFrameToken(accounts[0],symbol, name,decimals,
+    initial_supply = 0
+    tx = token_factory.deployFrameToken(accounts[0],symbol, name,
                                   initial_supply,mintable,transferable,{'from': accounts[0]})
     frame_token = DreamFramesToken.at(tx.events['FrameTokenDeployed']['addr'])
     return frame_token
 
 def deploy_royalty_token(token_factory):
-    name = 'Royalty Token'
-    symbol = 'RFT'
-    decimals = 18
+    name = ROYALTY_NAME
+    symbol = ROYALTY_SYMBOL
     mintable = True
     transferable = True
-    initial_supply = '500 ether'
+    initial_supply = 0
     owner = accounts[0]
     tx = token_factory.deployRoyaltyToken(owner,symbol, name,
-                                  decimals,
                                   initial_supply,mintable,transferable, {'from': accounts[0]})
     royalty_token = RoyaltyToken.at(tx.events['RoyaltyTokenDeployed']['addr'])
     return royalty_token
@@ -35,31 +54,26 @@ def deploy_price_feed():
     if network.show_active() == 'ropsten':
         compound_oracle_address = web3.toChecksumAddress(0x5722a3f60fa4f0ec5120dcd6c386289a4758d1b2)
         price_feed = CompoundPriceFeedAdaptor.deploy(compound_oracle_address, {"from": accounts[0]})
+    if network.show_active() == 'mainnet':
+        compound_oracle_address = web3.toChecksumAddress(0xthisNeedsACompoundOracleAddress)
+        price_feed = CompoundPriceFeedAdaptor.deploy(compound_oracle_address, {"from": accounts[0]})
     return price_feed
 
 
 def deploy_frames_crowdsale(frame_token, price_feed, bonus_list):
     wallet = accounts[1]
-    startDate = int(time.time())
-    days = 7
-    endDate = startDate + 60 * 60 * 24 * days
-
-    producerPct = 30
-    frameUsd = '100 ether'
-    bonusOffList = 10 
-    bonusOnList = 30 
-    hardCapUsd = '3000000 ether'
-    softCapUsd = '1500000 ether' 
-    frames_crowdsale = DreamFramesCrowdsale.deploy({"from": accounts[0]})
+    operator = accounts[1]
+    owner = accounts[0]
+    frames_crowdsale = DreamFramesCrowdsale.deploy({"from": owner})
     frames_crowdsale.init(frame_token, price_feed
-                    , wallet, startDate, endDate
-                    , producerPct, frameUsd, bonusOffList,bonusOnList, hardCapUsd, softCapUsd
-                    , {"from": accounts[0]})
+                    , wallet, START_DATE, END_DATE
+                    , PRODUCER_PCT, FRAME_USD, BONUS_OFF_LIST,BONUS_ON_LIST, HARDCAP_USD, SOFTCAP_USD
+                    , {"from": owner})
 
-    tx = frames_crowdsale.addOperator(accounts[1], {"from": accounts[0]})
+    tx = frames_crowdsale.addOperator(operator, {"from": owner})
     assert 'OperatorAdded' in tx.events
-    tx = frame_token.setMinter(frames_crowdsale, {"from": accounts[0]})
-    tx = frames_crowdsale.setBonusList(bonus_list, {"from": accounts[0]})
+    tx = frame_token.setMinter(frames_crowdsale, {"from": owner})
+    tx = frames_crowdsale.setBonusList(bonus_list, {"from": owner})
 
     return frames_crowdsale
 

@@ -29,6 +29,7 @@ contract TokenFactory is  Owned, CloneFactory {
 
     address public newAddress;
     uint256 public minimumFee = 0;
+    uint8 public decimals = 18;
     mapping(address => bool) public isChild;
     address[] public children;
 
@@ -79,7 +80,6 @@ contract TokenFactory is  Owned, CloneFactory {
         address _owner,
         string memory _symbol,
         string memory _name,
-        uint8 _decimals,
         uint _initialSupply,
         bool _mintable,
         bool _transferable
@@ -90,7 +90,7 @@ contract TokenFactory is  Owned, CloneFactory {
         frameToken = createClone(frameTokenTemplate);
         isChild[address(frameToken)] = true;
         children.push(address(frameToken));
-        FrameTokenInterface(frameToken).init(_owner, _symbol, _name, _decimals, _initialSupply, _mintable, _transferable);
+        FrameTokenInterface(frameToken).init(_owner, _symbol, _name, decimals, _initialSupply, _mintable, _transferable);
         emit FrameTokenDeployed(msg.sender, address(frameToken), frameTokenTemplate, msg.value);
         if (msg.value > 0) {
             owner.transfer(msg.value);
@@ -101,7 +101,6 @@ contract TokenFactory is  Owned, CloneFactory {
         address _owner,
         string memory _symbol,
         string memory _name,
-        uint8 _decimals,
         uint _initialSupply,
         bool _mintable,
         bool _transferable
@@ -117,7 +116,7 @@ contract TokenFactory is  Owned, CloneFactory {
             whiteListed[0] = _owner;
         }
         address whiteList = deployWhiteList(_owner, whiteListed);
-        RoyaltyTokenInterface(royaltyToken).initRoyaltyToken(_owner, _symbol, _name, _decimals, _initialSupply, _mintable, _transferable, whiteList);
+        RoyaltyTokenInterface(royaltyToken).initRoyaltyToken(_owner, _symbol, _name, decimals, _initialSupply, _mintable, _transferable, whiteList);
 
         emit RoyaltyTokenDeployed(msg.sender, address(royaltyToken), royaltyTokenTemplate, msg.value);
         if (msg.value > 0) {
