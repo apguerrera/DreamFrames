@@ -50,6 +50,11 @@ compiler:
         version: 0.5.16
         optimize: true
         runs: 200
+        remappings:
+          - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@2.4.0"
+dependencies:
+    - OpenZeppelin/openzeppelin-contracts@2.4.0
+
 colors:
     key:
     value: bright blue
