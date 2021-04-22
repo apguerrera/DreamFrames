@@ -5,7 +5,7 @@ import "../Utils/MyERC721Metadata.sol";
 import "../library/Accounts.sol";
 import "../library/Attributes.sol";
 
-contract GazeCoinGoobers is ERC721Enumerable, MyERC721Metadata {
+contract DreamFramesNFT is ERC721Enumerable, MyERC721Metadata {
     using Attributes for Attributes.Data;
     using Attributes for Attributes.Value;
     using Counters for Counters.Counter;
