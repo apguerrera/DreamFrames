@@ -1,4 +1,4 @@
-from brownie import accounts, web3, Wei, rpc
+from brownie import accounts, web3, Wei, chain
 from brownie.network.transaction import TransactionReceipt
 from brownie.convert import to_address
 import pytest
@@ -97,7 +97,7 @@ def bonus_list(WhiteList):
 @pytest.fixture(scope='module', autouse=True)
 def frames_crowdsale(DreamFramesCrowdsale, frame_token, price_feed, bonus_list):
     wallet = accounts[9]
-    startDate = rpc.time() +10
+    startDate = chain.time() +10
     endDate = startDate + 50000
 
     frames_crowdsale = DreamFramesCrowdsale.deploy({"from": accounts[0]})
@@ -109,7 +109,7 @@ def frames_crowdsale(DreamFramesCrowdsale, frame_token, price_feed, bonus_list):
     assert 'OperatorAdded' in tx.events
     tx = frame_token.setMinter(frames_crowdsale, {"from": accounts[0]})
     tx = frames_crowdsale.setBonusList(bonus_list, {"from": accounts[0]})
-    rpc.sleep(15)
+    chain.sleep(15)
     return frames_crowdsale
 
 
