@@ -161,7 +161,7 @@ contract DreamFramesCrowdsale is Operated {
     }
     function getBonus(address _address) public view returns (uint256 bonusOnLisBTTSTokenInterfacet) {
         if (bonusList.isInWhiteList(_address) && bonusOnList > bonusOffList ) {
-            return bonusOnLisBTTSTokenInterfacet;
+            return bonusOnList;
         }
         return bonusOffList;
     }
