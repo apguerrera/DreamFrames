@@ -49,7 +49,8 @@ contract RoyaltyToken is DreamFramesToken {
             require(WhiteListInterface(_whiteList).isInWhiteList(_owner));
         }
         setWhiteList(_whiteList);
-        data.init(_owner, _symbol, _name, _decimals, ----------------------------------------------------------------------------_initialSupply, _mintable, _transferable);
+        data.init(_owner, _symbol, _name, _decimals, _initialSupply, _mintable, _transferable);
+
     }
 
 

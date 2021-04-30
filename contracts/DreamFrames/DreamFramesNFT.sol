@@ -4,7 +4,8 @@ pragma solidity ^0.6.12;
 import "../Utils/MyERC721Metadata.sol";
 import "../library/Accounts.sol";
 import "../library/Attributes.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import "../library/Counters.sol";
+
 contract DreamFramesNFT is /* ERC721Enumerable */ MyERC721Metadata {
     using Attributes for Attributes.Data;
     using Attributes for Attributes.Value;

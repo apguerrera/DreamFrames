@@ -12,7 +12,7 @@ interface ERC721Receiver {
    *  Equals to `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`,
    *  which can be also obtained as `ERC721Receiver(0).onERC721Received.selector`
    */
-  bytes4 internal constant ERC721_RECEIVED = 0x150b7a02;
+ // bytes4 internal constant ERC721_RECEIVED = 0x150b7a02;
 
   /**
    * @notice Handle the receipt of an NFT

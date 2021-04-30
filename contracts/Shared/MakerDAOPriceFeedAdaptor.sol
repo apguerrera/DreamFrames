@@ -19,7 +19,7 @@ import "../../interfaces/PriceFeedInterface.sol";
 // See https://github.com/bokkypoobah/MakerDAOSaiContractAudit/tree/master/audit#pip-and-pep-price-feeds
 // ----------------------------------------------------------------------------
 interface MakerDAOPriceFeedInterface {
-    function peek() public view returns (bytes32 _value, bool _hasValue);
+    function peek() external view returns (bytes32 _value, bool _hasValue);
 }
 
 

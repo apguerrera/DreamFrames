@@ -36,6 +36,7 @@ contract SupportsInterfaceWithLookup is ERC165 {
    */
   function supportsInterface(bytes4 _interfaceId)
     external
+    override
     view
     returns (bool)
   {

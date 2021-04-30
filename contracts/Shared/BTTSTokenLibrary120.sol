@@ -116,7 +116,7 @@ library BTTSLib {
        self.owner = self.newOwner;
        self.newOwner = address(0);
    }
-   function transferOwnershipImmediaBTTSTokenInterfacetely(Data storage self, address newOwner) public {
+   function transferOwnershipImmediately(Data storage self, address newOwner) public {
        require(msg.sender == self.owner);
        emit OwnershipTransferred(self.owner, newOwner);
        self.owner = newOwner;

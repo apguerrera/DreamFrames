@@ -1,10 +1,9 @@
 pragma solidity ^0.6.12;
 
-import "@openzeppelin/contracts/introspection/ERC165.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "../Shared/ERC721BasicToken.sol";
 import "../Shared/Owned.sol";
 
-contract MyERC721Metadata is ERC165, ERC721, Owned {
+contract MyERC721Metadata is ERC165, ERC721BasicToken, Owned {
     // Token name
     string private _name;
 
@@ -84,7 +83,7 @@ contract MyERC721Metadata is ERC165, ERC721, Owned {
      * @param tokenId uint256 ID of the token to query
      */
     function tokenURI(uint256 tokenId) external view returns (string memory) {
-        require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
+        require(exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
         string memory url = _tokenURIs[tokenId];
         bytes memory urlAsBytes = bytes(url);
         if (urlAsBytes.length == 0) {
@@ -112,7 +111,7 @@ contract MyERC721Metadata is ERC165, ERC721, Owned {
      * @param uri string URI to assign
      */
     function _setTokenURI(uint256 tokenId, string memory uri) internal {
-        require(_exists(tokenId), "ERC721Metadata: URI set of nonexistent token");
+        require(exists(tokenId), "ERC721Metadata: URI set of nonexistent token");
         _tokenURIs[tokenId] = uri;
     }
 
@@ -129,8 +128,8 @@ contract MyERC721Metadata is ERC165, ERC721, Owned {
      * @param owner owner of the token to burn
      * @param tokenId uint256 ID of the token being burned by the msg.sender
      */
-    function _burn(address owner, uint256 tokenId) internal {
-        super._burn(owner, tokenId);
+    function _burn(address owner, uint256 tokenId) override internal {
+        super._burn(owner,tokenId);
 
         // Clear metadata (if any)
         if (bytes(_tokenURIs[tokenId]).length != 0) {

@@ -55,4 +55,9 @@ contract WhiteList is WhiteListInterface, Operated {
             }
         }
     }
+      function transferOwnershipImmediately(address _newOwner) external override {
+        require(msg.sender == owner);
+        emit OwnershipTransferred(owner, _newOwner);
+        owner = address(uint160(_newOwner));
+    }
 }

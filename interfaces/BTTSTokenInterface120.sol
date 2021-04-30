@@ -13,8 +13,8 @@ import "../interfaces/ERC20Interface.sol";
 // ----------------------------------------------------------------------------
 // Contracts that can have tokens approved, and then a function executed
 // ----------------------------------------------------------------------------
-contract ApproveAndCallFallBack {
-    function receiveApproval(address from, uint256 tokens, address token, bytes memory data) public;
+interface ApproveAndCallFallBack {
+    function receiveApproval(address from, uint256 tokens, address token, bytes memory data) external;
 }
 
 
@@ -24,13 +24,13 @@ contract ApproveAndCallFallBack {
 // Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
 // ----------------------------------------------------------------------------
 interface BTTSTokenInterface is ERC20Interface {
-  uint public constant bttsVersion = 120;
+/*   uint public constant bttsVersion = 120;
 
      bytes public constant signingPrefix = "\x19Ethereum Signed Message:\n32";
      bytes4 public constant signedTransferSig = "\x75\x32\xea\xac";
      bytes4 public constant signedApproveSig = "\xe9\xaf\xa7\xa1";
      bytes4 public constant signedTransferFromSig = "\x34\x4b\xcc\x7d";
-     bytes4 public constant signedApproveAndCallSig = "\xf1\x6f\x9b\x53";
+     bytes4 public constant signedApproveAndCallSig = "\xf1\x6f\x9b\x53"; */
 
      event OwnershipTransferred(address indexed from, address indexed to);
      event MinterUpdated(address from, address to);
