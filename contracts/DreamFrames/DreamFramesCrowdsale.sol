@@ -58,7 +58,7 @@ contract DreamFramesCrowdsale is Operated {
     constructor() public {
     }
 
-    /// @notice   
+    /// @notice
     function init(address _dreamFramesToken, address _ethUsdPriceFeed, address payable _wallet, uint256 _startDate, uint256 _endDate, uint256 _producerPct, uint256 _frameUsd, uint256 _bonusOffList,uint256 _bonusOnList, uint256 _hardCapUsd, uint256 _softCapUsd) public {
         require(_wallet != address(0));
         require(_endDate > _startDate);
@@ -159,9 +159,9 @@ contract DreamFramesCrowdsale is Operated {
     function pctRemaining() public view returns (uint256) {
         return hardCapUsd.sub(contributedUsd).mul(100).div(hardCapUsd);
     }
-    function getBonus(address _address) public view returns (uint256 bonusOnLisBTTSTokenInterfacet) {
+    function getBonus(address _address) public view returns (uint256) {
         if (bonusList.isInWhiteList(_address) && bonusOnList > bonusOffList ) {
-            return bonusOnLisBTTSTokenInterfacet;
+            return bonusOnList;
         }
         return bonusOffList;
     }
@@ -234,12 +234,12 @@ contract DreamFramesCrowdsale is Operated {
     // Crowd sale payments
     // ----------------------------------------------------------------------------
 
-    /// @notice Buy FrameTokens by sending ETH to this contract address 
+    /// @notice Buy FrameTokens by sending ETH to this contract address
     receive() external payable {
         buyFramesEth();
     }
 
-    /// @notice Or calling this function and sending ETH 
+    /// @notice Or calling this function and sending ETH
     function buyFramesEth() public payable {
         // Get number of frames remaining
         uint256 ethToTransfer;
@@ -304,7 +304,7 @@ contract DreamFramesCrowdsale is Operated {
         finalised = true;
         uint256 totalFrames = framesSold.mul(100).div(uint256(100).sub(producerPct));
         uint256 producerFrames = totalFrames.sub(framesSold);
-        
+
         if (producerFrames > 0 && contributedUsd >= softCapUsd ) {
             require(dreamFramesToken.mint(_producer, producerFrames.mul(TENPOW18), false)); // dev: Failed final mint
         }
