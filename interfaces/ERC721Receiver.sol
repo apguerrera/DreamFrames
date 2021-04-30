@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 
 /**
@@ -6,7 +6,7 @@ pragma solidity ^0.5.4;
  * @dev Interface for any contract that wants to support safeTransfers
  * from ERC721 asset contracts.
  */
-contract ERC721Receiver {
+interface ERC721Receiver {
   /**
    * @dev Magic value to be returned upon successful reception of an NFT
    *  Equals to `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`,
@@ -32,6 +32,6 @@ contract ERC721Receiver {
     address _from,
     uint256 _tokenId,
     bytes memory _data
-  )  public  returns(bytes4);
+  )  external  returns(bytes4);
 
 }

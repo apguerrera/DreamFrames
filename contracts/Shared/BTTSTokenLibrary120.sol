@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 // ----------------------------------------------------------------------------
 // BokkyPooBah's Token Teleportation Service v1.20
@@ -116,7 +116,7 @@ library BTTSLib {
        self.owner = self.newOwner;
        self.newOwner = address(0);
    }
-   function transferOwnershipImmediately(Data storage self, address newOwner) public {
+   function transferOwnershipImmediaBTTSTokenInterfacetely(Data storage self, address newOwner) public {
        require(msg.sender == self.owner);
        emit OwnershipTransferred(self.owner, newOwner);
        self.owner = newOwner;

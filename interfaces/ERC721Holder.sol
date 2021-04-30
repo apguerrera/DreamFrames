@@ -1,9 +1,9 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 import "../interfaces/ERC721Receiver.sol";
 
 
-contract ERC721Holder is ERC721Receiver {
+interface ERC721Holder is ERC721Receiver {
   function onERC721Received(
     address,
     address,

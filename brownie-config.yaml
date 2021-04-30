@@ -47,11 +47,11 @@ compiler:
     evm_version: null
     minify_source: false
     solc:
-        version: 0.5.16
+        version: 0.6.12
         optimize: true
         runs: 200
         remappings:
-          - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@2.4.0"
+          - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@3.2.0"
 dependencies:
     - OpenZeppelin/openzeppelin-contracts@2.4.0
 

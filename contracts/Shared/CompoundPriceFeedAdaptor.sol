@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 // ----------------------------------------------------------------------------
 // Adaptor to convert Compound's price feed into BokkyPooBah's Pricefeed
@@ -16,7 +16,7 @@ pragma solidity ^0.5.4;
 import "../../interfaces/PriceFeedInterface.sol";
 
 
-contract CompoundPriceFeedInterface {
+interface CompoundPriceFeedInterface {
     function getUnderlyingPrice(address _addr) external view returns (uint256 _value);
     function cDaiAddress() external view returns (address _addr);
 }
@@ -34,7 +34,7 @@ contract CompoundPriceFeedAdaptor is PriceFeedInterface {
         cDaiAddress = compoundPriceFeed.cDaiAddress();
     }
 
-    function getRate() public view returns (uint256 _rate, bool _live) {
+    function getRate() public view override returns (uint256 _rate, bool _live) {
         /// @dev: Returns Dai/ETH ie. 1 Dai = value in wei (10 ** 18)
         uint256 value = compoundPriceFeed.getUnderlyingPrice(cDaiAddress);
         if (value > 0 ) {

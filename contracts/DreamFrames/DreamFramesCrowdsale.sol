@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 // ----------------------------------------------------------------------------
 // DreamFrames Crowdsale Contract - Purchase FrameRush Tokens with ETH
@@ -159,9 +159,9 @@ contract DreamFramesCrowdsale is Operated {
     function pctRemaining() public view returns (uint256) {
         return hardCapUsd.sub(contributedUsd).mul(100).div(hardCapUsd);
     }
-    function getBonus(address _address) public view returns (uint256) {
+    function getBonus(address _address) public view returns (uint256 bonusOnLisBTTSTokenInterfacet) {
         if (bonusList.isInWhiteList(_address) && bonusOnList > bonusOffList ) {
-            return bonusOnList;
+            return bonusOnLisBTTSTokenInterfacet;
         }
         return bonusOffList;
     }
@@ -235,7 +235,7 @@ contract DreamFramesCrowdsale is Operated {
     // ----------------------------------------------------------------------------
 
     /// @notice Buy FrameTokens by sending ETH to this contract address 
-    function () external payable {
+    receive() external payable {
         buyFramesEth();
     }
 
@@ -252,7 +252,7 @@ contract DreamFramesCrowdsale is Operated {
             wallet.transfer(ethToTransfer);
         }
 
-        // Return any ETH to be refunded
+        // Return any ETH to be refundedf
         if (ethToRefund > 0) {
             msg.sender.transfer(ethToRefund);
         }

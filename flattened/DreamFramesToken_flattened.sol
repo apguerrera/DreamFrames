@@ -1,4 +1,4 @@
- pragma solidity ^0.5.4;
+ pragma solidity ^0.6.12;
 
 // ----------------------------------------------------------------------------
 // BokkyPooBah's Token Teleportation Service v1.10
@@ -607,7 +607,7 @@ contract DreamFramesToken is BTTSTokenInterface {
     // ------------------------------------------------------------------------
     // Don't accept ethers
     // ------------------------------------------------------------------------
-    function () external payable {
+    receive() external payable{
          revert();
     }
 

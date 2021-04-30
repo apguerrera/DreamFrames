@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 // ----------------------------------------------------------------------------
 // DreamFrames Crowdsale Contract - Purchase royalty tokens and frames with ETH
@@ -98,7 +98,7 @@ contract DreamFramesRoyaltyCrowdsale is Operated {
     }
 
     // Deposit function
-    function () external payable {
+    receive() external payable {
         // require(now >= startDate && now <= endDate);
         // Get number of frames, will revert if sold out
         uint256 ethToTransfer;

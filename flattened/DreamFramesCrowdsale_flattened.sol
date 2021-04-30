@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 // ----------------------------------------------------------------------------
 // DreamFrames Crowdsale Contract - Purchase FrameRush Tokens with ETH
@@ -455,7 +455,7 @@ contract DreamFramesCrowdsale is Operated {
     // ----------------------------------------------------------------------------
 
     // Buy FrameTokens by sending ETH to this contract address 
-    function () external payable {
+    receive() external payable {
         buyFramesEth();
     }
 

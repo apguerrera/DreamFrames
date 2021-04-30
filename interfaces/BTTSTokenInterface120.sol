@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 // ----------------------------------------------------------------------------
 // BokkyPooBah's Token Teleportation Service Interface v1.20
@@ -23,7 +23,7 @@ contract ApproveAndCallFallBack {
 //
 // Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
 // ----------------------------------------------------------------------------
-contract BTTSTokenInterface is ERC20Interface {
+interface BTTSTokenInterface is ERC20Interface {
   uint public constant bttsVersion = 120;
 
      bytes public constant signingPrefix = "\x19Ethereum Signed Message:\n32";
@@ -39,41 +39,41 @@ contract BTTSTokenInterface is ERC20Interface {
      event TransfersEnabled();
      event AccountUnlocked(address indexed tokenOwner);
 
-     function symbol() public view returns (string memory);
-     function name() public view returns (string memory);
-     function decimals() public view returns (uint8);
+     function symbol() external view returns (string memory);
+     function name() external view returns (string memory);
+     function decimals() external view returns (uint8);
 
-     function approveAndCall(address spender, uint tokens, bytes memory data) public returns (bool success);
+     function approveAndCall(address spender, uint tokens, bytes memory data) external returns (bool success);
 
      // ------------------------------------------------------------------------
      // signed{X} functions
      // ------------------------------------------------------------------------
-     function signedTransferHash(address tokenOwner, address to, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash);
-     function signedTransferCheck(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result);
-     function signedTransfer(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success);
+     function signedTransferHash(address tokenOwner, address to, uint tokens, uint fee, uint nonce) external view returns (bytes32 hash);
+     function signedTransferCheck(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) external view returns (CheckResult result);
+     function signedTransfer(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) external returns (bool success);
 
-     function signedApproveHash(address tokenOwner, address spender, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash);
-     function signedApproveCheck(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result);
-     function signedApprove(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success);
+     function signedApproveHash(address tokenOwner, address spender, uint tokens, uint fee, uint nonce) external view returns (bytes32 hash);
+     function signedApproveCheck(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) external view returns (CheckResult result);
+     function signedApprove(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) external returns (bool success);
 
-     function signedTransferFromHash(address spender, address from, address to, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash);
-     function signedTransferFromCheck(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result);
-     function signedTransferFrom(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success);
+     function signedTransferFromHash(address spender, address from, address to, uint tokens, uint fee, uint nonce) external view returns (bytes32 hash);
+     function signedTransferFromCheck(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) external view returns (CheckResult result);
+     function signedTransferFrom(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) external returns (bool success);
 
-     function signedApproveAndCallHash(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce) public view returns (bytes32 hash);
-     function signedApproveAndCallCheck(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result);
-     function signedApproveAndCall(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success);
+     function signedApproveAndCallHash(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce) external view returns (bytes32 hash);
+     function signedApproveAndCallCheck(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) external view returns (CheckResult result);
+     function signedApproveAndCall(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) external returns (bool success);
 
-     function mint(address tokenOwner, uint tokens, bool lockAccount) public returns (bool success);
-     function unlockAccount(address tokenOwner) public;
-     function accountLocked(address tokenOwner) public view returns (bool);
+     function mint(address tokenOwner, uint tokens, bool lockAccount) external returns (bool success);
+     function unlockAccount(address tokenOwner) external;
+     function accountLocked(address tokenOwner) external view returns (bool);
 
-     function disableMinting() public;
-     function enableTransfers() public;
-     function mintable() public view returns (bool success);
-     function transferable() public view returns (bool success);
+     function disableMinting() external;
+     function enableTransfers() external;
+     function mintable() external view returns (bool success);
+     function transferable() external view returns (bool success);
 
-     function setMinter(address minter) public;
+     function setMinter(address minter) external;
 
      // ------------------------------------------------------------------------
      // signed{X}Check return status

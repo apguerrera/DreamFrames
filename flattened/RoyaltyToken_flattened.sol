@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 
 // ----------------------------------------------------------------------------
@@ -11,7 +11,7 @@ pragma solidity ^0.5.4;
 // (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
 // (c) Adrian Guerrera / Deepyr Pty Ltd for Dreamframes 2019. The MIT Licence.
 // ----------------------------------------------------------------------------
- pragma solidity ^0.5.4;
+ pragma solidity ^0.6.12;
 
 // ----------------------------------------------------------------------------
 // BokkyPooBah's Token Teleportation Service v1.10
@@ -620,7 +620,7 @@ contract DreamFramesToken is BTTSTokenInterface {
     // ------------------------------------------------------------------------
     // Don't accept ethers
     // ------------------------------------------------------------------------
-    function () external payable {
+    receive() external payable {
          revert();
     }
 
@@ -864,7 +864,7 @@ contract RoyaltyToken is DreamFramesToken {
     // ------------------------------------------------------------------------
     // Accept ETH deposits as dividends
     // ------------------------------------------------------------------------
-    function () external payable {
+    receive() external payable {
         require(msg.value > 0);
         _depositDividends(msg.value);
     }

@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 // ----------------------------------------------------------------------------
 // Adaptor to convert MakerDAO's "pip" price feed into BokkyPooBah's Pricefeed
@@ -18,7 +18,7 @@ import "../../interfaces/PriceFeedInterface.sol";
 // ----------------------------------------------------------------------------
 // See https://github.com/bokkypoobah/MakerDAOSaiContractAudit/tree/master/audit#pip-and-pep-price-feeds
 // ----------------------------------------------------------------------------
-contract MakerDAOPriceFeedInterface {
+interface MakerDAOPriceFeedInterface {
     function peek() public view returns (bytes32 _value, bool _hasValue);
 }
 
@@ -32,7 +32,7 @@ contract MakerDAOPriceFeedAdaptor is PriceFeedInterface {
     constructor(address _makerDAOPriceFeed) public {
         makerDAOPriceFeed = MakerDAOPriceFeedInterface(_makerDAOPriceFeed);
     }
-    function getRate() public view returns (uint _rate, bool _live) {
+    function getRate() public override view returns (uint _rate, bool _live) {
         bytes32 value;
         (value, _live) = makerDAOPriceFeed.peek();
         _rate = uint(value);
