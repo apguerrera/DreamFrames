@@ -119,3 +119,8 @@ def token_converter(RoyaltyTokenConverter, frame_token, royalty_token):
     token_converter.initTokenConverter(frame_token,royalty_token, True, {"from": accounts[0]})
     tx = royalty_token.setMinter(token_converter, {"from": accounts[0]})
     return token_converter
+
+@pytest.fixture(scope='module', autouse = True)
+def dream_frames_nft(DreamFramesNFT):
+    dream_frames_nft = DreamFramesNFT.deploy({"from": accounts[0]})
+    return dream_frames_nft

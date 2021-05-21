@@ -1,6 +1,6 @@
 CONTRACTS = {
     "ropsten":{
-        "dream_frames_NFT":""
+        "dream_frames_NFT":"0x7F4a631f222478ef666EB38479690bFfa55cc7EA"
     },
     "mainnet":{
         "dream_frames_NFT":""
