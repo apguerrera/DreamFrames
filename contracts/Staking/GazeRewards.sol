@@ -2,7 +2,7 @@ pragma solidity ^0.6.12;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./Utils/GazeAccessControls.sol";
-import "../../interfaces/IUniswapV2Pair.sol";
+import "./Uniswap/interfaces/IUniswapV2Pair.sol";
 import "../../interfaces/IERC20.sol";
 import "./Uniswap/UniswapV2Library.sol";
 
@@ -286,23 +286,7 @@ contract GazeRewards {
         c = a >= b ? a : b;
     }
 
-quire(_frames > 0, "No frames available");
-        require(now >= startDate && now <= endDate, "Sale ended");
 
-        // Update crowdsale state
-        uint256 usdToTransfer = _frames.mul(frameUsdWithBonus(_tokenOwner));
-        require(contributedUsd.add(usdToTransfer) <= hardCapUsd, "Exceeds Hardcap");
-        contributedUsd = contributedUsd.add(usdToTransfer);
-
-        // Tokens locked and KYC check required if over AccountThresholdUsd
-        accountUsdAmount[_tokenOwner] = accountUsdAmount[_tokenOwner].add(usdToTransfer);
-        bool lockAccount = accountUsdAmount[_tokenOwner] > lockedAccountThresholdUsd;
-
-        // Mint FrameTokens
-        require(dreamFramesToken.mint(_tokenOwner, _frames.mul(TENPOW18), lockAccount)); // dev: Not Mintable
-        framesSold = framesSold.add(_frames);
-        if (contributedUsd >= hardCapUsd) {
-            finalised 
 
     /* ========== Recover ERC20 ========== */
 
