@@ -176,6 +176,8 @@ contract RoyaltyToken is DreamFramesToken {
     // ------------------------------------------------------------------------
     // Accept ETH deposits as dividends
     // ------------------------------------------------------------------------
+    ///SS: Is this okay To OVerride?
+    
     receive() external override payable {
         require(msg.value > 0);
         _depositDividends(msg.value);

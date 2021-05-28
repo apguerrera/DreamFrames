@@ -173,7 +173,7 @@ contract DreamFramesCrowdsale is Operated {
         _rate = frameUsd.mul(100).div(bonus.add(100));
     }
 
-    /// @notice ETH per USD from price feed
+    /// @notice USD per Eth from price feed
     /// @dev  e.g., 171.123232454415 * 10^18
     function ethUsd() public view returns (uint256 _rate, bool _live) {
         return ethUsdPriceFeed.getRate();
