@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 // ----------------------------------------------------------------------------
 // Attributes Data Structure
 // ----------------------------------------------------------------------------
@@ -41,7 +41,7 @@ library Attributes {
         self.entries[lastIndexKey].index = removeIndex;
         delete self.entries[key];
         if (self.index.length > 0) {
-            self.index.length--;
+            self.index.pop();
         }
     }
     function removeAll(Data storage self, uint256 tokenId) internal {
@@ -51,7 +51,7 @@ library Attributes {
                 string memory lastIndexKey = self.index[lastIndex];
                 emit AttributeRemoved(tokenId, lastIndexKey, lastIndex);
                 delete self.entries[lastIndexKey];
-                self.index.length--;
+                self.index.pop();
             }
         }
     }

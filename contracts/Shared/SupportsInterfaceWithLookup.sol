@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 import "../../interfaces/ERC165.sol";
 
@@ -8,7 +8,7 @@ import "../../interfaces/ERC165.sol";
  * @author Matt Condon (@shrugs)
  * @dev Implements ERC165 using a lookup table.
  */
-contract SupportsInterfaceWithLookup is IERC165 {
+contract SupportsInterfaceWithLookup is ERC165 {
 
   bytes4 public constant InterfaceId_ERC165 = 0x01ffc9a7;
   /**
@@ -36,6 +36,7 @@ contract SupportsInterfaceWithLookup is IERC165 {
    */
   function supportsInterface(bytes4 _interfaceId)
     external
+    override
     view
     returns (bool)
   {

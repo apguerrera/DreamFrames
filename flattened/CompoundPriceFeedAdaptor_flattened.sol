@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 // ----------------------------------------------------------------------------
 // Adaptor to convert Compound's price feed into BokkyPooBah's Pricefeed

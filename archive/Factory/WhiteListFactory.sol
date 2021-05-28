@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 // ----------------------------------------------------------------------------
 // DreamFrames WhiteList Factory
@@ -49,7 +49,7 @@ contract WhiteListFactory is Operated {
         return ERC20Interface(tokenAddress).transfer(owner, tokens);
     }
 
-    function () external payable {
+    receive() external payable {
         revert();
     }
 

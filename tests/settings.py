@@ -32,3 +32,18 @@ ROYALTY_SYMBOL = 'RFT'
 CROWDSALE_DAYS = 7 
 START_DATE = int(time.time())
 END_DATE = START_DATE + 60 * 60 * 24 * CROWDSALE_DAYS
+
+
+###################################
+#Staking
+###################################
+TENPOW18 = 10 ** 18
+
+ONE_MILLION = 1000000 * TENPOW18
+UNISWAP_FACTORY = '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f'
+#######################
+# GAZE TOKENS
+#######################
+GAZE_TOTAL_TOKENS = 29 * ONE_MILLION 
+
+ONE_WEEK = 3600*24*7

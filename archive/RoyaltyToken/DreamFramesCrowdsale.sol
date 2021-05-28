@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 // ----------------------------------------------------------------------------
 // DreamFrames Crowdsale Contract - Purchase FrameRush Tokens with ETH
@@ -220,7 +220,7 @@ contract DreamFramesCrowdsale is Operated {
 
   }
 
-  function () external payable {
+  receive() external payable {
     // require(now >= startDate && now <= endDate);
 
     // Get number of frames, will revert if sold out

@@ -1,11 +1,12 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721Enumerable.sol";
+//import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "../Utils/MyERC721Metadata.sol";
 import "../library/Accounts.sol";
 import "../library/Attributes.sol";
+import "../library/Counters.sol";
 
-contract GazeCoinGoobers is ERC721Enumerable, MyERC721Metadata {
+contract DreamFramesNFT is /* ERC721Enumerable */ MyERC721Metadata {
     using Attributes for Attributes.Data;
     using Attributes for Attributes.Value;
     using Counters for Counters.Counter;

@@ -1,9 +1,9 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 // ----------------------------------------------------------------------------
 // Bonus List interface
 // ----------------------------------------------------------------------------
-contract WhiteListInterface {
+interface WhiteListInterface {
     function isInWhiteList(address account) external view returns (bool);
     function add(address[] calldata accounts) external ;
     function remove(address[] calldata accounts) external ;

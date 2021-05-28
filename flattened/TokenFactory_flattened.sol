@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 
 
@@ -318,7 +318,7 @@ contract TokenFactory is  Owned, CloneFactory {
         require(msg.sender == owner);
         return ERC20Interface(tokenAddress).transfer(owner, tokens);
     }
-    function () external payable {
+    receive() external payable {
         revert();
     }
 }

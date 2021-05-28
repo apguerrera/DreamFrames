@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 // ----------------------------------------------------------------------------
 // Secondary Accounts Data Structure
 // ----------------------------------------------------------------------------
@@ -41,8 +41,9 @@ library Accounts {
         self.entries[lastIndexKey].index = removeIndex;
         delete self.entries[account];
         if (self.index.length > 0) {
-            self.index.length--;
-        }
+            ///SSS: Check again
+            self.index.pop();        
+            }
     }
     function removeAll(Data storage self, address owner) internal {
         if (self.initialised) {
@@ -51,7 +52,8 @@ library Accounts {
                 address lastIndexKey = self.index[lastIndex];
                 emit AccountRemoved(owner, lastIndexKey, lastIndex);
                 delete self.entries[lastIndexKey];
-                self.index.length--;
+                 ///SSS: Check again
+                self.index.pop();
             }
         }
     }

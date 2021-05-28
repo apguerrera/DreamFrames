@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 
 // ----------------------------------------------------------------------------
@@ -277,7 +277,7 @@ contract DividendMultiToken is BTTSTokenInterface {
     // ------------------------------------------------------------------------
     // Accept ETH deposits as dividends
     // ------------------------------------------------------------------------
-    function () external payable {
+    receive() external payable {
         require(msg.value > 0);
         _depositDividends(msg.value,address(0x0));
     }

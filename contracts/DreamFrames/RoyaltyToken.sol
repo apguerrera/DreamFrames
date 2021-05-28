@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 
 // ----------------------------------------------------------------------------
@@ -50,6 +50,7 @@ contract RoyaltyToken is DreamFramesToken {
         }
         setWhiteList(_whiteList);
         data.init(_owner, _symbol, _name, _decimals, _initialSupply, _mintable, _transferable);
+
     }
 
 
@@ -74,7 +75,7 @@ contract RoyaltyToken is DreamFramesToken {
     // ------------------------------------------------------------------------
     // Minting and management
     // ------------------------------------------------------------------------
-    function mint(address tokenOwner, uint tokens, bool lockAccount) public returns (bool success) {
+    function mint(address tokenOwner, uint tokens, bool lockAccount) public override returns (bool success) {
       require(_canReceive(address(0x0),tokenOwner));
        return data.mint(tokenOwner, tokens, lockAccount);
     }
@@ -83,11 +84,11 @@ contract RoyaltyToken is DreamFramesToken {
     // Token functions
     // ------------------------------------------------------------------------
 
-    function transfer(address to, uint tokens) public returns (bool success) {
+    function transfer(address to, uint tokens) public override returns (bool success) {
        _canTransfer(msg.sender,to, tokens);
        return data.transfer(to, tokens);
     }
-    function transferFrom(address from, address to, uint tokens) public returns (bool success) {
+    function transferFrom(address from, address to, uint tokens) public override returns (bool success) {
         _canTransfer(from,to, tokens);
        return data.transferFrom(from, to, tokens);
     }
@@ -175,7 +176,7 @@ contract RoyaltyToken is DreamFramesToken {
     // ------------------------------------------------------------------------
     // Accept ETH deposits as dividends
     // ------------------------------------------------------------------------
-    function () external payable {
+    receive() external override payable {
         require(msg.value > 0);
         _depositDividends(msg.value);
     }
@@ -212,12 +213,12 @@ contract RoyaltyToken is DreamFramesToken {
     // ------------------------------------------------------------------------
     // Signed function
     // ------------------------------------------------------------------------
-    function signedTransfer(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
+    function signedTransfer(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public override returns (bool success) {
         require(_canTransfer(tokenOwner,to, tokens));
         return data.signedTransfer(tokenOwner, to, tokens, fee, nonce, sig, feeAccount);
     }
 
-    function signedTransferFrom(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
+    function signedTransferFrom(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public override returns (bool success) {
         require(_canTransfer(from,to, tokens));
         return data.signedTransferFrom(spender, from, to, tokens, fee, nonce, sig, feeAccount);
     }

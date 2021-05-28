@@ -35,7 +35,7 @@ pragma solidity ^0.5.11;
  *
  * For an implementation, see `ERC165`.
  */
-interface IERC165 {
+interface ERC165 {
     /**
      * @dev Returns true if this contract implements the interface defined by
      * `interfaceId`. See the corresponding
@@ -50,7 +50,7 @@ interface IERC165 {
 /**
  * @dev Required interface of an ERC721 compliant contract.
  */
-contract IERC721 is IERC165 {
+contract IERC721 is ERC165 {
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
     event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
@@ -302,12 +302,12 @@ library Counters {
 
 
 /**
- * @dev Implementation of the `IERC165` interface.
+ * @dev Implementation of the `ERC165` interface.
  *
  * Contracts may inherit from this and call `_registerInterface` to declare
  * their support of an interface.
  */
-contract ERC165 is IERC165 {
+contract ERC165 is ERC165 {
     /*
      * bytes4(keccak256('supportsInterface(bytes4)')) == 0x01ffc9a7
      */
@@ -325,7 +325,7 @@ contract ERC165 is IERC165 {
     }
 
     /**
-     * @dev See `IERC165.supportsInterface`.
+     * @dev See `ERC165.supportsInterface`.
      *
      * Time complexity O(1), guaranteed to always use less than 30 000 gas.
      */
@@ -338,7 +338,7 @@ contract ERC165 is IERC165 {
      * `interfaceId`. Support of the actual ERC165 interface is automatic and
      * registering its interface id is not required.
      *
-     * See `IERC165.supportsInterface`.
+     * See `ERC165.supportsInterface`.
      *
      * Requirements:
      *

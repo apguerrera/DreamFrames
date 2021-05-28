@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 // ----------------------------------------------------------------------------
 // Dream Frames White List
@@ -26,14 +26,14 @@ contract WhiteList is WhiteListInterface, Operated {
     constructor() public {
     }
 
-    function initWhiteList(address _owner) public {
+    function initWhiteList(address _owner)  public override {
         initOperated(_owner);
     }
-    function isInWhiteList(address account) public view returns (bool) {
+    function isInWhiteList(address account) public override view returns (bool) {
         return whiteList[account];
     }
 
-    function add(address[] memory accounts) public  {
+    function add(address[] memory accounts) public override  {
         require(operators[msg.sender] || owner == msg.sender);
         require(accounts.length != 0);
         for (uint i = 0; i < accounts.length; i++) {
@@ -44,7 +44,7 @@ contract WhiteList is WhiteListInterface, Operated {
             }
         }
     }
-    function remove(address[] memory accounts) public  {
+    function remove(address[] memory accounts) public override  {
         require(operators[msg.sender] || owner == msg.sender);
         require(accounts.length != 0);
         for (uint i = 0; i < accounts.length; i++) {
@@ -54,5 +54,10 @@ contract WhiteList is WhiteListInterface, Operated {
                 emit AccountListed(accounts[i], false);
             }
         }
+    }
+      function transferOwnershipImmediately(address _newOwner) external override {
+        require(msg.sender == owner);
+        emit OwnershipTransferred(owner, _newOwner);
+        owner = address(uint160(_newOwner));
     }
 }
