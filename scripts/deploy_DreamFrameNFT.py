@@ -22,6 +22,8 @@ def deploy_dream_frames_NFT():
         dream_frames_NFT = DreamFramesNFT.at(dream_frames_NFT_address)
     return dream_frames_NFT
 
+
+
 def main():
     load_accounts()
     deploy_dream_frames_NFT()

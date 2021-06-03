@@ -127,10 +127,17 @@ def test_remove_secondary_account(dream_frames_nft):
 
     assert dream_frames_nft.isOwnerOf(token1,secondaryAccount) == False
 
+def test_set_tokenURI(dream_frames_nft):
+    holder = accounts[0]
+    _type = "DreamFrames"
 
+    dream_frames_nft, token1 = _dream_frames_nft_mint(dream_frames_nft, holder, _type, accounts[0])
+    dream_frames_nft, token2 = _dream_frames_nft_mint(dream_frames_nft, holder, _type, accounts[2])
 
+    dream_frames_nft.setTokenURI(token1, "https://something.com", {"from": accounts[0]})
+    with reverts("GazeCoinGoobers: set Token URI of token that is not own"):
+        dream_frames_nft.setTokenURI(token1, "https://something.com", {"from": accounts[5]})
 
-
-
-
+    assert dream_frames_nft.tokenURI(token1) == "https://something.com"
+    
 

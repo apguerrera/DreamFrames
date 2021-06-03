@@ -230,4 +230,11 @@ contract DreamFramesNFT is /* ERC721Enumerable */ MyERC721Metadata {
         require(accounts.initialised);
         accounts.remove(msg.sender, account);
     }
+
+    function setTokenURI(uint256 tokenId, string memory _tokenURI) public{
+        require(isOwnerOf(tokenId, msg.sender), "GazeCoinGoobers: set Token URI of token that is not own");
+        _setTokenURI(tokenId, _tokenURI);
+    }
+
+    
 }
