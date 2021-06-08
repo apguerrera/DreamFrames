@@ -35,24 +35,7 @@ def test_get_Value(dream_frames_nft):
     
     print(dream_frames_nft.getValue(token1, 'type'))
 
-def test_mint_with_attributes(dream_frames_nft):
 
-    _type = "DreamFrames"
-    _subtype = "Dream"
-    _name = "Goober"
-    _description = "Film token"
-    _tags = "it is good token"
-
-    TYPE_KEY = "type"
-    SUBTYPE_KEY = "subtype"
-    NAME_KEY = "name"
-    DESCRIPTION_KEY = "description"
-    TAGS_KEY = "tags"
-
-    keys = [TYPE_KEY,SUBTYPE_KEY,NAME_KEY,DESCRIPTION_KEY,TAGS_KEY]
-    values = [_type,_subtype,_name, _description, _tags]
-
-    dream_frames_nft.mintWithAttributes(accounts[1], keys, values, {"from":accounts[0]})
     
     
 def _dream_frames_nft_mint(dream_frames_nft, _to, _type, minter):
