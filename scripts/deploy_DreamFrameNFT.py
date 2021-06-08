@@ -17,9 +17,9 @@ def deploy_dream_frames_NFT():
     dream_frames_NFT_address = CONTRACTS[network.show_active()]["dream_frames_NFT"]
 
     if dream_frames_NFT_address == '':
-        dream_frames_NFT = DreamFramesNFT.deploy({"from":accounts[0]})
+        dream_frames_NFT = DreamChannelNFT.deploy({"from":accounts[0]})
     else:
-        dream_frames_NFT = DreamFramesNFT.at(dream_frames_NFT_address)
+        dream_frames_NFT = DreamChannelNFT.at(dream_frames_NFT_address)
     return dream_frames_NFT
 
 
