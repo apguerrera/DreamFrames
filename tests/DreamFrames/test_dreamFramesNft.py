@@ -141,3 +141,14 @@ def test_set_tokenURI(dream_frames_nft):
     assert dream_frames_nft.tokenURI(token1) == "https://something.com"
     
 
+def test_set_baseURI(dream_frames_nft):
+    holder = accounts[0]
+    _type = "DreamFrames"
+    uri = "https://something.com"
+    dream_frames_nft.setBaseURI("https://something.com/", {"from":accounts[0]})
+    dream_frames_nft, token1 = _dream_frames_nft_mint(dream_frames_nft, holder, _type, accounts[0])
+    assert dream_frames_nft.tokenURI(token1) == "https://something.com/1"
+
+    with reverts("Owned: caller is not the owner"):
+        dream_frames_nft.setBaseURI("https://something.com/", {"from":accounts[5]}) 
+

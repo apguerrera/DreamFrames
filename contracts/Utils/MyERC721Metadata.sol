@@ -56,9 +56,8 @@ contract MyERC721Metadata is ERC165, ERC721BasicToken, Owned {
             }
         }
     }
-    ///SSS: Check onlyowner
 
-    function setBaseURI(string memory uri) public /* onlyOwner */ {
+    function setBaseURI(string memory uri) public  onlyOwner  {
         baseURI = uri;
     }
 

@@ -25,5 +25,10 @@ contract Owned {
         owner = address(uint160(newOwner));
         newOwner = address(0);
     }
+
+    modifier onlyOwner() {
+        require(owner == msg.sender, "Owned: caller is not the owner");
+        _;
+    }
   
 }
