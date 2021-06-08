@@ -1,4 +1,3 @@
-pragma experimental ABIEncoderV2;
 pragma solidity ^0.6.12;
 
 //import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
@@ -122,15 +121,15 @@ contract DreamChannelNFT is /* ERC721Enumerable */ MyERC721Metadata {
         }
     }
     // NOTE - Solidity returns an incorrect value
-    function getKeys(uint256 tokenId) public view returns (string[] memory) {
-         Attributes.Data storage attributes = attributesByTokenIds[tokenId];
-         if (!attributes.initialised) {
-             string[] memory empty;
-             return empty;
-         } else {
-             return attributes.index;
-         }
-     }
+//    function getKeys(uint256 tokenId) public view returns (string[] memory) {
+//        Attributes.Data storage attributes = attributesByTokenIds[tokenId];
+//       if (!attributes.initialised) {
+//           string[] memory empty;
+//           return empty;
+//       } else {
+//           return attributes.index;
+//       }
+//     }
     function getKey(uint256 tokenId, uint _index) public view returns (string memory) {
          Attributes.Data storage attributes = attributesByTokenIds[tokenId];
          if (attributes.initialised) {
