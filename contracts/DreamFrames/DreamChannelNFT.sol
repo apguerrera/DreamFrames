@@ -6,7 +6,7 @@ import "../library/Accounts.sol";
 import "../library/Attributes.sol";
 import "../library/Counters.sol";
 
-contract DreamFramesNFT is /* ERC721Enumerable */ MyERC721Metadata {
+contract DreamChannelNFT is /* ERC721Enumerable */ MyERC721Metadata {
     using Attributes for Attributes.Data;
     using Attributes for Attributes.Value;
     using Counters for Counters.Counter;
@@ -32,7 +32,7 @@ contract DreamFramesNFT is /* ERC721Enumerable */ MyERC721Metadata {
     event AccountRemoved(address owner, address account, uint totalAfter);
     // event AccountUpdated(uint256 indexed tokenId, address owner, address account);
 
-    constructor() MyERC721Metadata("GazeCoin Goobers v10", "GOOBv10") public {
+    constructor() MyERC721Metadata("DreamChannel NFT", "DCNFT") public {
     }
 
     // Mint and burn
@@ -88,7 +88,7 @@ contract DreamFramesNFT is /* ERC721Enumerable */ MyERC721Metadata {
     //     uint256 newTokenId = _tokenIds.current();
     //     _mint(to, newTokenId);
     //     for (uint256 i = 0; i < keys.length; i++) {
-    //         addAttribute(newTokenId, keys[i], values[i]);
+    //         addAttribute(newTokeis nId, keys[i], values[i]);
     //     }
     //     return newTokenId;
     // }
@@ -163,7 +163,7 @@ contract DreamFramesNFT is /* ERC721Enumerable */ MyERC721Metadata {
         return ("", "", 0);
     }
     function addAttribute(uint256 tokenId, string memory key, string memory value) public {
-        require(isOwnerOf(tokenId, msg.sender), "GazeCoinGoobers: add attribute of token that is not own");
+        require(isOwnerOf(tokenId, msg.sender), "DreamChannelNFT: add attribute of token that is not own");
         require(keccak256(abi.encodePacked(key)) != keccak256(abi.encodePacked(TYPE_KEY)));
         Attributes.Data storage attributes = attributesByTokenIds[tokenId];
         if (!attributes.initialised) {
@@ -173,7 +173,7 @@ contract DreamFramesNFT is /* ERC721Enumerable */ MyERC721Metadata {
         attributes.add(tokenId, key, value);
     }
     function setAttribute(uint256 tokenId, string memory key, string memory value) public {
-        require(isOwnerOf(tokenId, msg.sender), "GazeCoinGoobers: set attribute of token that is not own");
+        require(isOwnerOf(tokenId, msg.sender), "DreamChannelNFT: set attribute of token that is not own");
         require(keccak256(abi.encodePacked(key)) != keccak256(abi.encodePacked(TYPE_KEY)));
         Attributes.Data storage attributes = attributesByTokenIds[tokenId];
         if (!attributes.initialised) {
@@ -186,14 +186,14 @@ contract DreamFramesNFT is /* ERC721Enumerable */ MyERC721Metadata {
         }
     }
     function removeAttribute(uint256 tokenId, string memory key) public {
-        require(isOwnerOf(tokenId, msg.sender), "GazeCoinGoobers: remove attribute of token that is not own");
+        require(isOwnerOf(tokenId, msg.sender), "DreamChannelNFT: remove attribute of token that is not own");
         require(keccak256(abi.encodePacked(key)) != keccak256(abi.encodePacked(TYPE_KEY)));
         Attributes.Data storage attributes = attributesByTokenIds[tokenId];
         require(attributes.initialised);
         attributes.remove(tokenId, key);
     }
     function updateAttribute(uint256 tokenId, string memory key, string memory value) public {
-        require(isOwnerOf(tokenId, msg.sender), "GazeCoinGoobers: update attribute of token that is not own");
+        require(isOwnerOf(tokenId, msg.sender), "DreamChannelNFT: update attribute of token that is not own");
         require(keccak256(abi.encodePacked(key)) != keccak256(abi.encodePacked(TYPE_KEY)));
         Attributes.Data storage attributes = attributesByTokenIds[tokenId];
         require(attributes.initialised);
@@ -216,7 +216,7 @@ contract DreamFramesNFT is /* ERC721Enumerable */ MyERC721Metadata {
         return false;
     }
     function addSecondaryAccount(address account) public {
-        require(account != address(0), "GazeCoinGoobers: cannot add null secondary account");
+        require(account != address(0), "DreamChannelNFT: cannot add null secondary account");
         Accounts.Data storage accounts = secondaryAccounts[msg.sender];
         if (!accounts.initialised) {
             accounts.init();
@@ -225,14 +225,14 @@ contract DreamFramesNFT is /* ERC721Enumerable */ MyERC721Metadata {
         accounts.add(msg.sender, account);
     }
     function removeSecondaryAccount(address account) public {
-        require(account != address(0), "GazeCoinGoobers: cannot remove null secondary account");
+        require(account != address(0), "DreamChannelNFT: cannot remove null secondary account");
         Accounts.Data storage accounts = secondaryAccounts[msg.sender];
         require(accounts.initialised);
         accounts.remove(msg.sender, account);
     }
 
     function setTokenURI(uint256 tokenId, string memory _tokenURI) public{
-        require(isOwnerOf(tokenId, msg.sender), "GazeCoinGoobers: set Token URI of token that is not own");
+        require(isOwnerOf(tokenId, msg.sender), "DreamChannelNFT: set Token URI of token that is not own");
         _setTokenURI(tokenId, _tokenURI);
     }
 
