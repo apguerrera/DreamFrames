@@ -9,6 +9,87 @@ def isolation(fn_isolation):
     pass
 
 
+""" def test_get_keys(dream_frames_nft):
+    holder = accounts[0]
+    _type = "DreamFrames"
+
+    dream_frames_nft, token1 = _dream_frames_nft_mint(dream_frames_nft, holder, _type, accounts[0])
+    dream_frames_nft, token2 = _dream_frames_nft_mint(dream_frames_nft, holder, _type, accounts[2])
+    print(dream_frames_nft.getKeys(token1)) """
+
+def test_get_key(dream_frames_nft):
+    holder = accounts[0]
+    _type = "DreamFrames"
+
+    dream_frames_nft, token1 = _dream_frames_nft_mint(dream_frames_nft, holder, _type, accounts[0])
+    dream_frames_nft, token2 = _dream_frames_nft_mint(dream_frames_nft, holder, _type, accounts[2])
+    
+    _index = 0
+    key = dream_frames_nft.getKey(token1, _index)
+    assert key == "type"
+    
+    _index = 1
+    key = dream_frames_nft.getKey(token1, _index)
+    assert key == "subtype"    
+
+    _index = 2
+    key = dream_frames_nft.getKey(token1, _index)
+    assert key == "name"    
+
+    _index = 3
+    key = dream_frames_nft.getKey(token1, _index)
+    assert key == "description" 
+
+    _index = 4
+    key = dream_frames_nft.getKey(token1, _index)
+    assert key == "tags"       
+
+    _index = 100
+    key = dream_frames_nft.getKey(token1, _index)
+    assert key == ""       
+
+
+    
+def test_get_Value(dream_frames_nft):
+    holder = accounts[0]
+    _type = "DreamFrames"
+
+    dream_frames_nft, token1 = _dream_frames_nft_mint(dream_frames_nft, holder, _type, accounts[0])
+    dream_frames_nft, token2 = _dream_frames_nft_mint(dream_frames_nft, holder, _type, accounts[2])
+    TYPE_KEY = "type"
+    SUBTYPE_KEY = "subtype"
+    NAME_KEY = "name"
+    DESCRIPTION_KEY = "description"
+    TAGS_KEY = "tags"
+
+
+    _type = "DreamFrames"
+    _subtype = "Dream"
+    _name = "Goober"
+    _description = "Film token"
+    _tags = "it is good token"
+
+    (timestamp, index, value) = dream_frames_nft.getValue(token1, TYPE_KEY)
+
+    assert value == _type
+    assert index == 0
+
+    (timestamp, index, value) = dream_frames_nft.getValue(token1, SUBTYPE_KEY)
+
+    assert value == _subtype
+    assert index == 1
+
+    (timestamp, index, value) = dream_frames_nft.getValue(token1, NAME_KEY)
+
+    assert value == _name
+    assert index == 2
+
+    (timestamp, index, value) = dream_frames_nft.getValue(token1, "NO KEY")
+    
+    assert value == ""
+    assert index == 0
+    assert timestamp == 0
+    
 def _dream_frames_nft_mint(dream_frames_nft, _to, _type, minter):
     _subtype = "Dream"
     _name = "Goober"
@@ -243,3 +324,4 @@ def test_burn(dream_frames_nft):
     assert key == ""
     assert value == ""
     assert timestamp == 0
+

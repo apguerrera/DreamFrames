@@ -121,33 +121,34 @@ contract DreamChannelNFT is /* ERC721Enumerable */ MyERC721Metadata {
         }
     }
     // NOTE - Solidity returns an incorrect value
-    // function getKeys(uint256 tokenId) public view returns (string[] memory) {
-    //     Attributes.Data storage attributes = attributesByTokenIds[tokenId];
-    //     if (!attributes.initialised) {
-    //         string[] memory empty;
-    //         return empty;
-    //     } else {
-    //         return attributes.index;
-    //     }
-    // }
-    // function getKey(uint256 tokenId, uint _index) public view returns (string memory) {
-    //     Attributes.Data storage attributes = attributesByTokenIds[tokenId];
-    //     if (attributes.initialised) {
-    //         if (_index < attributes.index.length) {
-    //             return attributes.index[_index];
-    //         }
-    //     }
-    //     return "";
-    // }
-    // function getValue(uint256 tokenId, string memory key) public view returns (bool _exists, uint _index, string memory _value) {
-    //     Attributes.Data storage attributes = attributesByTokenIds[tokenId];
-    //     if (!attributes.initialised) {
-    //         return (false, 0, "");
-    //     } else {
-    //         Attributes.Value memory attribute = attributes.entries[key];
-    //         return (attribute.exists, attribute.index, attribute.value);
-    //     }
-    // }
+//    function getKeys(uint256 tokenId) public view returns (string[] memory) {
+//        Attributes.Data storage attributes = attributesByTokenIds[tokenId];
+//       if (!attributes.initialised) {
+//           string[] memory empty;
+//           return empty;
+//       } else {
+//           return attributes.index;
+//       }
+//     }
+    function getKey(uint256 tokenId, uint _index) public view returns (string memory) {
+         Attributes.Data storage attributes = attributesByTokenIds[tokenId];
+         if (attributes.initialised) {
+             if (_index < attributes.index.length) {
+                 return attributes.index[_index];
+             }
+         }
+         return "";
+     }
+
+     function getValue(uint256 tokenId, string memory key) public view returns (uint _exists, uint _index, string memory _value) {
+         Attributes.Data storage attributes = attributesByTokenIds[tokenId];
+         if (!attributes.initialised) {
+             return (0, 0, "");
+         } else {
+             Attributes.Value memory attribute = attributes.entries[key];
+             return (attribute.timestamp, attribute.index, attribute.value);
+         }
+     }
     function getAttributeByIndex(uint256 tokenId, uint256 _index) public view returns (string memory _key, string memory _value, uint timestamp) {
         Attributes.Data storage attributes = attributesByTokenIds[tokenId];
         if (attributes.initialised) {
