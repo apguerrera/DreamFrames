@@ -17,12 +17,12 @@ pragma solidity ^0.6.12;
 // ----------------------------------------------------------------------------
 // PriceFeed Interface - _live is true if the rate is valid, false if invalid
 // ----------------------------------------------------------------------------
-contract PriceFeedInterface {
-    function getRate() public view returns (uint _rate, bool _live);
+interface PriceFeedInterface {
+    function getRate() external view returns (uint _rate, bool _live);
 }
 
 
-contract CompoundPriceFeedInterface {
+interface CompoundPriceFeedInterface {
     function getUnderlyingPrice(address _addr) external view returns (uint256 _value);
     function cDaiAddress() external view returns (address _addr);
 }
@@ -40,7 +40,7 @@ contract CompoundPriceFeedAdaptor is PriceFeedInterface {
         cDaiAddress = compoundPriceFeed.cDaiAddress();
     }
 
-    function getRate() public view returns (uint256 _rate, bool _live) {
+    function getRate() public view override returns (uint256 _rate, bool _live) {
         /// @dev: Returns Dai/ETH ie. 1 Dai = value in wei (10 ** 18)
         uint256 value = compoundPriceFeed.getUnderlyingPrice(cDaiAddress);
         if (value > 0 ) {

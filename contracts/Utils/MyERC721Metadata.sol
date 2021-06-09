@@ -22,7 +22,7 @@ contract MyERC721Metadata is ERC165, ERC721BasicToken, Owned {
      */
     bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
 
-    string public baseURI = "http://multiverse.gazecoin.io/api/asset/";
+    string public baseURI = "https://dreamchannel.io/alpha/index.html?tokenId=";
 
     /**
      * @dev Constructor function
@@ -114,12 +114,6 @@ contract MyERC721Metadata is ERC165, ERC721BasicToken, Owned {
         require(exists(tokenId), "ERC721Metadata: URI set of nonexistent token");
         _tokenURIs[tokenId] = uri;
     }
-
-    // BK NOTE - Disable as not required currently
-    // function setTokenURI(uint256 tokenId, string memory uri) public {
-    //     require(ownerOf(tokenId) == msg.sender, "ERC721Metadata: set URI of token that is not own");
-    //     _setTokenURI(tokenId, uri);
-    // }
 
     /**
      * @dev Internal function to burn a specific token.

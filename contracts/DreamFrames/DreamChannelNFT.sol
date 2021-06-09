@@ -1,12 +1,11 @@
 pragma solidity ^0.6.12;
 
-//import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "../Utils/MyERC721Metadata.sol";
 import "../library/Accounts.sol";
 import "../library/Attributes.sol";
 import "../library/Counters.sol";
 
-contract DreamChannelNFT is /* ERC721Enumerable */ MyERC721Metadata {
+contract DreamChannelNFT is MyERC721Metadata {
     using Attributes for Attributes.Data;
     using Attributes for Attributes.Value;
     using Counters for Counters.Counter;
@@ -30,7 +29,6 @@ contract DreamChannelNFT is /* ERC721Enumerable */ MyERC721Metadata {
 
     event AccountAdded(address owner, address account, uint totalAfter);
     event AccountRemoved(address owner, address account, uint totalAfter);
-    // event AccountUpdated(uint256 indexed tokenId, address owner, address account);
 
     constructor() MyERC721Metadata("DreamChannel NFT", "DCNFT") public {
     }
@@ -81,28 +79,8 @@ contract DreamChannelNFT is /* ERC721Enumerable */ MyERC721Metadata {
 
         return newTokenId;
     }
-    // BELOW DOES NOT WORK CORRECTLY
-    // function mintWithAttributes(address to, string[] memory keys, string[] memory values) public returns (uint256) {
-    //     require(keys.length == values.length);
-    //     _tokenIds.increment();
-    //     uint256 newTokenId = _tokenIds.current();
-    //     _mint(to, newTokenId);
-    //     for (uint256 i = 0; i < keys.length; i++) {
-    //         addAttribute(newTokeis nId, keys[i], values[i]);
-    //     }
-    //     return newTokenId;
-    // }
-    // function mintWithTokenURI(address to, string memory tokenURI) public returns (uint256) {
-    //     _tokenIds.increment();
-    //
-    //     uint256 newTokenId = _tokenIds.current();
-    //     _mint(to, newTokenId);
-    //     _setTokenURI(newTokenId, tokenURI);
-    //
-    //     return newTokenId;
-    // }
+
     function burn(uint256 tokenId) public {
-        // TODO - attributes.removeAll(...)
         _burn(msg.sender, tokenId);
         Attributes.Data storage attributes = attributesByTokenIds[tokenId];
         if (attributes.initialised) {
@@ -120,16 +98,7 @@ contract DreamChannelNFT is /* ERC721Enumerable */ MyERC721Metadata {
             return attributes.length();
         }
     }
-    // NOTE - Solidity returns an incorrect value
-//    function getKeys(uint256 tokenId) public view returns (string[] memory) {
-//        Attributes.Data storage attributes = attributesByTokenIds[tokenId];
-//       if (!attributes.initialised) {
-//           string[] memory empty;
-//           return empty;
-//       } else {
-//           return attributes.index;
-//       }
-//     }
+
     function getKey(uint256 tokenId, uint _index) public view returns (string memory) {
          Attributes.Data storage attributes = attributesByTokenIds[tokenId];
          if (attributes.initialised) {

@@ -46,23 +46,23 @@ pragma solidity ^0.6.12;
 // ERC Token Standard #20 Interface
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md
 // ----------------------------------------------------------------------------
-contract ERC20Interface {
+interface ERC20Interface {
   event Transfer(address indexed from, address indexed to, uint tokens);
   event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
 
-  function totalSupply() public view returns (uint);
-  function balanceOf(address tokenOwner) public view returns (uint balance);
-  function allowance(address tokenOwner, address spender) public view returns (uint remaining);
-  function transfer(address to, uint tokens) public returns (bool success);
-  function approve(address spender, uint tokens) public returns (bool success);
-  function transferFrom(address from, address to, uint tokens) public returns (bool success);
+  function totalSupply() external view returns (uint);
+  function balanceOf(address tokenOwner) external view returns (uint balance);
+  function allowance(address tokenOwner, address spender) external view returns (uint remaining);
+  function transfer(address to, uint tokens) external returns (bool success);
+  function approve(address spender, uint tokens) external returns (bool success);
+  function transferFrom(address from, address to, uint tokens) external returns (bool success);
 }
 
 // ----------------------------------------------------------------------------
 // Contracts that can have tokens approved, and then a function executed
 // ----------------------------------------------------------------------------
-contract ApproveAndCallFallBack {
-    function receiveApproval(address from, uint256 tokens, address token, bytes memory data) public;
+interface ApproveAndCallFallBack {
+    function receiveApproval(address from, uint256 tokens, address token, bytes memory data) external;
 }
 
 
@@ -71,14 +71,14 @@ contract ApproveAndCallFallBack {
 //
 // Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
 // ----------------------------------------------------------------------------
-contract BTTSTokenInterface is ERC20Interface {
-  uint public constant bttsVersion = 120;
+interface BTTSTokenInterface is ERC20Interface {
+/*   uint public constant bttsVersion = 120;
 
      bytes public constant signingPrefix = "\x19Ethereum Signed Message:\n32";
      bytes4 public constant signedTransferSig = "\x75\x32\xea\xac";
      bytes4 public constant signedApproveSig = "\xe9\xaf\xa7\xa1";
      bytes4 public constant signedTransferFromSig = "\x34\x4b\xcc\x7d";
-     bytes4 public constant signedApproveAndCallSig = "\xf1\x6f\x9b\x53";
+     bytes4 public constant signedApproveAndCallSig = "\xf1\x6f\x9b\x53"; */
 
      event OwnershipTransferred(address indexed from, address indexed to);
      event MinterUpdated(address from, address to);
@@ -87,41 +87,41 @@ contract BTTSTokenInterface is ERC20Interface {
      event TransfersEnabled();
      event AccountUnlocked(address indexed tokenOwner);
 
-     function symbol() public view returns (string memory);
-     function name() public view returns (string memory);
-     function decimals() public view returns (uint8);
+     function symbol() external view returns (string memory);
+     function name() external view returns (string memory);
+     function decimals() external view returns (uint8);
 
-     function approveAndCall(address spender, uint tokens, bytes memory data) public returns (bool success);
+     function approveAndCall(address spender, uint tokens, bytes memory data) external returns (bool success);
 
      // ------------------------------------------------------------------------
      // signed{X} functions
      // ------------------------------------------------------------------------
-     function signedTransferHash(address tokenOwner, address to, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash);
-     function signedTransferCheck(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result);
-     function signedTransfer(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success);
+     function signedTransferHash(address tokenOwner, address to, uint tokens, uint fee, uint nonce) external view returns (bytes32 hash);
+     function signedTransferCheck(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) external view returns (CheckResult result);
+     function signedTransfer(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) external returns (bool success);
 
-     function signedApproveHash(address tokenOwner, address spender, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash);
-     function signedApproveCheck(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result);
-     function signedApprove(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success);
+     function signedApproveHash(address tokenOwner, address spender, uint tokens, uint fee, uint nonce) external view returns (bytes32 hash);
+     function signedApproveCheck(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) external view returns (CheckResult result);
+     function signedApprove(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) external returns (bool success);
 
-     function signedTransferFromHash(address spender, address from, address to, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash);
-     function signedTransferFromCheck(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result);
-     function signedTransferFrom(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success);
+     function signedTransferFromHash(address spender, address from, address to, uint tokens, uint fee, uint nonce) external view returns (bytes32 hash);
+     function signedTransferFromCheck(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) external view returns (CheckResult result);
+     function signedTransferFrom(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) external returns (bool success);
 
-     function signedApproveAndCallHash(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce) public view returns (bytes32 hash);
-     function signedApproveAndCallCheck(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result);
-     function signedApproveAndCall(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success);
+     function signedApproveAndCallHash(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce) external view returns (bytes32 hash);
+     function signedApproveAndCallCheck(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) external view returns (CheckResult result);
+     function signedApproveAndCall(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) external returns (bool success);
 
-     function mint(address tokenOwner, uint tokens, bool lockAccount) public returns (bool success);
-     function unlockAccount(address tokenOwner) public;
-     function accountLocked(address tokenOwner) public view returns (bool);
+     function mint(address tokenOwner, uint tokens, bool lockAccount) external returns (bool success);
+     function unlockAccount(address tokenOwner) external;
+     function accountLocked(address tokenOwner) external view returns (bool);
 
-     function disableMinting() public;
-     function enableTransfers() public;
-     function mintable() public view returns (bool success);
-     function transferable() public view returns (bool success);
+     function disableMinting() external;
+     function enableTransfers() external;
+     function mintable() external view returns (bool success);
+     function transferable() external view returns (bool success);
 
-     function setMinter(address minter) public;
+     function setMinter(address minter) external;
 
      // ------------------------------------------------------------------------
      // signed{X}Check return status
@@ -566,13 +566,13 @@ contract DreamFramesToken is BTTSTokenInterface {
     // ------------------------------------------------------------------------
     // Token
     // ------------------------------------------------------------------------
-    function symbol() public view returns (string memory) {
+    function symbol() public view override returns (string memory) {
         return data.symbol;
     }
-    function name() public view returns (string memory) {
+    function name() public view override returns (string memory) {
         return data.name;
     }
-    function decimals() public view returns (uint8) {
+    function decimals() public view override returns (uint8) {
         return data.decimals;
     }
 
@@ -582,28 +582,28 @@ contract DreamFramesToken is BTTSTokenInterface {
     function minter() public view returns (address) {
         return data.minter;
     }
-    function setMinter(address _minter) public {
+    function setMinter(address _minter) override public {
         data.setMinter(_minter);
     }
-    function mint(address tokenOwner, uint tokens, bool lockAccount) public returns (bool success) {
+    function mint(address tokenOwner, uint tokens, bool lockAccount) public virtual override returns (bool success) {
         return data.mint(tokenOwner, tokens, lockAccount);
     }
-    function accountLocked(address tokenOwner) public view returns (bool) {
+    function accountLocked(address tokenOwner) public view override returns (bool) {
         return data.accountLocked[tokenOwner];
     }
-    function unlockAccount(address tokenOwner) public {
+    function unlockAccount(address tokenOwner) override public {
         data.unlockAccount(tokenOwner);
     }
-    function mintable() public view returns (bool) {
+    function mintable() public view override returns (bool) {
         return data.mintable;
     }
-    function transferable() public view returns (bool) {
+    function transferable() public view override returns (bool) {
         return data.transferable;
     }
-    function disableMinting() public {
+    function disableMinting() override public {
         data.disableMinting();
     }
-    function enableTransfers() public {
+    function enableTransfers() override public {
         data.enableTransfers();
     }
     function nextNonce(address spender) public view returns (uint) {
@@ -620,72 +620,72 @@ contract DreamFramesToken is BTTSTokenInterface {
     // ------------------------------------------------------------------------
     // Don't accept ethers
     // ------------------------------------------------------------------------
-    receive() external payable {
+    receive() virtual external payable {
          revert();
     }
 
     // ------------------------------------------------------------------------
     // Token functions
     // ------------------------------------------------------------------------
-    function totalSupply() public view returns (uint) {
+    function totalSupply() public view override returns (uint) {
         return data.totalSupply - data.balances[address(0)];
     }
-    function balanceOf(address tokenOwner) public view returns (uint balance) {
+    function balanceOf(address tokenOwner) public view override returns (uint balance) {
         return data.balances[tokenOwner];
     }
-    function allowance(address tokenOwner, address spender) public view returns (uint remaining) {
+    function allowance(address tokenOwner, address spender) public view override returns (uint remaining) {
         return data.allowed[tokenOwner][spender];
     }
-    function transfer(address to, uint tokens) public returns (bool success) {
+    function transfer(address to, uint tokens) public virtual override returns (bool success) {
         return data.transfer(to, tokens);
     }
-    function approve(address spender, uint tokens) public returns (bool success) {
+    function approve(address spender, uint tokens) public override returns (bool success) {
         return data.approve(spender, tokens);
     }
-    function transferFrom(address from, address to, uint tokens) public returns (bool success) {
+    function transferFrom(address from, address to, uint tokens) public virtual override returns (bool success) {
         return data.transferFrom(from, to, tokens);
     }
-    function approveAndCall(address spender, uint tokens, bytes memory _data) public returns (bool success) {
+    function approveAndCall(address spender, uint tokens, bytes memory _data) public override returns (bool success) {
         return data.approveAndCall(spender, tokens, _data);
     }
 
     // ------------------------------------------------------------------------
     // Signed function
     // ------------------------------------------------------------------------
-    function signedTransferHash(address tokenOwner, address to, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash) {
+    function signedTransferHash(address tokenOwner, address to, uint tokens, uint fee, uint nonce) public view override returns (bytes32 hash) {
         return data.signedTransferHash(tokenOwner, to, tokens, fee, nonce);
     }
-    function signedTransferCheck(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result) {
+    function signedTransferCheck(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view override returns (CheckResult result) {
         return data.signedTransferCheck(tokenOwner, to, tokens, fee, nonce, sig, feeAccount);
     }
-    function signedTransfer(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
+    function signedTransfer(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public virtual override returns (bool success) {
         return data.signedTransfer(tokenOwner, to, tokens, fee, nonce, sig, feeAccount);
     }
-    function signedApproveHash(address tokenOwner, address spender, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash) {
+    function signedApproveHash(address tokenOwner, address spender, uint tokens, uint fee, uint nonce) public view override returns (bytes32 hash) {
         return data.signedApproveHash(tokenOwner, spender, tokens, fee, nonce);
     }
-    function signedApproveCheck(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result) {
+    function signedApproveCheck(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view override returns (CheckResult result) {
         return data.signedApproveCheck(tokenOwner, spender, tokens, fee, nonce, sig, feeAccount);
     }
-    function signedApprove(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
+    function signedApprove(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public override returns (bool success) {
         return data.signedApprove(tokenOwner, spender, tokens, fee, nonce, sig, feeAccount);
     }
-    function signedTransferFromHash(address spender, address from, address to, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash) {
+    function signedTransferFromHash(address spender, address from, address to, uint tokens, uint fee, uint nonce) public view override returns (bytes32 hash) {
         return data.signedTransferFromHash(spender, from, to, tokens, fee, nonce);
     }
-    function signedTransferFromCheck(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result) {
+    function signedTransferFromCheck(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view override returns (CheckResult result) {
         return data.signedTransferFromCheck(spender, from, to, tokens, fee, nonce, sig, feeAccount);
     }
-    function signedTransferFrom(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
+    function signedTransferFrom(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public virtual override returns (bool success) {
         return data.signedTransferFrom(spender, from, to, tokens, fee, nonce, sig, feeAccount);
     }
-    function signedApproveAndCallHash(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce) public view returns (bytes32 hash) {
+    function signedApproveAndCallHash(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce) public view override returns (bytes32 hash) {
         return data.signedApproveAndCallHash(tokenOwner, spender, tokens, _data, fee, nonce);
     }
-    function signedApproveAndCallCheck(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result) {
+    function signedApproveAndCallCheck(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) public view override returns (CheckResult result) {
         return data.signedApproveAndCallCheck(tokenOwner, spender, tokens, _data, fee, nonce, sig, feeAccount);
     }
-    function signedApproveAndCall(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
+    function signedApproveAndCall(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) public override returns (bool success) {
         return data.signedApproveAndCall(tokenOwner, spender, tokens, _data, fee, nonce, sig, feeAccount);
     }
 }
@@ -693,7 +693,7 @@ contract DreamFramesToken is BTTSTokenInterface {
 // ----------------------------------------------------------------------------
 // Bonus List interface
 // ----------------------------------------------------------------------------
-contract WhiteListInterface {
+interface WhiteListInterface {
     function isInWhiteList(address account) external view returns (bool);
     function add(address[] calldata accounts) external ;
     function remove(address[] calldata accounts) external ;
@@ -739,6 +739,7 @@ contract RoyaltyToken is DreamFramesToken {
         }
         setWhiteList(_whiteList);
         data.init(_owner, _symbol, _name, _decimals, _initialSupply, _mintable, _transferable);
+
     }
 
 
@@ -763,7 +764,7 @@ contract RoyaltyToken is DreamFramesToken {
     // ------------------------------------------------------------------------
     // Minting and management
     // ------------------------------------------------------------------------
-    function mint(address tokenOwner, uint tokens, bool lockAccount) public returns (bool success) {
+    function mint(address tokenOwner, uint tokens, bool lockAccount) public override returns (bool success) {
       require(_canReceive(address(0x0),tokenOwner));
        return data.mint(tokenOwner, tokens, lockAccount);
     }
@@ -772,11 +773,11 @@ contract RoyaltyToken is DreamFramesToken {
     // Token functions
     // ------------------------------------------------------------------------
 
-    function transfer(address to, uint tokens) public returns (bool success) {
+    function transfer(address to, uint tokens) public override returns (bool success) {
        _canTransfer(msg.sender,to, tokens);
        return data.transfer(to, tokens);
     }
-    function transferFrom(address from, address to, uint tokens) public returns (bool success) {
+    function transferFrom(address from, address to, uint tokens) public override returns (bool success) {
         _canTransfer(from,to, tokens);
        return data.transferFrom(from, to, tokens);
     }
@@ -864,7 +865,9 @@ contract RoyaltyToken is DreamFramesToken {
     // ------------------------------------------------------------------------
     // Accept ETH deposits as dividends
     // ------------------------------------------------------------------------
-    receive() external payable {
+    ///SS: Is this okay To OVerride?
+    
+    receive() external override payable {
         require(msg.value > 0);
         _depositDividends(msg.value);
     }
@@ -901,12 +904,12 @@ contract RoyaltyToken is DreamFramesToken {
     // ------------------------------------------------------------------------
     // Signed function
     // ------------------------------------------------------------------------
-    function signedTransfer(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
+    function signedTransfer(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public override returns (bool success) {
         require(_canTransfer(tokenOwner,to, tokens));
         return data.signedTransfer(tokenOwner, to, tokens, fee, nonce, sig, feeAccount);
     }
 
-    function signedTransferFrom(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success) {
+    function signedTransferFrom(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public override returns (bool success) {
         require(_canTransfer(from,to, tokens));
         return data.signedTransferFrom(spender, from, to, tokens, fee, nonce, sig, feeAccount);
     }
