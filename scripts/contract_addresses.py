@@ -14,6 +14,12 @@ CONTRACTS = {
     "goerli":{
         "dream_frames_NFT":""
     },
+    "bsc-test":{
+        "dream_frames_NFT":"0xC6115aF2198f73C6a9a7445395BE71ca76467405"
+    },
+    "matic-test":{
+        "dream_frames_NFT":""
+    },
     "development":{
         "dream_frames_NFT":""
     }

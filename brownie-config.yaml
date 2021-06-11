@@ -53,7 +53,7 @@ compiler:
         remappings:
           - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@3.2.0"
 dependencies:
-    - OpenZeppelin/openzeppelin-contracts@2.4.0
+    - OpenZeppelin/openzeppelin-contracts@3.2.0
 
 colors:
     key:

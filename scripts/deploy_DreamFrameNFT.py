@@ -2,9 +2,9 @@ from brownie import *
 from .contract_addresses import *
 
 def load_accounts():
-    if network.show_active() == 'mainnet':
+    if network.show_active() in ['mainnet', 'bsc-test', 'matic-test']:
         # replace with your keys
-        accounts.load("Gaze")
+        accounts.load("gaze")
     # add accounts if active network is goerli
     if network.show_active() in ['goerli', 'ropsten','kovan','rinkeby']:
         # 0xa5C9fb5D557daDb10c4B5c70943d610001B7420E 
