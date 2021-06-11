@@ -58,6 +58,6 @@ class StateMachine:
         assert (self.contract.contributedUsd() - self.contributed_usd) *2 < 1 * 10 ** 10  # err^2 < 10-8 dp
 
 
-def test_crowdsale(frames_crowdsale, accounts, state_machine):
-    settings = {"stateful_step_count": 20, "max_examples": 50}
-    state_machine(StateMachine, accounts[0:3], frames_crowdsale, settings=settings)
+# def test_crowdsale(frames_crowdsale, accounts, state_machine):
+#     settings = {"stateful_step_count": 20, "max_examples": 50}
+#     state_machine(StateMachine, accounts[0:3], frames_crowdsale, settings=settings)

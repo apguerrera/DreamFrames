@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 // ----------------------------------------------------------------------------
 // DreamFrames Crowdsale Contract - Purchase FrameRush Tokens with ETH
@@ -58,7 +58,7 @@ contract DreamFramesCrowdsale is Operated {
     constructor() public {
     }
 
-    /// @notice   
+    /// @notice
     function init(address _dreamFramesToken, address _ethUsdPriceFeed, address payable _wallet, uint256 _startDate, uint256 _endDate, uint256 _producerPct, uint256 _frameUsd, uint256 _bonusOffList,uint256 _bonusOnList, uint256 _hardCapUsd, uint256 _softCapUsd) public {
         require(_wallet != address(0));
         require(_endDate > _startDate);
@@ -173,7 +173,7 @@ contract DreamFramesCrowdsale is Operated {
         _rate = frameUsd.mul(100).div(bonus.add(100));
     }
 
-    /// @notice ETH per USD from price feed
+    /// @notice USD per Eth from price feed
     /// @dev  e.g., 171.123232454415 * 10^18
     function ethUsd() public view returns (uint256 _rate, bool _live) {
         return ethUsdPriceFeed.getRate();
@@ -234,12 +234,12 @@ contract DreamFramesCrowdsale is Operated {
     // Crowd sale payments
     // ----------------------------------------------------------------------------
 
-    /// @notice Buy FrameTokens by sending ETH to this contract address 
-    function () external payable {
+    /// @notice Buy FrameTokens by sending ETH to this contract address
+    receive() external payable {
         buyFramesEth();
     }
 
-    /// @notice Or calling this function and sending ETH 
+    /// @notice Or calling this function and sending ETH
     function buyFramesEth() public payable {
         // Get number of frames remaining
         uint256 ethToTransfer;
@@ -252,7 +252,7 @@ contract DreamFramesCrowdsale is Operated {
             wallet.transfer(ethToTransfer);
         }
 
-        // Return any ETH to be refunded
+        // Return any ETH to be refundedf
         if (ethToRefund > 0) {
             msg.sender.transfer(ethToRefund);
         }
@@ -304,7 +304,7 @@ contract DreamFramesCrowdsale is Operated {
         finalised = true;
         uint256 totalFrames = framesSold.mul(100).div(uint256(100).sub(producerPct));
         uint256 producerFrames = totalFrames.sub(framesSold);
-        
+
         if (producerFrames > 0 && contributedUsd >= softCapUsd ) {
             require(dreamFramesToken.mint(_producer, producerFrames.mul(TENPOW18), false)); // dev: Failed final mint
         }

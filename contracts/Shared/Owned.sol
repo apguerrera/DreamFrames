@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 // ----------------------------------------------------------------------------
 // Owned contract
@@ -25,9 +25,10 @@ contract Owned {
         owner = address(uint160(newOwner));
         newOwner = address(0);
     }
-    function transferOwnershipImmediately(address _newOwner) public {
-        require(msg.sender == owner);
-        emit OwnershipTransferred(owner, _newOwner);
-        owner = address(uint160(_newOwner));
+
+    modifier onlyOwner() {
+        require(owner == msg.sender, "Owned: caller is not the owner");
+        _;
     }
+  
 }

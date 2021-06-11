@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 import "../Shared/Operated.sol";
 import "../DreamFramesToken/DreamFramesToken.sol";
@@ -62,7 +62,7 @@ contract TokenFactory is Operated {
         emit TokenDeployed(_owner, address(token), _symbol, _name, _decimals, _totalSupply, _mintable, _transferable);
     }
 
-    function () external payable {
+    receive() external payable {
         revert();
     }
 

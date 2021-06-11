@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 
 
@@ -27,11 +27,12 @@ contract Owned {
         owner = address(uint160(newOwner));
         newOwner = address(0);
     }
-    function transferOwnershipImmediately(address _newOwner) public {
-        require(msg.sender == owner);
-        emit OwnershipTransferred(owner, _newOwner);
-        owner = address(uint160(_newOwner));
+
+    modifier onlyOwner() {
+        require(owner == msg.sender, "Owned: caller is not the owner");
+        _;
     }
+  
 }
 
 // ----------------------------------------------------------------------------
@@ -131,39 +132,39 @@ contract CloneFactory {
 // ERC Token Standard #20 Interface
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md
 // ----------------------------------------------------------------------------
-contract ERC20Interface {
+interface ERC20Interface {
   event Transfer(address indexed from, address indexed to, uint tokens);
   event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
 
-  function totalSupply() public view returns (uint);
-  function balanceOf(address tokenOwner) public view returns (uint balance);
-  function allowance(address tokenOwner, address spender) public view returns (uint remaining);
-  function transfer(address to, uint tokens) public returns (bool success);
-  function approve(address spender, uint tokens) public returns (bool success);
-  function transferFrom(address from, address to, uint tokens) public returns (bool success);
+  function totalSupply() external view returns (uint);
+  function balanceOf(address tokenOwner) external view returns (uint balance);
+  function allowance(address tokenOwner, address spender) external view returns (uint remaining);
+  function transfer(address to, uint tokens) external returns (bool success);
+  function approve(address spender, uint tokens) external returns (bool success);
+  function transferFrom(address from, address to, uint tokens) external returns (bool success);
 }
 
 // ----------------------------------------------------------------------------
 // PriceFeed Interface - _live is true if the rate is valid, false if invalid
 // ----------------------------------------------------------------------------
-contract RoyaltyTokenInterface {
-    function initRoyaltyToken(address _owner, string memory _symbol, string memory _name, uint8 _decimals, uint _initialSupply, bool _mintable, bool _transferable, address _whiteList) public;
-    function getWhiteList() public returns (address);
-    function isInWhiteList(address account) public view returns (bool);
+interface RoyaltyTokenInterface {
+    function initRoyaltyToken(address _owner, string memory _symbol, string memory _name, uint8 _decimals, uint _initialSupply, bool _mintable, bool _transferable, address _whiteList) external;
+    function getWhiteList() external returns (address);
+    function isInWhiteList(address account) external view returns (bool);
 
 }
 
 // ----------------------------------------------------------------------------
 // PriceFeed Interface - _live is true if the rate is valid, false if invalid
 // ----------------------------------------------------------------------------
-contract FrameTokenInterface {
-    function init(address owner, string memory symbol, string memory name, uint8 decimals, uint initialSupply, bool mintable, bool transferable) public;
+interface FrameTokenInterface {
+    function init(address owner, string memory symbol, string memory name, uint8 decimals, uint initialSupply, bool mintable, bool transferable) external;
 }
 
 // ----------------------------------------------------------------------------
 // Bonus List interface
 // ----------------------------------------------------------------------------
-contract WhiteListInterface {
+interface WhiteListInterface {
     function isInWhiteList(address account) external view returns (bool);
     function add(address[] calldata accounts) external ;
     function remove(address[] calldata accounts) external ;
@@ -193,6 +194,7 @@ contract TokenFactory is  Owned, CloneFactory {
 
     address public newAddress;
     uint256 public minimumFee = 0;
+    uint8 public decimals = 18;
     mapping(address => bool) public isChild;
     address[] public children;
 
@@ -243,7 +245,6 @@ contract TokenFactory is  Owned, CloneFactory {
         address _owner,
         string memory _symbol,
         string memory _name,
-        uint8 _decimals,
         uint _initialSupply,
         bool _mintable,
         bool _transferable
@@ -254,7 +255,7 @@ contract TokenFactory is  Owned, CloneFactory {
         frameToken = createClone(frameTokenTemplate);
         isChild[address(frameToken)] = true;
         children.push(address(frameToken));
-        FrameTokenInterface(frameToken).init(_owner, _symbol, _name, _decimals, _initialSupply, _mintable, _transferable);
+        FrameTokenInterface(frameToken).init(_owner, _symbol, _name, decimals, _initialSupply, _mintable, _transferable);
         emit FrameTokenDeployed(msg.sender, address(frameToken), frameTokenTemplate, msg.value);
         if (msg.value > 0) {
             owner.transfer(msg.value);
@@ -265,7 +266,6 @@ contract TokenFactory is  Owned, CloneFactory {
         address _owner,
         string memory _symbol,
         string memory _name,
-        uint8 _decimals,
         uint _initialSupply,
         bool _mintable,
         bool _transferable
@@ -281,7 +281,7 @@ contract TokenFactory is  Owned, CloneFactory {
             whiteListed[0] = _owner;
         }
         address whiteList = deployWhiteList(_owner, whiteListed);
-        RoyaltyTokenInterface(royaltyToken).initRoyaltyToken(_owner, _symbol, _name, _decimals, _initialSupply, _mintable, _transferable, whiteList);
+        RoyaltyTokenInterface(royaltyToken).initRoyaltyToken(_owner, _symbol, _name, decimals, _initialSupply, _mintable, _transferable, whiteList);
 
         emit RoyaltyTokenDeployed(msg.sender, address(royaltyToken), royaltyTokenTemplate, msg.value);
         if (msg.value > 0) {
@@ -318,7 +318,7 @@ contract TokenFactory is  Owned, CloneFactory {
         require(msg.sender == owner);
         return ERC20Interface(tokenAddress).transfer(owner, tokens);
     }
-    function () external payable {
+    receive() external payable {
         revert();
     }
 }

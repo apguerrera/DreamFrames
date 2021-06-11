@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 import "../Shared/Operated.sol";
 import "../DreamFramesToken/DreamFramesCrowdsale.sol";
@@ -107,7 +107,7 @@ contract DreamFramesFactory is Operated {
     function transferAnyERC20Token(address tokenAddress, uint tokens) public onlyOwner returns (bool success) {
         return ERC20Interface(tokenAddress).transfer(owner, tokens);
     }
-    function () external payable {
+    receive() external payable {
         revert();
     }
 }

@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 // ----------------------------------------------------------------------------
 // DreamFrames Crowdsale Contract - Purchase FrameRush Tokens with ETH
@@ -38,11 +38,12 @@ contract Owned {
         owner = address(uint160(newOwner));
         newOwner = address(0);
     }
-    function transferOwnershipImmediately(address _newOwner) public {
-        require(msg.sender == owner);
-        emit OwnershipTransferred(owner, _newOwner);
-        owner = address(uint160(_newOwner));
+
+    modifier onlyOwner() {
+        require(owner == msg.sender, "Owned: caller is not the owner");
+        _;
     }
+  
 }
 
 
@@ -124,23 +125,23 @@ library SafeMath {
 // ERC Token Standard #20 Interface
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md
 // ----------------------------------------------------------------------------
-contract ERC20Interface {
+interface ERC20Interface {
   event Transfer(address indexed from, address indexed to, uint tokens);
   event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
 
-  function totalSupply() public view returns (uint);
-  function balanceOf(address tokenOwner) public view returns (uint balance);
-  function allowance(address tokenOwner, address spender) public view returns (uint remaining);
-  function transfer(address to, uint tokens) public returns (bool success);
-  function approve(address spender, uint tokens) public returns (bool success);
-  function transferFrom(address from, address to, uint tokens) public returns (bool success);
+  function totalSupply() external view returns (uint);
+  function balanceOf(address tokenOwner) external view returns (uint balance);
+  function allowance(address tokenOwner, address spender) external view returns (uint remaining);
+  function transfer(address to, uint tokens) external returns (bool success);
+  function approve(address spender, uint tokens) external returns (bool success);
+  function transferFrom(address from, address to, uint tokens) external returns (bool success);
 }
 
 // ----------------------------------------------------------------------------
 // Contracts that can have tokens approved, and then a function executed
 // ----------------------------------------------------------------------------
-contract ApproveAndCallFallBack {
-    function receiveApproval(address from, uint256 tokens, address token, bytes memory data) public;
+interface ApproveAndCallFallBack {
+    function receiveApproval(address from, uint256 tokens, address token, bytes memory data) external;
 }
 
 
@@ -149,14 +150,14 @@ contract ApproveAndCallFallBack {
 //
 // Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
 // ----------------------------------------------------------------------------
-contract BTTSTokenInterface is ERC20Interface {
-  uint public constant bttsVersion = 120;
+interface BTTSTokenInterface is ERC20Interface {
+/*   uint public constant bttsVersion = 120;
 
      bytes public constant signingPrefix = "\x19Ethereum Signed Message:\n32";
      bytes4 public constant signedTransferSig = "\x75\x32\xea\xac";
      bytes4 public constant signedApproveSig = "\xe9\xaf\xa7\xa1";
      bytes4 public constant signedTransferFromSig = "\x34\x4b\xcc\x7d";
-     bytes4 public constant signedApproveAndCallSig = "\xf1\x6f\x9b\x53";
+     bytes4 public constant signedApproveAndCallSig = "\xf1\x6f\x9b\x53"; */
 
      event OwnershipTransferred(address indexed from, address indexed to);
      event MinterUpdated(address from, address to);
@@ -165,41 +166,41 @@ contract BTTSTokenInterface is ERC20Interface {
      event TransfersEnabled();
      event AccountUnlocked(address indexed tokenOwner);
 
-     function symbol() public view returns (string memory);
-     function name() public view returns (string memory);
-     function decimals() public view returns (uint8);
+     function symbol() external view returns (string memory);
+     function name() external view returns (string memory);
+     function decimals() external view returns (uint8);
 
-     function approveAndCall(address spender, uint tokens, bytes memory data) public returns (bool success);
+     function approveAndCall(address spender, uint tokens, bytes memory data) external returns (bool success);
 
      // ------------------------------------------------------------------------
      // signed{X} functions
      // ------------------------------------------------------------------------
-     function signedTransferHash(address tokenOwner, address to, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash);
-     function signedTransferCheck(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result);
-     function signedTransfer(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success);
+     function signedTransferHash(address tokenOwner, address to, uint tokens, uint fee, uint nonce) external view returns (bytes32 hash);
+     function signedTransferCheck(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) external view returns (CheckResult result);
+     function signedTransfer(address tokenOwner, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) external returns (bool success);
 
-     function signedApproveHash(address tokenOwner, address spender, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash);
-     function signedApproveCheck(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result);
-     function signedApprove(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success);
+     function signedApproveHash(address tokenOwner, address spender, uint tokens, uint fee, uint nonce) external view returns (bytes32 hash);
+     function signedApproveCheck(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) external view returns (CheckResult result);
+     function signedApprove(address tokenOwner, address spender, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) external returns (bool success);
 
-     function signedTransferFromHash(address spender, address from, address to, uint tokens, uint fee, uint nonce) public view returns (bytes32 hash);
-     function signedTransferFromCheck(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result);
-     function signedTransferFrom(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success);
+     function signedTransferFromHash(address spender, address from, address to, uint tokens, uint fee, uint nonce) external view returns (bytes32 hash);
+     function signedTransferFromCheck(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) external view returns (CheckResult result);
+     function signedTransferFrom(address spender, address from, address to, uint tokens, uint fee, uint nonce, bytes memory sig, address feeAccount) external returns (bool success);
 
-     function signedApproveAndCallHash(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce) public view returns (bytes32 hash);
-     function signedApproveAndCallCheck(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) public view returns (CheckResult result);
-     function signedApproveAndCall(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) public returns (bool success);
+     function signedApproveAndCallHash(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce) external view returns (bytes32 hash);
+     function signedApproveAndCallCheck(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) external view returns (CheckResult result);
+     function signedApproveAndCall(address tokenOwner, address spender, uint tokens, bytes memory _data, uint fee, uint nonce, bytes memory sig, address feeAccount) external returns (bool success);
 
-     function mint(address tokenOwner, uint tokens, bool lockAccount) public returns (bool success);
-     function unlockAccount(address tokenOwner) public;
-     function accountLocked(address tokenOwner) public view returns (bool);
+     function mint(address tokenOwner, uint tokens, bool lockAccount) external returns (bool success);
+     function unlockAccount(address tokenOwner) external;
+     function accountLocked(address tokenOwner) external view returns (bool);
 
-     function disableMinting() public;
-     function enableTransfers() public;
-     function mintable() public view returns (bool success);
-     function transferable() public view returns (bool success);
+     function disableMinting() external;
+     function enableTransfers() external;
+     function mintable() external view returns (bool success);
+     function transferable() external view returns (bool success);
 
-     function setMinter(address minter) public;
+     function setMinter(address minter) external;
 
      // ------------------------------------------------------------------------
      // signed{X}Check return status
@@ -221,14 +222,14 @@ contract BTTSTokenInterface is ERC20Interface {
 // ----------------------------------------------------------------------------
 // PriceFeed Interface - _live is true if the rate is valid, false if invalid
 // ----------------------------------------------------------------------------
-contract PriceFeedInterface {
-    function getRate() public view returns (uint _rate, bool _live);
+interface PriceFeedInterface {
+    function getRate() external view returns (uint _rate, bool _live);
 }
 
 // ----------------------------------------------------------------------------
 // Bonus List interface
 // ----------------------------------------------------------------------------
-contract WhiteListInterface {
+interface WhiteListInterface {
     function isInWhiteList(address account) external view returns (bool);
     function add(address[] calldata accounts) external ;
     function remove(address[] calldata accounts) external ;
@@ -279,6 +280,7 @@ contract DreamFramesCrowdsale is Operated {
     constructor() public {
     }
 
+    /// @notice
     function init(address _dreamFramesToken, address _ethUsdPriceFeed, address payable _wallet, uint256 _startDate, uint256 _endDate, uint256 _producerPct, uint256 _frameUsd, uint256 _bonusOffList,uint256 _bonusOnList, uint256 _hardCapUsd, uint256 _softCapUsd) public {
         require(_wallet != address(0));
         require(_endDate > _startDate);
@@ -386,20 +388,20 @@ contract DreamFramesCrowdsale is Operated {
         return bonusOffList;
     }
 
-    // USD per frame, with bonus
-    // e.g., 128.123412344122 * 10^18
+    /// @notice USD per frame, with bonus
+    /// @dev e.g., 128.123412344122 * 10^18
     function frameUsdWithBonus(address _address) public view returns (uint256 _rate) {
         uint256 bonus = getBonus(_address);
         _rate = frameUsd.mul(100).div(bonus.add(100));
     }
 
-    // ETH per USD from price feed
-    // e.g., 171.123232454415 * 10^18
+    /// @notice USD per Eth from price feed
+    /// @dev  e.g., 171.123232454415 * 10^18
     function ethUsd() public view returns (uint256 _rate, bool _live) {
         return ethUsdPriceFeed.getRate();
     }
 
-    // ETH per frame, e.g., 2.757061128879679264 * 10^18
+    /// @dev ETH per frame, e.g., 2.757061128879679264 * 10^18
     function frameEth() public view returns (uint256 _rate, bool _live) {
         uint256 _ethUsd;
         (_ethUsd, _live) = ethUsd();
@@ -408,7 +410,7 @@ contract DreamFramesCrowdsale is Operated {
         }
     }
 
-    // ETH per frame, e.g., 2.757061128879679264 * 10^18 - including any bonuses
+    /// @dev ETH per frame, e.g., 2.757061128879679264 * 10^18 - including any bonuses
     function frameEthBonus(address _address) public view returns (uint256 _rate, bool _live) {
         uint256 _ethUsd;
         (_ethUsd, _live) = ethUsd();
@@ -423,7 +425,7 @@ contract DreamFramesCrowdsale is Operated {
 
     function calculateUsdFrames(uint256 _usdAmount, address _tokenOwner) public view returns (uint256 frames, uint256 usdToTransfer) {
         usdToTransfer = _usdAmount;
-        if (contributedUsd.add(usdToTransfer) >= hardCapUsd) {
+        if (contributedUsd.add(usdToTransfer) > hardCapUsd) {
             usdToTransfer = hardCapUsd.sub(contributedUsd);
         }
         // Get number of frames available to be purchased
@@ -431,7 +433,7 @@ contract DreamFramesCrowdsale is Operated {
 
     }
 
-    // Get frameEth rate including any bonuses
+    /// @notice Get frameEth rate including any bonuses
     function calculateEthFrames(uint256 _ethAmount, address _tokenOwner) public view returns (uint256 frames, uint256 ethToTransfer) {
         uint256 _frameEth;
         uint256 _ethUsd;
@@ -454,12 +456,12 @@ contract DreamFramesCrowdsale is Operated {
     // Crowd sale payments
     // ----------------------------------------------------------------------------
 
-    // Buy FrameTokens by sending ETH to this contract address 
-    function () external payable {
+    /// @notice Buy FrameTokens by sending ETH to this contract address
+    receive() external payable {
         buyFramesEth();
     }
 
-    // Or calling this function and sending ETH 
+    /// @notice Or calling this function and sending ETH
     function buyFramesEth() public payable {
         // Get number of frames remaining
         uint256 ethToTransfer;
@@ -472,7 +474,7 @@ contract DreamFramesCrowdsale is Operated {
             wallet.transfer(ethToTransfer);
         }
 
-        // Return any ETH to be refunded
+        // Return any ETH to be refundedf
         if (ethToRefund > 0) {
             msg.sender.transfer(ethToRefund);
         }
@@ -483,7 +485,7 @@ contract DreamFramesCrowdsale is Operated {
     }
 
 
-    // Operator allocates frames to tokenOwner for offchain purchases
+    /// @notice Operator allocates frames to tokenOwner for offchain purchases
     function offlineFramesPurchase(address _tokenOwner, uint256 _frames) external  {
         // Only operator and owner can allocate frames offline
         require(operators[msg.sender] || owner == msg.sender);  // dev: Not operator
@@ -492,7 +494,7 @@ contract DreamFramesCrowdsale is Operated {
         emit Purchased(_tokenOwner, _frames, 0, framesSold, contributedUsd);
     }
 
-    // Contract allocates frames to tokenOwner
+    /// @notice Contract allocates frames to tokenOwner
     function claimFrames(address _tokenOwner, uint256 _frames) internal  {
         require(!finalised, "Sale Finalised");
         require(_frames > 0, "No frames available");
@@ -515,17 +517,19 @@ contract DreamFramesCrowdsale is Operated {
         }
     }
 
-    // Contract owner finalises crowdsale
+    /// @notice Contract owner finalises crowdsale
     function finalise(address _producer) public  {
-        require(msg.sender == owner);         // dev: Not owner
-        require(!finalised || dreamFramesToken.mintable());     // dev: Already Finalised
+        require(msg.sender == owner);                            // dev: Not owner
+        require(!finalised || dreamFramesToken.mintable());      // dev: Already Finalised
         require(now > endDate || contributedUsd >= hardCapUsd);  // dev: Not Finished
 
         finalised = true;
-
         uint256 totalFrames = framesSold.mul(100).div(uint256(100).sub(producerPct));
         uint256 producerFrames = totalFrames.sub(framesSold);
-        require(dreamFramesToken.mint(_producer, producerFrames.mul(TENPOW18), false)); // dev: Failed final mint
+
+        if (producerFrames > 0 && contributedUsd >= softCapUsd ) {
+            require(dreamFramesToken.mint(_producer, producerFrames.mul(TENPOW18), false)); // dev: Failed final mint
+        }
         dreamFramesToken.disableMinting();
 
     }

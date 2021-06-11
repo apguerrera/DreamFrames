@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity ^0.6.12;
 
 // ----------------------------------------------------------------------------
 // BokkyPooBah's MakerDAO's "pip" PriceFeed Simulator for testing
