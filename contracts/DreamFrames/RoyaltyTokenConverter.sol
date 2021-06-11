@@ -15,6 +15,9 @@ import "../Shared/Operated.sol";
 import "../../interfaces/BTTSTokenInterface120.sol";
 import "../../interfaces/WhiteListInterface.sol";
 
+// AG: Tokens need to be able to be claimed only if a user is on the whitelist
+// AG: Make batchable
+// AG: Add updateList call to be batched with merkle data
 
 contract RoyaltyTokenConverter is Operated {
 
@@ -79,6 +82,7 @@ contract RoyaltyTokenConverter is Operated {
     function convertRoyaltyToken( address _account, uint256 _amount)
         public returns (bool success)
     {
+
         require( isConvertable );
         require(frameToken.transferFrom(_account, address(0), _amount));
         require(royaltyToken.mint(_account, _amount, false));

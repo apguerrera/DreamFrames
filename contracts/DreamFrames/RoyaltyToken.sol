@@ -1,5 +1,8 @@
 pragma solidity ^0.6.12;
 
+import "./DreamFramesToken.sol";
+import "../../interfaces/WhiteListInterface.sol";
+
 
 // ----------------------------------------------------------------------------
 // DreamFrameDividendToken Contract
@@ -8,12 +11,8 @@ pragma solidity ^0.6.12;
 //
 // Enjoy.
 //
-// (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
 // (c) Adrian Guerrera / Deepyr Pty Ltd for Dreamframes 2019. The MIT Licence.
 // ----------------------------------------------------------------------------
-import "./DreamFramesToken.sol";
-import "../../interfaces/WhiteListInterface.sol";
-
 
 // ----------------------------------------------------------------------------
 // BokkyPooBah's Token Teleportation Service Token v1.20
@@ -21,6 +20,10 @@ import "../../interfaces/WhiteListInterface.sol";
 // https://github.com/bokkypoobah/BokkyPooBahsTokenTeleportationServiceSmartContract
 // Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2018. The MIT Licence.
 // ----------------------------------------------------------------------------
+
+
+// AG: Add multiple dividned payment tokens controlled by operators
+
 contract RoyaltyToken is DreamFramesToken {
     using BTTSLib for uint256;
 

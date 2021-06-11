@@ -16,6 +16,9 @@ import "../Shared/SafeMath.sol";
 import "../Shared/Operated.sol";
 import "../../interfaces/BTTSTokenInterface120.sol";
 
+// AG: Tokens need to be swapped for NFTS
+// AG: Think about when tokens can be claimed
+// AG: Add timing conditions for claiming
 
 contract FrameRush is Operated {
 

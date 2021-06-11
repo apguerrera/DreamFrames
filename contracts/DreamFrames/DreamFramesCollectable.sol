@@ -5,6 +5,8 @@ import "../Shared/ERC721BasicToken.sol";
 import "../Shared/SupportsInterfaceWithLookup.sol";
 
 
+// AG: Make sure this is a good ERC721 template to use
+
 /**
  * @title Full ERC721 Token
  * This implementation includes all the required and some optional functionality of the ERC721 standard

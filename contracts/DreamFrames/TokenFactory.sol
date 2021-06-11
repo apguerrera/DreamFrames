@@ -20,6 +20,9 @@ import "../../interfaces/WhiteListInterface.sol";
 //
 // ----------------------------------------------------------------------------
 
+// AG: Upgrade factory to do multiple templates
+// AG: Add template ID accounting
+
 contract TokenFactory is  Owned, CloneFactory {
     using SafeMath for uint;
 
