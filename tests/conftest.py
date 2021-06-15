@@ -129,6 +129,22 @@ def dream_frames_nft(DreamChannelNFT):
     dream_frames_nft = DreamChannelNFT.deploy({"from": accounts[0]})
     return dream_frames_nft
 
+@pytest.fixture(scope='module', autouse = True)
+def frame_rush(FrameRush, frame_token, collectable_token):
+    frame_rush = FrameRush.deploy({"from": accounts[3]})
+
+    _isClaimable = True
+    _lockPeriod = 0
+    _owner = accounts[0]
+    frame_rush.initFrameRush(frame_token, collectable_token, _owner,_isClaimable, _lockPeriod, {"from": accounts[0]})
+    return frame_rush
+
+@pytest.fixture(scope = 'module', autouse=True)
+def collectable_token(DreamFramesCollectable):
+    _name = "VR Collectibles"
+    _symbol = "VRC"
+    dream_collectables = DreamFramesCollectable.deploy(_name, _symbol,{"from": accounts[0]})
+    return dream_collectables
 
 ################################
 #Staking

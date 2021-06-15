@@ -15,18 +15,24 @@ pragma solidity ^0.6.12;
 import "../Shared/SafeMath.sol";
 import "../Shared/Operated.sol";
 import "../../interfaces/BTTSTokenInterface120.sol";
-
+import "../../interfaces/ERC721Basic.sol";
+import "../library/Counters.sol";
 // AG: Tokens need to be swapped for NFTS
 // AG: Think about when tokens can be claimed
 // AG: Add timing conditions for claiming
 
 contract FrameRush is Operated {
+    using Counters for Counters.Counter;
+  
+    Counters.Counter private _tokenIds;
 
     using SafeMath for uint256;
 
     BTTSTokenInterface public frameToken;
-    address public collectableToken;
+    ERC721Basic public collectableToken;
     bool public isClaimable;
+    address public tokenOwner;
+    uint256 public lockTime;
 
     event FrameTokenUpdated(address operator, address frameToken);
     event CollectableTokenUpdated(address operator, address collectableToken);
@@ -34,19 +40,23 @@ contract FrameRush is Operated {
 
     event ConvertedRoyaltyToken(address account, uint256 amount);
     event ClaimedCollectableToken(address account, uint256 tokenId);
-
+    event SetTokenOwnerUpdated(address account, address tokenOwner);
 
     function initFrameRush(
         address _frameToken,
         address _collectableToken,
-        bool _isClaimable
+        address _tokenOwner,
+        bool _isClaimable,
+        uint256 _lockPeriod
     )
         public
     {
         initOperated(msg.sender);
         frameToken = BTTSTokenInterface(_frameToken);
-        collectableToken = _collectableToken;
+        collectableToken = ERC721Basic(_collectableToken);
+        tokenOwner = _tokenOwner;
         isClaimable = _isClaimable;
+        lockTime = block.timestamp + _lockPeriod;
     }
 
     // ----------------------------------------------------------------------------
@@ -62,7 +72,7 @@ contract FrameRush is Operated {
     function setCollectableToken(address _contract) public  {
         require(msg.sender == owner);
         require(_contract != address(0));
-        collectableToken = _contract;
+        collectableToken = ERC721Basic(_contract);
         emit CollectableTokenUpdated(msg.sender, _contract);
     }
     function setClaimable(bool _isClaimable) public  {
@@ -71,6 +81,11 @@ contract FrameRush is Operated {
         emit SetIsClaimable(msg.sender, _isClaimable);
     }
 
+    function setTokenOwner(address _tokenOwner) public {
+        require(msg.sender == owner);
+        tokenOwner = _tokenOwner;
+        emit SetTokenOwnerUpdated(msg.sender, _tokenOwner);
+    }
 
     // ----------------------------------------------------------------------------
     // Claim Frame Collectable
@@ -86,9 +101,14 @@ contract FrameRush is Operated {
         external returns (bool success)
     {
         require( isClaimable );
+        require(_canClaim(_account, _tokenId));
+
         uint256 amount = 25;
+
         require(frameToken.transferFrom(_account, address(0), amount));
-        // require(collectableToken.mint(_account, _tokenId));  // Not supported yet
+        _mint(_account);  // Not supported yet
+        
+        //collectableToken.safeTransferFrom(tokenOwner, _account, _tokenId);
         emit ClaimedCollectableToken(_account, _tokenId);
         success = true;
 
@@ -118,9 +138,20 @@ contract FrameRush is Operated {
             return false;
         }
 
+        //Check NFT
+        if ( block.timestamp < lockTime || !collectableToken.exists(_tokenId)){
+            return false;
+        }
 
         success = true;
     }
 
+//Add properties?
+    function _mint(address _to) private returns (uint256){
+        _tokenIds.increment();
+        uint256 newTokenId = _tokenIds.current();
+        collectableToken.mint_account(_account, _tokenId);
+        return newTokenId;
+    }
 }
 
