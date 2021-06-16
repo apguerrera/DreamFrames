@@ -97,31 +97,33 @@ contract FrameRush is Operated {
     {
         return _canClaim(_account, _tokenId);
     }
-    function claimCollectableToken(address _account) external returns (bool success){
-        _tokenIds.increment();
-        uint256 newTokenId = _tokenIds.current();
-        _claimCollectableToken(_account, newTokenId);
-    }
 
+    function claimCollectableToken(address _account, uint256 _tokenId) public returns (bool success){
+        
+        require(!collectableToken.exists(_tokenId), "CollectableToken: tokenId already exists");
+    
+        _claimCollectableToken(_account, _tokenId);
+    }
+    // ----------------------------------------------------------------------------
+    // Internals
+    // ----------------------------------------------------------------------------
+    
     function _claimCollectableToken(address _account, uint256 _tokenId )
         internal returns (bool success)
     {
         require( isClaimable );
         require(_canClaim(_account, _tokenId));
-
-        uint256 amount = 25;
-
+        
+        uint256 amount = 25 * 1e18;
+        
         require(frameToken.transferFrom(_account, address(0), amount));
         collectableToken.mint(_account, _tokenId);
-       // collectableToken.safeTransferFrom(tokenOwner, _account, _tokenId);
         emit ClaimedCollectableToken(_account, _tokenId);
         success = true;
 
     }
 
-    // ----------------------------------------------------------------------------
-    // Internals
-    // ----------------------------------------------------------------------------
+  
 
     function _canClaim(address _account, uint256 _tokenId )
         internal view returns (bool success)
@@ -144,12 +146,15 @@ contract FrameRush is Operated {
         }
 
         //Check NFT
-        if ( block.timestamp < lockTime || collectableToken.exists(_tokenId)){
+        if ( block.timestamp < lockTime){
             return false;
         }
 
         success = true;
     }
 
+    function isTokenIdAvailable(uint256 _tokenId) public view returns  (bool isAvailable){
+        isAvailable = !collectableToken.exists(_tokenId);
+    }
 }
 
