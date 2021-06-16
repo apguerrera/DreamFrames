@@ -12,7 +12,7 @@ def isolation(fn_isolation):
 def test_frame_rush_claim(frame_rush,collectable_token, frame_token):
     _account = accounts[3]
     
-    _tokenId = _mint_collectable_token(collectable_token,frame_rush)
+   # _tokenId = _mint_collectable_token(collectable_token,frame_rush)
     
     frame_token.approve(accounts[5], 100 * TENPOW18, {'from': accounts[0]})
 
@@ -21,10 +21,10 @@ def test_frame_rush_claim(frame_rush,collectable_token, frame_token):
     frame_token.approve(frame_rush, 100 * TENPOW18, {'from': accounts[3]})
     
     
-    frame_rush.claimCollectableToken(accounts[3], _tokenId, {"from": accounts[3]}).call_trace
+    frame_rush.claimCollectableToken(accounts[3], {"from": accounts[3]}).call_trace
     
 
-def _mint_collectable_token(collectable_token,frame_rush):
+""" def _mint_collectable_token(collectable_token,frame_rush):
     tokenid = collectable_token.mint(accounts[0],{"from": accounts[0]}).return_value
     collectable_token.approve(frame_rush, tokenid,{"from":accounts[0]})
-    return tokenid
+    return tokenid """

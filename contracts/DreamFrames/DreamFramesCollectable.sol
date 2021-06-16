@@ -3,7 +3,6 @@ pragma solidity ^0.6.12;
 import "../../interfaces/ERC721.sol";
 import "../Shared/ERC721BasicToken.sol";
 import "../Shared/SupportsInterfaceWithLookup.sol";
-import "../library/Counters.sol";
 
 // AG: Make sure this is a good ERC721 template to use
 
@@ -14,10 +13,6 @@ import "../library/Counters.sol";
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
 contract DreamFramesCollectable is SupportsInterfaceWithLookup, ERC721BasicToken, ERC721 {
-  using Counters for Counters.Counter;
-  
-  Counters.Counter private _tokenIds;
-
   // Token name
   string internal name_;
 
@@ -204,9 +199,8 @@ contract DreamFramesCollectable is SupportsInterfaceWithLookup, ERC721BasicToken
     allTokensIndex[lastToken] = tokenIndex;
   }
 
-//SSS: How to mint?
-  function mint(address _to, uint256 _tokenId) public returns (uint256){
-    
+//SSS: Add more to mint
+  function mint(address _to, uint256 _tokenId) public  returns (uint256){
     _mint(_to, _tokenId);
 
   }

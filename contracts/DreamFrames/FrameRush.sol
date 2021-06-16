@@ -15,21 +15,22 @@ pragma solidity ^0.6.12;
 import "../Shared/SafeMath.sol";
 import "../Shared/Operated.sol";
 import "../../interfaces/BTTSTokenInterface120.sol";
-import "../../interfaces/ERC721Basic.sol";
+import "../../interfaces/IERC721.sol";
 import "../library/Counters.sol";
 // AG: Tokens need to be swapped for NFTS
 // AG: Think about when tokens can be claimed
 // AG: Add timing conditions for claiming
 
 contract FrameRush is Operated {
-    using Counters for Counters.Counter;
-  
-    Counters.Counter private _tokenIds;
 
     using SafeMath for uint256;
+    using Counters for Counters.Counter;
+
+    Counters.Counter private _tokenIds;
+
 
     BTTSTokenInterface public frameToken;
-    ERC721Basic public collectableToken;
+    IERC721 public collectableToken;
     bool public isClaimable;
     address public tokenOwner;
     uint256 public lockTime;
@@ -53,7 +54,7 @@ contract FrameRush is Operated {
     {
         initOperated(msg.sender);
         frameToken = BTTSTokenInterface(_frameToken);
-        collectableToken = ERC721Basic(_collectableToken);
+        collectableToken = IERC721(_collectableToken);
         tokenOwner = _tokenOwner;
         isClaimable = _isClaimable;
         lockTime = block.timestamp + _lockPeriod;
@@ -72,7 +73,7 @@ contract FrameRush is Operated {
     function setCollectableToken(address _contract) public  {
         require(msg.sender == owner);
         require(_contract != address(0));
-        collectableToken = ERC721Basic(_contract);
+        collectableToken = IERC721(_contract);
         emit CollectableTokenUpdated(msg.sender, _contract);
     }
     function setClaimable(bool _isClaimable) public  {
@@ -96,9 +97,14 @@ contract FrameRush is Operated {
     {
         return _canClaim(_account, _tokenId);
     }
+    function claimCollectableToken(address _account) external returns (bool success){
+        _tokenIds.increment();
+        uint256 newTokenId = _tokenIds.current();
+        _claimCollectableToken(_account, newTokenId);
+    }
 
-    function claimCollectableToken(address _account, uint256 _tokenId )
-        external returns (bool success)
+    function _claimCollectableToken(address _account, uint256 _tokenId )
+        internal returns (bool success)
     {
         require( isClaimable );
         require(_canClaim(_account, _tokenId));
@@ -106,9 +112,8 @@ contract FrameRush is Operated {
         uint256 amount = 25;
 
         require(frameToken.transferFrom(_account, address(0), amount));
-        _mint(_account);  // Not supported yet
-        
-        //collectableToken.safeTransferFrom(tokenOwner, _account, _tokenId);
+        collectableToken.mint(_account, _tokenId);
+       // collectableToken.safeTransferFrom(tokenOwner, _account, _tokenId);
         emit ClaimedCollectableToken(_account, _tokenId);
         success = true;
 
@@ -139,19 +144,12 @@ contract FrameRush is Operated {
         }
 
         //Check NFT
-        if ( block.timestamp < lockTime || !collectableToken.exists(_tokenId)){
+        if ( block.timestamp < lockTime || collectableToken.exists(_tokenId)){
             return false;
         }
 
         success = true;
     }
 
-//Add properties?
-    function _mint(address _to) private returns (uint256){
-        _tokenIds.increment();
-        uint256 newTokenId = _tokenIds.current();
-        collectableToken.mint_account(_account, _tokenId);
-        return newTokenId;
-    }
 }
 
