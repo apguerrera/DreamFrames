@@ -46,6 +46,21 @@ contract TokenFactory is  Owned, CloneFactory {
     mapping(address => FrameToken) public frameTokenInfo;
     address[] public frameTokens;
 
+    // Royalty Token Templates
+    uint256 public royaltyTokenTemplateId;
+
+    mapping(uint256 => address) private royaltyTokenTemplates;
+    mapping(address => uint256) private royaltyTokenTemplateToId;
+    
+    struct RoyaltyToken{
+        bool exists;
+        uint256 templateId;
+        uint256 index;
+    }
+
+    mapping(address => RoyaltyToken) royaltyTokenInfo;
+    address[] public royaltyTokens;
+
     address public newAddress;
     uint256 public minimumFee = 0;
     uint8 public decimals = 18;
@@ -137,8 +152,9 @@ contract TokenFactory is  Owned, CloneFactory {
         frameTokenTemplates[_templateId] = address(0);
         delete frameTokenTemplateToId[template];
         emit FrameTokenTemplateRemoved(template, _templateId);
-
     }
+
+   
 
     function deployFrameToken(
         address _owner,
