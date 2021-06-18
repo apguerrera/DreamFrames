@@ -17,6 +17,7 @@ import "../Shared/Operated.sol";
 import "../../interfaces/BTTSTokenInterface120.sol";
 import "../../interfaces/IERC721.sol";
 import "../library/Counters.sol";
+
 // AG: Tokens need to be swapped for NFTS
 // AG: Think about when tokens can be claimed
 // AG: Add timing conditions for claiming
@@ -35,9 +36,13 @@ contract FrameRush is Operated {
     address public tokenOwner;
     uint256 public lockTime;
 
+    /// @dev this is the number of tokens per collectable
+    uint256 public frameRate;
+
     event FrameTokenUpdated(address operator, address frameToken);
     event CollectableTokenUpdated(address operator, address collectableToken);
     event SetIsClaimable(address operator, bool isClaimable);
+    event SetFrameRate(address operator, uint256 frameRate);
 
     event ConvertedRoyaltyToken(address account, uint256 amount);
     event ClaimedCollectableToken(address account, uint256 tokenId);
@@ -58,6 +63,7 @@ contract FrameRush is Operated {
         tokenOwner = _tokenOwner;
         isClaimable = _isClaimable;
         lockTime = block.timestamp + _lockPeriod;
+        frameRate = 25 * 1e18;
     }
 
     // ----------------------------------------------------------------------------
@@ -81,7 +87,11 @@ contract FrameRush is Operated {
         isClaimable = _isClaimable;
         emit SetIsClaimable(msg.sender, _isClaimable);
     }
-
+    function setFrameRate(uint256 _frameRate) public {
+        require(msg.sender == owner);
+        frameRate = _frameRate;
+        emit SetFrameRate(msg.sender, _frameRate);
+    }
     function setTokenOwner(address _tokenOwner) public {
         require(msg.sender == owner);
         tokenOwner = _tokenOwner;
@@ -113,10 +123,8 @@ contract FrameRush is Operated {
     {
         require( isClaimable );
         require(_canClaim(_account, _tokenId));
-        
-        uint256 amount = 25 * 1e18;
-        
-        require(frameToken.transferFrom(_account, address(0), amount));
+                
+        require(frameToken.transferFrom(_account, address(0), frameRate));
         collectableToken.mint(_account, _tokenId);
         emit ClaimedCollectableToken(_account, _tokenId);
         success = true;
@@ -130,14 +138,13 @@ contract FrameRush is Operated {
     {
         require(_tokenId != 0);
         require(_account != address(0)); 
-        uint256 amount = 25;
 
         // Check inputs
         if (  _account == address(0)) {
             return false;
         }
         // Check token balances
-        if ( frameToken.balanceOf(_account) < amount || frameToken.accountLocked(_account) ) {
+        if ( frameToken.balanceOf(_account) < frameRate || frameToken.accountLocked(_account) ) {
             return false;
         }
         // Check flags

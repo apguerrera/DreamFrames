@@ -82,6 +82,8 @@ contract RoyaltyTokenConverter is Operated {
 
     /// @notice Batch call to convert to royalty tokens
     /// @param revertOnFail if set to true, reverts in the first case of unsuccessul conversion
+
+    // AG: This might not be needed now that I think about it. Dont test this yet 
     function batchConvertRoyaltyToken(address[] calldata _accounts, uint256[] calldata _amounts, bool revertOnFail)
         public returns (bool[] memory successes)
     {   
@@ -123,7 +125,7 @@ contract RoyaltyTokenConverter is Operated {
         public
     {
         require(msg.sender == address(frameToken) && _token == address(frameToken));
-        require(convertRoyaltyToken(_from, _amount));
+        require(_convertRoyaltyToken(_from, _amount));
     }
 
 
