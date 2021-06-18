@@ -79,11 +79,42 @@ contract RoyaltyTokenConverter is Operated {
         return _canConvert(_account, _amount);
     }
 
-    function convertRoyaltyToken( address _account, uint256 _amount)
-        public returns (bool success)
-    {
 
+    /// @notice Batch call to convert to royalty tokens
+    /// @param revertOnFail if set to true, reverts in the first case of unsuccessul conversion
+
+    // AG: This might not be needed now that I think about it. Dont test this yet 
+    function batchConvertRoyaltyToken(address[] calldata _accounts, uint256[] calldata _amounts, bool revertOnFail)
+        public returns (bool[] memory successes)
+    {   
+        require(msg.sender == owner);
+        require(_accounts.length == _amounts.length, "RoyaltyTokenConverter: Number of Accounts and Amounts different");
+        successes = new bool[](_accounts.length);
+        for (uint i = 0; i < _accounts.length; i++){
+            bool success;
+            if(_accounts[i]!=address(0) && WhiteListInterface(address(royaltyToken)).isInWhiteList(_accounts[i])){
+                success = _convertRoyaltyToken(_accounts[i], _amounts[i]);
+                require(success || !revertOnFail, "RoyaltyTokenConverter: Batch conversion failed");
+            }
+            successes[i] = success;
+        }
+
+    }
+    
+    /// @dev should only be msg.sender
+    function convertRoyaltyToken( uint256 _amount)
+        public returns (bool success)
+
+    {   
+        success = _convertRoyaltyToken(msg.sender,_amount);
+        return success;
+    }
+
+    function _convertRoyaltyToken( address _account, uint256 _amount)
+        internal returns (bool success)
+    {
         require( isConvertable );
+        require(_canConvert(_account,_amount));
         require(frameToken.transferFrom(_account, address(0), _amount));
         require(royaltyToken.mint(_account, _amount, false));
         emit ConvertedRoyaltyToken(_account, _amount);
@@ -94,7 +125,7 @@ contract RoyaltyTokenConverter is Operated {
         public
     {
         require(msg.sender == address(frameToken) && _token == address(frameToken));
-        require(convertRoyaltyToken(_from, _amount));
+        require(_convertRoyaltyToken(_from, _amount));
     }
 
 
@@ -118,8 +149,7 @@ contract RoyaltyTokenConverter is Operated {
             return false;
         }
         // Check whitelist
-        WhiteListInterface whitelist = WhiteListInterface(address(royaltyToken));
-        if ( whitelist.isInWhiteList(_account) ) {
+        if ( WhiteListInterface(address(royaltyToken)).isInWhiteList(_account) ) {
             return true;
         }
         return false;

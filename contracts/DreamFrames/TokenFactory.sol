@@ -29,6 +29,37 @@ contract TokenFactory is  Owned, CloneFactory {
     address public frameTokenTemplate;
     address public royaltyTokenTemplate;
     address public whiteListTemplate;
+    
+
+    // Frame Tokens Templates:
+    uint256 public frameTokenTemplateId;
+
+    mapping(uint256 => address) private frameTokenTemplates;
+    mapping(address => uint256) private frameTokenTemplateToId;
+    
+    struct FrameToken{
+        bool exists;
+        uint256 templateId;
+        uint256 index;
+    }
+
+    mapping(address => FrameToken) public frameTokenInfo;
+    address[] public frameTokens;
+
+    // Royalty Token Templates
+    uint256 public royaltyTokenTemplateId;
+
+    mapping(uint256 => address) private royaltyTokenTemplates;
+    mapping(address => uint256) private royaltyTokenTemplateToId;
+    
+    struct RoyaltyToken{
+        bool exists;
+        uint256 templateId;
+        uint256 index;
+    }
+
+    mapping(address => RoyaltyToken) royaltyTokenInfo;
+    address[] public royaltyTokens;
 
     address public newAddress;
     uint256 public minimumFee = 0;
@@ -39,10 +70,11 @@ contract TokenFactory is  Owned, CloneFactory {
     event FrameTokenDeployed(address indexed owner, address indexed addr, address frameToken, uint256 fee);
     event RoyaltyTokenDeployed(address indexed owner, address indexed addr, address royaltyToken, uint256 fee);
     event WhiteListDeployed(address indexed operator, address indexed addr, address whiteList, address owner);
+    event FrameTokenTemplatedAdded(address newFarmTokenTemplate, uint256 frameTokenTemplateId);
 
     event FactoryDeprecated(address _newAddress);
     event MinimumFeeUpdated(uint oldFee, uint newFee);
-
+    event FrameTokenTemplateRemoved(address template, uint256 templateId);
 
     constructor(
         address _frameTokenTemplate,
@@ -79,6 +111,51 @@ contract TokenFactory is  Owned, CloneFactory {
     // Token Deployments
     // ----------------------------------------------------------------------------
 
+ 
+    function deployFrameTokenTemplate(
+        uint256 _templateId,
+        address _owner,
+        string memory _symbol,
+        string memory _name,
+        uint _initialSupply,
+        bool _mintable,
+        bool _transferable
+    )public payable returns (address frameToken){
+        require(msg.value >= minimumFee);
+
+        require(frameTokenTemplates[_templateId] != address(0));
+        frameToken = createClone(frameTokenTemplates[_templateId]);
+
+        frameTokenInfo[address(frameToken)] = FrameToken(true, _templateId, frameTokens.length);
+        frameTokens.push(address(frameToken));
+        FrameTokenInterface(frameToken).init(_owner, _symbol, _name, decimals, _initialSupply, _mintable, _transferable);
+        
+        emit FrameTokenDeployed(msg.sender, address(frameToken), frameTokenTemplate, msg.value);
+        if (msg.value > 0) {
+            owner.transfer(msg.value);
+        }
+    }
+    
+    function addFrameTokenTemplate(address _template) external{
+        require(msg.sender == owner);
+        require(frameTokenTemplateToId[_template] == 0, 'TokenFactory: Template already added');
+        frameTokenTemplateId++;
+        frameTokenTemplates[frameTokenTemplateId] = _template;
+        frameTokenTemplateToId[_template] = frameTokenTemplateId;
+        emit FrameTokenTemplatedAdded(_template, frameTokenTemplateId);
+    }
+
+    function removeFrameTokenTemplate(uint256 _templateId) external{
+        require(msg.sender == owner);
+        require(frameTokenTemplates[_templateId] != address(0));
+        address template = frameTokenTemplates[_templateId];
+        frameTokenTemplates[_templateId] = address(0);
+        delete frameTokenTemplateToId[template];
+        emit FrameTokenTemplateRemoved(template, _templateId);
+    }
+
+   
+
     function deployFrameToken(
         address _owner,
         string memory _symbol,
@@ -99,7 +176,9 @@ contract TokenFactory is  Owned, CloneFactory {
             owner.transfer(msg.value);
         }
     }
+    /* function deployRoyaltyTokenTemplate(){
 
+    } */
     function deployRoyaltyToken(
         address _owner,
         string memory _symbol,

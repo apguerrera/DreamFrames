@@ -19,7 +19,7 @@ def test_init_token_converter(token_converter):
 def test_token_conversion(token_converter, white_list, frame_token, royalty_token):
     white_list.add([accounts[0]],{'from': accounts[0]})
     frame_token.approve(token_converter,'15 ethers',{'from': accounts[0]})
-    token_converter.convertRoyaltyToken(accounts[0], '15 ethers', {'from': accounts[0]})
+    token_converter.convertRoyaltyToken('15 ethers', {'from': accounts[0]})
     assert frame_token.balanceOf(accounts[0]) == '985 ether'
     assert royalty_token.balanceOf(accounts[0]) == '515 ether'
 

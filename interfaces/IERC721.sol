@@ -16,7 +16,7 @@ interface IERC721 is ERC165 {
      * @dev Returns the owner of the NFT specified by `tokenId`.
      */
     function ownerOf(uint256 tokenId) external view returns (address owner);
-
+    function exists(uint256 _tokenId) external view returns (bool _exists);
     /**
      * @dev Transfers a specific NFT (`tokenId`) from one account (`from`) to
      * another (`to`).
@@ -45,6 +45,7 @@ interface IERC721 is ERC165 {
     function setApprovalForAll(address operator, bool _approved) external;
     function isApprovedForAll(address owner, address operator) external view returns (bool);
 
+    function mint(address _to, uint256 _tokenId) external returns (uint256 newTokenId);
 
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) external;
 }
