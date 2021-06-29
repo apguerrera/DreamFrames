@@ -201,7 +201,14 @@ contract DreamFramesCollectable is SupportsInterfaceWithLookup, ERC721BasicToken
 
 //SSS: Add more to mint
   function mint(address _to, uint256 _tokenId) public  returns (uint256){
+    require(_to != address(0), "You can not mint to an empty address");
     _mint(_to, _tokenId);
-
+    return _tokenId;
   }
+
+  function setTokenURI(uint256 _tokenId, string memory _tokenURI) public {
+    require(isApprovedOrOwner(msg.sender, _tokenId), "Dream Frames Collectable: Not owner of the token");
+    _setTokenURI(_tokenId, _tokenURI);
+  }
+
 }
