@@ -107,7 +107,6 @@ contract RoyaltyTokenConverter is Operated {
 
     {   
         success = _convertRoyaltyToken(msg.sender,_amount);
-        return success;
     }
 
     function _convertRoyaltyToken( address _account, uint256 _amount)

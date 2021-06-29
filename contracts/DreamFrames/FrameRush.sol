@@ -33,7 +33,6 @@ contract FrameRush is Operated {
     BTTSTokenInterface public frameToken;
     IERC721 public collectableToken;
     bool public isClaimable;
-    address public tokenOwner;
     uint256 public lockTime;
 
     /// @dev this is the number of tokens per collectable
@@ -46,12 +45,10 @@ contract FrameRush is Operated {
 
     event ConvertedRoyaltyToken(address account, uint256 amount);
     event ClaimedCollectableToken(address account, uint256 tokenId);
-    event SetTokenOwnerUpdated(address account, address tokenOwner);
 
     function initFrameRush(
         address _frameToken,
         address _collectableToken,
-        address _tokenOwner,
         bool _isClaimable,
         uint256 _lockPeriod
     )
@@ -60,7 +57,6 @@ contract FrameRush is Operated {
         initOperated(msg.sender);
         frameToken = BTTSTokenInterface(_frameToken);
         collectableToken = IERC721(_collectableToken);
-        tokenOwner = _tokenOwner;
         isClaimable = _isClaimable;
         lockTime = block.timestamp + _lockPeriod;
         frameRate = 25 * 1e18;
@@ -92,11 +88,7 @@ contract FrameRush is Operated {
         frameRate = _frameRate;
         emit SetFrameRate(msg.sender, _frameRate);
     }
-    function setTokenOwner(address _tokenOwner) public {
-        require(msg.sender == owner);
-        tokenOwner = _tokenOwner;
-        emit SetTokenOwnerUpdated(msg.sender, _tokenOwner);
-    }
+    
 
     // ----------------------------------------------------------------------------
     // Claim Frame Collectable
@@ -110,9 +102,9 @@ contract FrameRush is Operated {
 
     function claimCollectableToken(address _account, uint256 _tokenId) public returns (bool success){
         
-        require(!collectableToken.exists(_tokenId), "CollectableToken: tokenId already exists");
+        require(isTokenIdAvailable(_tokenId), "CollectableToken: tokenId already exists");
     
-        _claimCollectableToken(_account, _tokenId);
+        success = _claimCollectableToken(_account, _tokenId);
     }
     // ----------------------------------------------------------------------------
     // Internals
@@ -122,13 +114,11 @@ contract FrameRush is Operated {
         internal returns (bool success)
     {
         require( isClaimable );
-        require(_canClaim(_account, _tokenId));
-                
+        require(_canClaim(_account, _tokenId), "Frame Rush: Token cannot be claimed");
         require(frameToken.transferFrom(_account, address(0), frameRate));
         collectableToken.mint(_account, _tokenId);
         emit ClaimedCollectableToken(_account, _tokenId);
         success = true;
-
     }
 
   
@@ -136,11 +126,8 @@ contract FrameRush is Operated {
     function _canClaim(address _account, uint256 _tokenId )
         internal view returns (bool success)
     {
-        require(_tokenId != 0);
-        require(_account != address(0)); 
-
         // Check inputs
-        if (  _account == address(0)) {
+        if (  _account == address(0) || _tokenId == 0) {
             return false;
         }
         // Check token balances
@@ -151,7 +138,6 @@ contract FrameRush is Operated {
         if ( !isClaimable || !frameToken.transferable() /*|| !collectableToken.mintable()*/ ) {
             return false;
         }
-
         //Check NFT
         if ( block.timestamp < lockTime){
             return false;

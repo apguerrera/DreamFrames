@@ -125,4 +125,3 @@ def test_btts_disableMinting(royalty_token, WhiteList):
 
     assert royalty_token.balanceOf(accounts[3]) == '5 ether'
 
-

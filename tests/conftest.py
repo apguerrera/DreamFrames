@@ -135,8 +135,7 @@ def frame_rush(FrameRush, frame_token, collectable_token):
 
     _isClaimable = True
     _lockPeriod = 0
-    _owner = accounts[0]
-    frame_rush.initFrameRush(frame_token, collectable_token, _owner,_isClaimable, _lockPeriod, {"from": accounts[0]})
+    frame_rush.initFrameRush(frame_token, collectable_token,_isClaimable, _lockPeriod, {"from": accounts[0]})
     return frame_rush
 
 @pytest.fixture(scope = 'module', autouse=True)

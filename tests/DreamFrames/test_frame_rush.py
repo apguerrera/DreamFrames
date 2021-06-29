@@ -48,3 +48,30 @@ def test_is_token_available(frame_rush,collectable_token, frame_token):
     frame_rush, frame_token =  _claimCollectableToken(frame_rush, frame_token,tokenId,_account)
 
     assert frame_rush.isTokenIdAvailable(2) == False
+
+def test_is_token_minted(frame_rush,collectable_token, frame_token):
+    _account = accounts[3]
+    
+   # _tokenId = _mint_collectable_token(collectable_token,frame_rush)
+    tokenId = 1
+    frame_rush, frame_token =  _claimCollectableToken(frame_rush, frame_token,tokenId,_account)
+
+    tokenId = 2
+    frame_rush, frame_token =  _claimCollectableToken(frame_rush, frame_token,tokenId,_account)
+
+    assert collectable_token.ownerOf(tokenId) == accounts[3]
+
+def test_should_not_be_claimable(frame_rush,collectable_token, frame_token):
+    _account = ZERO_ADDRESS
+    tokenId = 1
+
+    _account = _account
+    frame_token.approve(accounts[5], 100 * TENPOW18, {'from': accounts[0]})
+
+    frame_token.transferFrom(accounts[0], accounts[3], 100 * TENPOW18, {'from':accounts[5]})
+    frame_token.approve(_account, 100 * TENPOW18, {'from': accounts[0]})
+    frame_token.approve(frame_rush, 100 * TENPOW18, {'from': accounts[0]})
+    with reverts("Frame Rush: Token cannot be claimed"):
+        frame_rush.claimCollectableToken(_account,tokenId, {"from": accounts[0]})
+
+    
