@@ -198,7 +198,8 @@ contract DreamFramesCollectable is SupportsInterfaceWithLookup, ERC721BasicToken
     allTokensIndex[_tokenId] = 0;
     allTokensIndex[lastToken] = tokenIndex;
   }
-
+  
+// Do we make another contract?
 //SSS: Add more to mint
   function mint(address _to, uint256 _tokenId) public  returns (uint256){
     require(_to != address(0), "You can not mint to an empty address");
@@ -211,4 +212,16 @@ contract DreamFramesCollectable is SupportsInterfaceWithLookup, ERC721BasicToken
     _setTokenURI(_tokenId, _tokenURI);
   }
 
+  function getOwnedTokens(address _owner) public view returns(uint256[] memory) {
+    require(_owner != address(0));
+    return ownedTokens[_owner];
+  }
+
+  function getOwnedTokenIndex(uint256 _index) public view returns(uint256){
+    return(ownedTokensIndex[_index]);
+  }
+
+  function getAllTokensIndex(uint256 _index) public view returns(uint256) {
+    return(allTokensIndex[_index]);
+  }
 }
