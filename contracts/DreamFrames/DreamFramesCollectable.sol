@@ -44,6 +44,7 @@ contract DreamFramesCollectable is SupportsInterfaceWithLookup, ERC721BasicToken
     // register the supported interfaces to conform to ERC721 via ERC165
     _registerInterface(InterfaceId_ERC721Enumerable);
     _registerInterface(InterfaceId_ERC721Metadata);
+    _registerInterface(InterfaceId_ERC721);
   }
 
   /**
