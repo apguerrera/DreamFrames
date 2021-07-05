@@ -218,11 +218,13 @@ contract DreamFramesCollectable is SupportsInterfaceWithLookup, ERC721BasicToken
     return ownedTokens[_owner];
   }
 
-  function getOwnedTokenIndex(uint256 _index) public view returns(uint256){
+  function getOwnedTokenIndex(uint256 _index, address _owner) public view returns(uint256){
+    require(getOwnedTokens(_owner).length < _index, "Owner does not have this index");
     return(ownedTokensIndex[_index]);
   }
 
   function getAllTokensIndex(uint256 _index) public view returns(uint256) {
+    require(_index < totalSupply());
     return(allTokensIndex[_index]);
   }
 }
