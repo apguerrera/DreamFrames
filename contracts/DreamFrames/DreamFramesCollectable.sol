@@ -203,28 +203,22 @@ contract DreamFramesCollectable is SupportsInterfaceWithLookup, ERC721BasicToken
 // Do we make another contract?
 //SSS: Add more to mint
   function mint(address _to, uint256 _tokenId) public  returns (uint256){
-    require(_to != address(0), "You can not mint to an empty address");
+    require(!exists(_tokenId),"DreamFramesCollectable: Sorry token id already exists");
     _mint(_to, _tokenId);
     return _tokenId;
   }
 
   function setTokenURI(uint256 _tokenId, string memory _tokenURI) public {
-    require(isApprovedOrOwner(msg.sender, _tokenId), "Dream Frames Collectable: Not owner of the token");
+    require(isApprovedOrOwner(msg.sender, _tokenId), "DreamFramesCollectable: Not owner of the token");
     _setTokenURI(_tokenId, _tokenURI);
   }
 
   function getOwnedTokens(address _owner) public view returns(uint256[] memory) {
-    require(_owner != address(0));
+    require(_owner != address(0), "DreamFramesCollectable: Owner is zero address");
     return ownedTokens[_owner];
   }
 
-  function getOwnedTokenIndex(uint256 _index, address _owner) public view returns(uint256){
-    require(getOwnedTokens(_owner).length < _index, "Owner does not have this index");
-    return(ownedTokensIndex[_index]);
-  }
-
-  function getAllTokensIndex(uint256 _index) public view returns(uint256) {
-    require(_index < totalSupply());
-    return(allTokensIndex[_index]);
+  function getAllTokensIndex(uint256 _tokenId) public view returns(uint256) {
+    return(allTokensIndex[_tokenId]);
   }
 }
