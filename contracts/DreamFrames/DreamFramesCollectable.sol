@@ -203,7 +203,6 @@ contract DreamFramesCollectable is SupportsInterfaceWithLookup, ERC721BasicToken
 // Do we make another contract?
 //SSS: Add more to mint
   function mint(address _to, uint256 _tokenId) public  returns (uint256){
-    require(!exists(_tokenId),"DreamFramesCollectable: Sorry token id already exists");
     _mint(_to, _tokenId);
     return _tokenId;
   }
