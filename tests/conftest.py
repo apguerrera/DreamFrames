@@ -134,7 +134,7 @@ def frame_rush(FrameRush, frame_token, collectable_token):
     frame_rush = FrameRush.deploy({"from": accounts[3]})
 
     _isClaimable = True
-    _lockPeriod = 0
+    _lockPeriod = NFT_LOCK_TIME
     frame_rush.initFrameRush(frame_token, collectable_token,_isClaimable, _lockPeriod, {"from": accounts[0]})
     return frame_rush
 

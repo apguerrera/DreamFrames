@@ -42,7 +42,7 @@ contract FrameRush is Operated {
     event CollectableTokenUpdated(address operator, address collectableToken);
     event SetIsClaimable(address operator, bool isClaimable);
     event SetFrameRate(address operator, uint256 frameRate);
-
+    event LockTimeUpdated(address operator, uint256 lockTime);
     event ConvertedRoyaltyToken(address account, uint256 amount);
     event ClaimedCollectableToken(address account, uint256 tokenId);
 
@@ -88,7 +88,11 @@ contract FrameRush is Operated {
         frameRate = _frameRate;
         emit SetFrameRate(msg.sender, _frameRate);
     }
-    
+    function setLockTime(uint256 _lockPeriod) public  {
+        require(msg.sender == owner);
+        lockTime = block.timestamp + _lockPeriod;
+        emit LockTimeUpdated(msg.sender, lockTime);
+    }
 
     // ----------------------------------------------------------------------------
     // Claim Frame Collectable
@@ -112,7 +116,7 @@ contract FrameRush is Operated {
     
     function _claimCollectableToken(address _account, uint256 _tokenId )
         internal returns (bool success)
-    {
+    {   
         require( isClaimable );
         require(_canClaim(_account, _tokenId), "Frame Rush: Token cannot be claimed");
         require(frameToken.transferFrom(_account, address(0), frameRate));
@@ -139,7 +143,7 @@ contract FrameRush is Operated {
             return false;
         }
         //Check NFT
-        if ( block.timestamp < lockTime){
+        if ( block.timestamp < lockTime ){
             return false;
         }
 
@@ -148,6 +152,14 @@ contract FrameRush is Operated {
 
     function isTokenIdAvailable(uint256 _tokenId) public view returns  (bool isAvailable){
         isAvailable = !collectableToken.exists(_tokenId);
+    }
+
+
+    function getClosestTokenIdAvailable(uint256 _tokenId) public view returns (uint256 tokenId){
+        tokenId = _tokenId;
+        while (!isTokenIdAvailable(tokenId)){
+            tokenId++;
+        }
     }
 }
 

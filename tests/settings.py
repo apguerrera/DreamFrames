@@ -33,6 +33,9 @@ CROWDSALE_DAYS = 7
 START_DATE = int(time.time())
 END_DATE = START_DATE + 60 * 60 * 24 * CROWDSALE_DAYS
 
+# Frame Rush
+NFT_LOCK_TIME = 24 * 60 * 60
+
 
 ###################################
 #Staking
