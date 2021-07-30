@@ -107,7 +107,7 @@ contract FrameRush is Operated {
     function claimCollectableToken(address _account, uint256 _tokenId) public returns (bool success){
         
         require(isTokenIdAvailable(_tokenId), "CollectableToken: tokenId already exists");
-    
+        
         success = _claimCollectableToken(_account, _tokenId);
     }
     // ----------------------------------------------------------------------------
@@ -154,12 +154,9 @@ contract FrameRush is Operated {
         isAvailable = !collectableToken.exists(_tokenId);
     }
 
-
     function getClosestTokenIdAvailable(uint256 _tokenId) public view returns (uint256 tokenId){
-        tokenId = _tokenId;
-        while (!isTokenIdAvailable(tokenId)){
-            tokenId++;
-        }
+        tokenId = collectableToken.getClosestTokenIdAvailable(_tokenId);
     }
+
 }
 
