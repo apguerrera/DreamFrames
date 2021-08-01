@@ -3,7 +3,8 @@ pragma solidity ^0.6.12;
 import "../../interfaces/ERC721.sol";
 import "../Shared/ERC721BasicToken.sol";
 import "../Shared/SupportsInterfaceWithLookup.sol";
-
+import "../Utils/MyERC721Metadata.sol";
+import "../Shared/Owned.sol";
 // AG: Make sure this is a good ERC721 template to use
 
 /**
@@ -12,7 +13,7 @@ import "../Shared/SupportsInterfaceWithLookup.sol";
  * Moreover, it includes approve all functionality using operator terminology
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
-contract DreamFramesCollectable is SupportsInterfaceWithLookup, ERC721BasicToken, ERC721 {
+contract DreamFramesCollectable is SupportsInterfaceWithLookup, ERC721BasicToken, ERC721, Owned {
   // Token name
   string internal name_;
 
@@ -33,7 +34,7 @@ contract DreamFramesCollectable is SupportsInterfaceWithLookup, ERC721BasicToken
 
   // Optional mapping for token URIs
   mapping(uint256 => string) internal tokenURIs;
-
+  string public baseURI = "https://dreamchannel.io/alpha/index.html?tokenId=";
   /**
    * @dev Constructor function
    */
@@ -44,7 +45,6 @@ contract DreamFramesCollectable is SupportsInterfaceWithLookup, ERC721BasicToken
     // register the supported interfaces to conform to ERC721 via ERC165
     _registerInterface(InterfaceId_ERC721Enumerable);
     _registerInterface(InterfaceId_ERC721Metadata);
-    _registerInterface(InterfaceId_ERC721);
   }
 
   /**
@@ -53,7 +53,7 @@ contract DreamFramesCollectable is SupportsInterfaceWithLookup, ERC721BasicToken
    */
   function name() external view override returns (string memory) {
     return name_;
-  }
+  } 
 
   /**
    * @dev Gets the token symbol
@@ -63,14 +63,57 @@ contract DreamFramesCollectable is SupportsInterfaceWithLookup, ERC721BasicToken
     return symbol_;
   }
 
-  /**
+
+  function setBaseURI(string memory uri) public  onlyOwner  {
+        baseURI = uri;
+    }
+
+   function uintToBytes(uint256 num) internal pure returns (bytes memory b) {
+        if (num == 0) {
+            b = new bytes(1);
+            b[0] = byte(uint8(48));
+        } else {
+            uint256 j = num;
+            uint256 length;
+            while (j != 0) {
+                length++;
+                j /= 10;
+            }
+            b = new bytes(length);
+            uint k = length - 1;
+            while (num != 0) {
+                b[k--] = byte(uint8(48 + num % 10));
+                num /= 10;
+            }
+        }
+    }
+
+    /**
    * @dev Returns an URI for a given token ID
    * Throws if the token ID does not exist. May return an empty string.
-   * @param _tokenId uint256 ID of the token to query
+   * @param tokenId uint256 ID of the token to query
    */
-  function tokenURI(uint256 _tokenId) public view override returns (string memory) {
-    require(exists(_tokenId));
-    return tokenURIs[_tokenId];
+
+  function tokenURI(uint256 tokenId) public view override returns (string memory) {
+    require(exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
+        string memory url = tokenURIs[tokenId];
+        bytes memory urlAsBytes = bytes(url);
+        if (urlAsBytes.length == 0) {
+            bytes memory baseURIAsBytes = bytes(baseURI);
+            bytes memory tokenIdAsBytes = uintToBytes(tokenId);
+            bytes memory b = new bytes(baseURIAsBytes.length + tokenIdAsBytes.length);
+            uint256 i;
+            uint256 j;
+            for (i = 0; i < baseURIAsBytes.length; i++) {
+                b[j++] = baseURIAsBytes[i];
+            }
+            for (i = 0; i < tokenIdAsBytes.length; i++) {
+                b[j++] = tokenIdAsBytes[i];
+            }
+            return string(b);
+        } else {
+            return tokenURIs[tokenId];
+        }
   }
 
   /**
@@ -203,6 +246,9 @@ contract DreamFramesCollectable is SupportsInterfaceWithLookup, ERC721BasicToken
 // Do we make another contract?
 //SSS: Add more to mint
   function mint(address _to, uint256 _tokenId) public  returns (uint256){
+
+    //Add closest token avaialbe?
+    
     _mint(_to, _tokenId);
     return _tokenId;
   }

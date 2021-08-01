@@ -34,8 +34,18 @@ def test_frame_rush_claim(frame_rush,collectable_token, frame_token):
     tokenId = 2
     frame_rush, frame_token =  _claimCollectableToken(frame_rush, frame_token,tokenId,_account)
     
+def test_frame_rush_check_token_uri(frame_rush,collectable_token, frame_token):
 
+    token_base_uri = "https://dreamchannel.io/alpha/index.html?tokenId="
+    _account = accounts[3]
+   # _tokenId = _mint_collectable_token(collectable_token,frame_rush)
+    tokenId = 1
+    frame_rush, frame_token =  _claimCollectableToken(frame_rush, frame_token,tokenId,_account)
 
+    tokenId = 2
+    frame_rush, frame_token =  _claimCollectableToken(frame_rush, frame_token,tokenId,_account)
+
+    collectable_token.tokenURI(1) == token_base_uri + "1"
 def test_frame_rush_claim_balance_check(frame_rush,collectable_token, frame_token):
     chain.sleep(NFT_LOCK_TIME + 100)
     _account = accounts[3]
