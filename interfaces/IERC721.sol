@@ -17,7 +17,6 @@ interface IERC721 is ERC165 {
      */
     function ownerOf(uint256 tokenId) external view returns (address owner);
     function exists(uint256 _tokenId) external view returns (bool _exists);
-    function getClosestTokenIdAvailable(uint256 _tokenId) external view returns (uint256 tokenId);
     /**
      * @dev Transfers a specific NFT (`tokenId`) from one account (`from`) to
      * another (`to`).

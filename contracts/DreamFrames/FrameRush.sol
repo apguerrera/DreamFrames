@@ -154,9 +154,9 @@ contract FrameRush is Operated {
         isAvailable = !collectableToken.exists(_tokenId);
     }
 
-    function getClosestTokenIdAvailable(uint256 _tokenId) public view returns (uint256 tokenId){
+    /* function getClosestTokenIdAvailable(uint256 _tokenId) public view returns (uint256 tokenId){
         tokenId = collectableToken.getClosestTokenIdAvailable(_tokenId);
-    }
+    } */
 
 }
 

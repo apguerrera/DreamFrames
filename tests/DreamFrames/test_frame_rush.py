@@ -108,20 +108,6 @@ def test_should_not_be_claimable_ZERO_ADDRESS(frame_rush,collectable_token, fram
     with reverts("Frame Rush: Token cannot be claimed"):
         frame_rush.claimCollectableToken(_account,tokenId, {"from": accounts[0]})
 
-    
-def test_get_closest_token_id(frame_rush, frame_token):
-    _account = accounts[3]
-    
-   # _tokenId = _mint_collectable_token(collectable_token,frame_rush)
-    tokenId = 1
-    frame_rush, frame_token =  _claimCollectableToken(frame_rush, frame_token,tokenId,_account)
-
-    tokenId = 2
-    frame_rush, frame_token =  _claimCollectableToken(frame_rush, frame_token,tokenId,_account)
-
-    assert frame_rush.isTokenIdAvailable(2) == False
-
-    assert 3 == frame_rush.getClosestTokenIdAvailable(tokenId)
 
 def test_should_not_be_claimable_LOCK_PERIOD(frame_rush, frame_token):
     _account = accounts[3]

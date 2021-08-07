@@ -267,10 +267,10 @@ contract DreamFramesCollectable is SupportsInterfaceWithLookup, ERC721BasicToken
     return(allTokensIndex[_tokenId]);
   }
 
-  function getClosestTokenIdAvailable(uint256 _tokenId) public view returns (uint256 tokenId){
+  /* function getClosestTokenIdAvailable(uint256 _tokenId) public view returns (uint256 tokenId){
         tokenId = _tokenId;
         while (exists(tokenId)){
             tokenId++;
         }
-  }
+  } */
 }
